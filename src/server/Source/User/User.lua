@@ -18,6 +18,8 @@ function User.new(player: Player)
   
   self.Player = player
 
+  self.EquippedTool = nil
+
   self.Janitor = janitor.new()
   self.Signals = {
     Destroying = self.Janitor:Add(signal.new())

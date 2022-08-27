@@ -84,9 +84,10 @@ end
 function Node:Damage(tool)
   --Damage a node with a tool
   if not self.Spawned then return end
+  if self.NodeData.RequiredToolType ~= tool.ToolType then return end --Not the correct tool for the node.
 
   local dmg = tool.Strenght / self.NodeData.Resistance * tool.Damage:GetRandomNumber()
-  
+
   self:TakeDamage(dmg)
   
   --Damage effect on node

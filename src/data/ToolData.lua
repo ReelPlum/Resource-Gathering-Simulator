@@ -14,7 +14,8 @@ local ToolData = {
     DisplayName = "Test Tool",
     Strength = 100,
     Damage = RandomRange.new(30, 50),
-    Model = nil,
+    ToolType = Enums.ToolTypes.Pickaxe,
+    Tool = nil,
     Animations = nil,
   }
 }

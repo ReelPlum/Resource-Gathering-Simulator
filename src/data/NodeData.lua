@@ -24,6 +24,7 @@ local NodeData = {
       [25] = RandomRange.new(5, 10),
     },
     DropAmountOnDestruction = RandomRange.new(10, 20),
+    RequiredToolType = Enums.ToolTypes.Pickaxe,
     Model = nil,
     Effects = nil,
   }

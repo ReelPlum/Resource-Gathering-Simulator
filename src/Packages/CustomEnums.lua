@@ -16,7 +16,15 @@ local CustomEnums = {
   },
   ["Tools"] = {
     ["TestTool"] = 1,
-  }
+  },
+  ["ToolTypes"] = {
+    ["Pickaxe"] = 1,
+  },
+  ["ToolStates"] = {
+    ["Equipped"] = 1,
+    ["Stowed"] = 2,
+    ["Mining"] = 3,
+  },
 }
 
 

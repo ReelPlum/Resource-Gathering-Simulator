@@ -12,7 +12,10 @@ local janitor = require(ReplicatedStorage.Packages.Janitor)
 
 local ToolService = knit.CreateService({
   Name = 'ToolService', 
-  Client = {},
+  Client = {
+    ToolCreated = knit.CreateSignal(),
+    StateChanged = knit.CreateSignal()
+  },
   Signals = {
   }
 })

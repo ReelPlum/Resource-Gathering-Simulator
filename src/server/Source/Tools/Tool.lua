@@ -58,8 +58,15 @@ function Tool:Load()
     self.LastMine = tick()
 
     --Damage the target
-    self.CurrentTarget:Damage(self.ToolData)
+    self.CurrentTarget:Damage(self.User, self)
   end))
+end
+
+function Tool:GetEnchantsMultipliers()
+  return {
+    Damage = 1,
+    Drops = 1,
+  }
 end
 
 function Tool:Equip()

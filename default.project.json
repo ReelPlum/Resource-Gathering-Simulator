@@ -5,11 +5,13 @@
     "ReplicatedStorage": {
       "$ignoreUnknownInstances": true,
       "Data": {
-        "$ignoreUnknownInstances": true,
-        "$path": "src/data"
+        "$path": "src/shared/data"
       },
       "Packages": {
-        "$path": "src/packages"
+        "$path": "packages"
+      },
+      "Common": {
+        "$path": "src/shared/common"
       }
     },
     "ServerScriptService": {

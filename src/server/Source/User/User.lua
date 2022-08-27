@@ -4,7 +4,7 @@ User
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
@@ -14,24 +14,24 @@ local User = {}
 User.__index = User
 
 function User.new(player: Player)
-  local self = setmetatable({}, User)
-  
-  self.Player = player
+	local self = setmetatable({}, User)
 
-  self.EquippedTool = nil
+	self.Player = player
 
-  self.Janitor = janitor.new()
-  self.Signals = {
-    Destroying = self.Janitor:Add(signal.new())
-  }
-  
-  return self
+	self.EquippedTool = nil
+
+	self.Janitor = janitor.new()
+	self.Signals = {
+		Destroying = self.Janitor:Add(signal.new()),
+	}
+
+	return self
 end
 
 function User:Destroy()
-  self.Signals.Destroying:Fire()
-  self.Janitor:Destroy()
-  self = nil
+	self.Signals.Destroying:Fire()
+	self.Janitor:Destroy()
+	self = nil
 end
 
 return User

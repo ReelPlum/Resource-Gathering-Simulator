@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
-local Enums = require(ReplicatedStorage.Packages.CustomEnums)
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local nodeData = require(ReplicatedStorage.Data.NodeData)
 

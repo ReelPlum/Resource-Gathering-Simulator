@@ -12,7 +12,7 @@ local RunService = game:GetService("RunService")
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
-local Enums = require(ReplicatedStorage.Packages.CustomEnums)
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local toolData = require(ReplicatedStorage.Data.ToolData)
 local stateCompatability = require(script.StateCompatability)

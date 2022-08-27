@@ -29,6 +29,6 @@ end
 Knit.Start():andThen(function()
   local t = tick() - start
 
-	print("Server started")
-  print("Server initialization took "..t.." second(s)!")
+	print("Server started ✅")
+  print(string.format("🌟 Server initialization took %.2f second(s)! 🌟", t))
 end):catch(warn)

@@ -14,6 +14,9 @@ local CustomEnums = {
   ["NodeRarities"] = {
     ["Normal"] = 1,
   },
+  ["Tools"] = {
+    ["TestTool"] = 1,
+  }
 }
 
 

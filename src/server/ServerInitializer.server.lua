@@ -30,5 +30,5 @@ Knit.Start():andThen(function()
   local t = tick() - start
 
 	print("Server started")
-  print("Server initialization took {t} second(s)!")
+  print("Server initialization took "..t.." second(s)!")
 end):catch(warn)

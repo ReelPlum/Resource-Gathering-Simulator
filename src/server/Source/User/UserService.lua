@@ -16,7 +16,8 @@ local UserService = knit.CreateService({
   Name = 'UserService', 
   Client = {},
   Signals = {
-    UserAdded = signal.new()
+    UserAdded = signal.new(),
+    UserRemoving = signal.new()
   }
 })
 

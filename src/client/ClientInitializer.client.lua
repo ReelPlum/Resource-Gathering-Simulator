@@ -31,5 +31,5 @@ Knit.Start():andThen(function()
   local t = tick() - start
 
 	print("Client started ✅")
-  print("Client initialization took {t} second(s)!")
+  print("Client initialization took "..t.." second(s)!")
 end):catch(warn)

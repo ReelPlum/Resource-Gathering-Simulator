@@ -26,7 +26,13 @@ local NodeService = knit.CreateService({
 })
 
 function NodeService:KnitStart()
-  
+  function NodeService:NodeDestroyed(node)
+    
+  end
+
+  function NodeService:DropResources(node, amount)
+    
+  end
 end
 
 function NodeService:KnitInit()

@@ -65,11 +65,12 @@ end
 
 function Tool:GetEnchantsMultipliers()
   --Return the enchants on the tool. Check inventory data for the tool's enchants.
-
-  return {
-    Damage = 1,
-    Drops = 1,
+  local Boosts = {
+    [Enums.BoostTypes.Damage] = 1,
+    [Enums.BoostTypes.Drops] = 1,
   }
+
+  return Boosts
 end
 
 function Tool:Equip()

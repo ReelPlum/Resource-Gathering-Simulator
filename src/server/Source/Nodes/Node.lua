@@ -84,7 +84,7 @@ function Node:DropResources(amount, health)
 
 		local enchants = tool:GetEnchantsMultipliers()
 
-		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1) * enchants.Drops
+		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1) * enchants[Enums.BoostTypes.Drops]
 
 		DropsService:DropResourceAtNode(user, self.NodeData.Drops, dropAmount, self.Id)
 	end
@@ -153,7 +153,7 @@ function Node:Damage(user, tool)
 	local dmg = tool.Strenght
 		/ self.NodeData.Resistance
 		* tool.ToolData.Damage:GetRandomNumber()
-		* enchantsMultipliers.Damage
+		* enchantsMultipliers[Enums.BoostTypes.Damage]
 
 	self:TakeDamage(dmg, user)
 

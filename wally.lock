@@ -15,11 +15,26 @@ dependencies = []
 [[package]]
 name = "frede/resource-gathering-simulator"
 version = "0.1.0"
-dependencies = [["Cmdr", "evaera/cmdr@1.9.0"], ["Janitor", "howmanysmall/janitor@1.14.1"], ["Knit", "sleitnick/knit@1.4.7"], ["Signal", "sleitnick/signal@1.2.1"]]
+dependencies = [["Cmdr", "evaera/cmdr@1.9.0"], ["Janitor", "howmanysmall/janitor@1.14.1"], ["Knit", "sleitnick/knit@1.4.7"], ["ProfileService", "surnautica/profileservice@1.0.0"], ["Promise", "evaera/promise@4.0.0"], ["Roact", "roblox/roact@1.4.4"], ["Roact-Rodux", "roblox/roact-rodux@0.3.0"], ["Rodux", "roblox/rodux@3.0.0"], ["Signal", "sleitnick/signal@1.2.1"]]
 
 [[package]]
 name = "howmanysmall/janitor"
 version = "1.14.1"
+dependencies = []
+
+[[package]]
+name = "roblox/roact"
+version = "1.4.4"
+dependencies = []
+
+[[package]]
+name = "roblox/roact-rodux"
+version = "0.3.0"
+dependencies = [["Roact", "roblox/roact@1.4.4"], ["Rodux", "roblox/rodux@3.0.0"]]
+
+[[package]]
+name = "roblox/rodux"
+version = "3.0.0"
 dependencies = []
 
 [[package]]
@@ -40,4 +55,9 @@ dependencies = []
 [[package]]
 name = "sleitnick/signal"
 version = "1.2.1"
+dependencies = []
+
+[[package]]
+name = "surnautica/profileservice"
+version = "1.0.0"
 dependencies = []

@@ -12,7 +12,7 @@ local RunService = game:GetService("RunService")
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
-local Enums = require(ReplicatedStorage.Packages.CustomEnums)
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local toolData = require(ReplicatedStorage.Data.ToolData)
 local stateCompatability = require(script.StateCompatability)
@@ -29,6 +29,7 @@ function Tool.new(user, tool)
   self.Janitor = janitor.new()
   self.EquipJanitor = self.Janitor:Add(janitor.new())
 
+  self.InventoryData = nil
   self.ToolData = toolData[tool]
   self.Tool = tool
   self.Equipped = false
@@ -58,8 +59,17 @@ function Tool:Load()
     self.LastMine = tick()
 
     --Damage the target
-    self.CurrentTarget:Damage(self.ToolData)
+    self.CurrentTarget:Damage(self.User, self)
   end))
+end
+
+function Tool:GetEnchantsMultipliers()
+  --Return the enchants on the tool. Check inventory data for the tool's enchants.
+
+  return {
+    Damage = 1,
+    Drops = 1,
+  }
 end
 
 function Tool:Equip()
@@ -80,10 +90,11 @@ function Tool:Equip()
 end
 
 function Tool:Unequip()
-  if not self.User.Player.Character then return end
   if not (self.User.EquippedTool == self) then return end
 
-  self.User.Player.Character.Humanoid:UnequipTools()
+  if self.User.Player.Character then  
+    self.User.Player.Character.Humanoid:UnequipTools()
+  end
 
   self:SetState(Enums.ToolStates.Stowed)
   self.User.EquippedTool = nil
@@ -119,6 +130,13 @@ function Tool:SetState(newState)
 end
 
 function Tool:Destroy()
+  self:Unequip()
+
+  if self.User.Tools[self.ToolType] == self then
+    --Just making sure, but a system will probably already have removed the tool from being equipped, before the tool is destroyed.
+    self.User.Tools[self.ToolType] = nil
+  end
+
   self.Signals.Destroying:Fire()
   self.Janitor:Destroy()
   self = nil

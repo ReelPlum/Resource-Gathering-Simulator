@@ -19,7 +19,7 @@ local StageService = knit.CreateService({
 
 function StageService:KnitStart()
   function StageService:UserOwnsStage(user, stage)
-
+    
   end
 end
 

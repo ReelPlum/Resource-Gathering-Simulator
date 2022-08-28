@@ -23,6 +23,9 @@ function User.new(player: Player)
 	self.DataLoaded = false
 
 	self.EquippedTool = nil
+	self.Tools = {
+		--List over tools of each type the user has equipped.
+	}
 
 	self.Janitor = janitor.new()
 	self.Signals = {
@@ -54,6 +57,14 @@ function User:LoadData()
 		self.DataLoaded = true
 		self.Signals.DataLoaded:Fire()
 	end)
+end
+
+function User:EquipToolForNodeType(nodeType)
+	--Equips a tool for the given node type (stone, wood, etc.)
+	if not self.Tools[nodeType] then return end
+
+	self.Tools[nodeType]:Equip()
+	return self.Tools[nodeType]
 end
 
 function User:Destroy()

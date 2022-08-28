@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local toolObj = require(script.Parent.Tool)
+
 local ToolService = knit.CreateService({
   Name = 'ToolService', 
   Client = {
@@ -20,8 +22,25 @@ local ToolService = knit.CreateService({
   }
 })
 
+local Tools = {}
+
 function ToolService:KnitStart()
-  
+  function ToolService:GetToolFromId(toolId)
+    return Tools[toolId]
+  end
+
+  function ToolService:RemoveTool(toolId)
+    if not Tools[toolId] then return end
+    
+    Tools[toolId]:Destroy()
+  end
+
+  function ToolService:CreateTool(user, tool)
+    local createdTool = toolObj.new(user, tool)
+
+    Tools[createdTool.Id] = createdTool
+    return createdTool
+  end
 end
 
 function ToolService:KnitInit()

@@ -27,6 +27,7 @@ local NodeData = {
     RequiredToolType = Enums.ToolTypes.Pickaxe,
     Model = nil,
     Effects = nil,
+    Radius = 3,
   }
 }
 

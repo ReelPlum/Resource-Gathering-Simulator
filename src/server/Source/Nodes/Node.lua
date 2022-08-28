@@ -12,20 +12,22 @@ local janitor = require(ReplicatedStorage.Packages.Janitor)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local nodeData = require(ReplicatedStorage.Data.NodeData)
+local stageData = require(ReplicatedStorage.Data.StageData)
 
 local Node = {}
 Node.__index = Node
 
-function Node.new(Id: string, NodeType: number, Stage)
+function Node.new(Id: string, NodeType: number, Stage: number)
 	local self = setmetatable({}, Node)
 
 	self.Spawned = false
 	self.Id = Id
 	self.Stage = Stage
+	self.NodeType = NodeType
 
 	self.NodeData = nodeData[NodeType]
+	self.StageData = stageData[Stage]
 
-	self.NodeType = NodeType
 	self.CurrentHealth = 0 --The node's current health
 	self.MaxHealth = 0 --The maximum health the node can have
 	self.Rarity = Enums.NodeRarities.Normal
@@ -42,6 +44,8 @@ function Node.new(Id: string, NodeType: number, Stage)
 end
 
 function Node:Spawn()
+	local NodeService = knit.GetService("NodeService")
+
 	--Spawn the node
 	--Choose how much health the node should have
 	self.MaxHealth = nodeData.Health:GetRandomNumber() --Get health from node data
@@ -50,12 +54,23 @@ function Node:Spawn()
 	self.Position = Vector2.new(50, 50) --Nodes are automatically height adjusted on the client
 
 	--Tell client to create a node
+	NodeService.Client.SpawnNode:FireAll(self.Id, {Position = self.Position, Rarity = self.Rarity, Health = self.MaxHealth, Type = self.NodeType, Stage = self.Stage})
+	NodeService.Signals.NodeSpawned:Fire(self)
 
 	self.Spawned = true
 end
 
+function Node:GetPosition()
+	--Returns a position for the player to go to
+	return (CFrame.new(Vector3.new(self.Position.X, self.Stage, self.Position.Y)) * CFrame.Angles(
+		0,
+		math.rad(math.random(0, 360)),
+		0
+	) * CFrame.new(0, 0, self.NodeData.Radius)).Position
+end
+
 function Node:DropResources(amount, health)
-  local DropsService = knit.GetService("DropsService")
+	local DropsService = knit.GetService("DropsService")
 
 	for user, data in self.DamageDone do
 		local tool = nil
@@ -71,7 +86,7 @@ function Node:DropResources(amount, health)
 
 		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1) * enchants.Drops
 
-    DropsService:DropResourceAtNode(user, self.NodeData.Drops, dropAmount, self.Id)
+		DropsService:DropResourceAtNode(user, self.NodeData.Drops, dropAmount, self.Id)
 	end
 end
 

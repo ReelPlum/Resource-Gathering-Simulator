@@ -2,6 +2,8 @@
 ClientTool
 2022, 08, 27
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
+
+Client tool only controls animations.
 ]]
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
@@ -25,6 +27,10 @@ function ClientTool.new()
   }
   
   return self
+end
+
+function ClientTool:UpdateState()
+  
 end
 
 function ClientTool:Destroy()

@@ -12,6 +12,31 @@ return {
 	Pets = {},
 	Currencies = {},
 	PlaytimeGiftsAvailable = {},
-  PlaytimeGiftsStreak = 0,
+	PlaytimeGiftsStreak = 0,
 	RecievedStarterItems = false,
+
+	Monitization = {
+		Gamepasses = {
+			--[[
+				[gamepassid] = {
+					date = number,
+					price = number,
+				}
+			]]
+		},
+		DeveloperProducts = {
+			--[[
+				[developerproductid] = {
+					date = number,
+					price = number,
+					recieved = table,
+					rewarded = boolean,
+				}
+			]]
+		},
+	},
+	Moderation = {
+		History = {},
+		CurrentPunishment = nil,
+	},
 }

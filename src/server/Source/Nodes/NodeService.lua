@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local nodeObj = require(script.Parent.Node)
+
 local NodeService = knit.CreateService({
 	Name = "NodeService",
 	Client = {
@@ -46,16 +48,21 @@ end
 
 function NodeService:KnitStart()
 	function NodeService:NodeDestroyed(node)
-    Nodes[node.Id] = nil
+		Nodes[node.Id] = nil
 
-    NodeService.Client.NodeDestroyed:FireAll(node.Id)
-  end
+		NodeService.Client.NodeDestroyed:FireAll(node.Id)
+	end
 
 	function NodeService:GetNodeFromId(nodeId)
 		return Nodes[nodeId]
 	end
 
-	function NodeService:SpawnNodeAtStage(stage) end
+	function NodeService:SpawnNodeAtStage(nodeType: number, stage: number)
+		local node = nodeObj.new(nodeType, stage)
+		Nodes[node.Id] = node
+
+		node:Spawn()
+	end
 end
 
 function NodeService:KnitInit() end

@@ -37,6 +37,7 @@ return {
 				},
 			},
 		},
+		Height = 0,
 		StageBlocker = nil,
 		SpawnLocation = nil,
 		StageSpawners = {},

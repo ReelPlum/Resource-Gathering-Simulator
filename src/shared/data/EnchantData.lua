@@ -28,6 +28,7 @@ return {
 	[Enums.Enchants.Damage] = {
 		DisplayName = "Mine Strength",
 		Color = Color3.fromRGB(255, 17, 0),
+    Type = Enums.EnchantmentType.Tool,
 		Levels = {
 			[1] = {
 				[Enums.BoostTypes.Damage] = 1.1, --Gives a drops multiplier of 1.1

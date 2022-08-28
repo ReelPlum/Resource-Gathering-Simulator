@@ -32,6 +32,10 @@ local CustomEnums = {
 		["Fortune"] = 1,
 		["Damage"] = 2,
 	},
+  ["EnchantmentType"] = {
+    ["Pet"] = 1,
+    ["Tool"] = 2,
+  },
 	["Stages"] = {
 		["TestStage"] = 1,
 	},
@@ -47,7 +51,14 @@ local CustomEnums = {
   ["BoostTypes"] = {
     ["Drops"] = 1,
     ["Damage"] = 2,
-  }
+  },
+  ["Pets"] = {
+    ["TestPet"] = 1,
+  },
+  ["PetStats"] = {
+    ["WalkSpeed"] = 1,
+    ["Damage"] = 1,
+  },
 }
 
 return CustomEnums

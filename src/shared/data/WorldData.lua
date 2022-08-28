@@ -13,11 +13,12 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 return {
 	[Enums.Worlds.TestWorld] = {
 		DisplayName = "Test World",
+    Currency = Enums.Currencies.Coins,
 		OnEntry = function(localPlayer)
       --For post processing. Executed on the client.
       local j = janitor.new()
 
       return j
-    end
+    end,
 	},
 }

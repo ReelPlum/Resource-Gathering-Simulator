@@ -11,13 +11,13 @@ local RandomRange = require(ReplicatedStorage.Common.RandomRange)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local NodeData = {
-  [Enums.NodeTypes.Stone] = {
+  [Enums.Nodes.Stone] = {
     DisplayName = "Stone",
     Health = RandomRange(100, 200),
     Resistance = 0, --The resistance against tools. A tool that has a lower strenght will do a small amount of damage
     Drops = {
       --[Drop] = weight
-      [Enums.ResourceTypes.Stone] = 100
+      [Enums.Resources.Stone] = 100
     },
     DropStages = {
       [50] = RandomRange.new(5, 10),

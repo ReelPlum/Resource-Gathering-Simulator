@@ -8,12 +8,18 @@ return {
 	JoinedAt = tick(),
 	Playtime = 0,
 	Resources = {},
+	Currencies = {},
 	Tools = {},
 	Pets = {},
-	Currencies = {},
 	PlaytimeGiftsAvailable = {},
 	PlaytimeGiftsStreak = 0,
 	RecievedStarterItems = false,
+	OwnedStages = {},
+	CurrentStageProgress = {
+		Name = nil,
+		Stats = {},
+	},
+	PlayerStats = {},
 
 	Monitization = {
 		Gamepasses = {

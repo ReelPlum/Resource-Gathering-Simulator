@@ -5,10 +5,10 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
 local CustomEnums = {
-  ["NodeTypes"] = {
+  ["Nodes"] = {
     ["Stone"] = 1,
   },
-  ["ResourceTypes"] = {
+  ["Resources"] = {
     ["Stone"] = 1,
   },
   ["NodeRarities"] = {
@@ -25,6 +25,22 @@ local CustomEnums = {
     ["Stowed"] = 2,
     ["Mining"] = 3,
   },
+  ["Currencies"] = {
+    ["Coins"] = 1,
+  },
+  ["Enchants"] = {
+    ["Fortune"] = 1,
+    ["Damage"] = 2,
+  },
+  ["Stages"] = {
+    ["TestStage"] = 1,
+  },
+  ["Worlds"] = {
+    ["TestWorld"] = 1,
+  },
+  ["PlayerStats"] = {
+    ["DestroyedNodes"] = 1, 
+  }
 }
 
 

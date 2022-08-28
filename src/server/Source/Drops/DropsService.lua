@@ -21,10 +21,22 @@ local DropsService = knit.CreateService({
 function DropsService:KnitStart()
 	function DropsService:DropResourceAtLocation(user, resource: number, amount: number, location: Vector3)
 		--Drops a specified amount of the given resource at a location for the specified user.
+		--The resources should be given in a weighted table
 	end
 
-	function DropsService:DropResourceAtNode(user, resources: table, amount: number, nodeId: string)
+	function DropsService:DropResourceAtNode(user, resources: table, totalAmount: number, nodeId: string)
 		--Drops a specified amount of then given resource at a node for the specified user.
+		--The resources should be given in a weighted table
+	end
+
+	function DropsService:DropCurrenciesAtNode(user, currencies: table, totalAmount: number, nodeId: string)
+		--Drops a specified amount of the given currencies at the given node for the specified user.
+		--The currencies should be given in a weighted table
+	end
+
+	function DropsService:DropCurrenciesAtLocation(user, currencies: table, totalAmount: number, location: Vector3)
+		--Drops a specified amount of the given currencies at the given location for the specified user.
+		--The currencies should be given in a weighted table
 	end
 end
 

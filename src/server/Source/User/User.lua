@@ -67,6 +67,10 @@ function User:EquipToolForNodeType(nodeType)
 	return self.Tools[nodeType]
 end
 
+function User:GetUpgradeBoosts()
+	--Gets the boosts the user has from upgrades
+end
+
 function User:Destroy()
 	self.Signals.Destroying:Fire()
 	self.Janitor:Destroy()

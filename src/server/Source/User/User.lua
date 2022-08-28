@@ -61,7 +61,9 @@ end
 
 function User:EquipToolForNodeType(nodeType)
 	--Equips a tool for the given node type (stone, wood, etc.)
-	if not self.Tools[nodeType] then return end
+	if not self.Tools[nodeType] then
+		return
+	end
 
 	self.Tools[nodeType]:Equip()
 	return self.Tools[nodeType]
@@ -69,6 +71,14 @@ end
 
 function User:GetUpgradeBoosts()
 	--Gets the boosts the user has from upgrades
+end
+
+function User:GetPetBoosts()
+	--Boosts from pets
+end
+
+function User:GetActiveBoosts()
+	--Activated boosts either bought from robux or from rewards etc.
 end
 
 function User:Destroy()

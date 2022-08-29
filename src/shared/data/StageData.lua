@@ -42,5 +42,8 @@ return {
 			--Weighted table with spawnable nodes in this stage.
 			[Enums.Nodes.Stone] = 100,
 		},
+		Rarities = {
+			[Enums.NodeRarities.Normal] = 100,
+		},
 	},
 }

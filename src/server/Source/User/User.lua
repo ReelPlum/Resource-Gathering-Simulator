@@ -84,7 +84,7 @@ function User:ListenForStageProgress()
 	--Listens for stage progress changes.
 	local StageService = knit.GetService("StageService")
 
-	self.Janitor:Add(self.Signals.PlayerStatsChanged:Connect(function(stat, data, increment)
+	self.Janitor:Add(self.Signals.PlayerStatChanged:Connect(function(stat, data, increment)
 		if not self.DataLoaded then
 			self.Signals.DataLoaded:Wait()
 		end

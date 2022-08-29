@@ -19,7 +19,7 @@ local StageService = knit.CreateService({
 	Name = "StageService",
 	Client = {
 		StageStatProgressChanged = knit.CreateSignal(),
-    NewStageProgress = knit.CreateSignal(),
+		NewStageProgress = knit.CreateSignal(),
 	},
 	Signals = {
 		StageRegistered = signal.new(),
@@ -28,62 +28,63 @@ local StageService = knit.CreateService({
 
 local Stages = {}
 
-function StageService.Client:GetCurrentStageProgresss(player: Player)
-  
+--Communication
+function StageService.Client:GetCurrentStageProgresss(player: Player) end
+
+--Server
+function StageService:GetStage(stage)
+	return Stages[stage]
+end
+
+function StageService:UserOwnsStage(user, stage)
+	--Check the user's data to see if they own the stage
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.OwnedStages[stage]
+end
+
+function StageService:RegisterStage(stage)
+	local s = stageObj.new(stage)
+	Stages[stage] = s
+
+	StageService.Signals.StageRegistered:Fire(s)
+
+	return s
+end
+
+function StageService:BuyStage(user, stage)
+	local s = StageService:GetStage(stage)
+	if not s then
+		return
+	end
+	return s:Buy(user)
+end
+
+function StageService:NextStageRequirements(user)
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	local stage = user:GetNextStage()
+
+	local stats = {}
+	for id, _ in stageData[stage].RequiredForUpgrade.Stats do
+		stats[id] = 0
+	end
+
+	user.Data.CurrentStageProgress = {
+		Id = HttpService:GenerateGUID(false),
+		Stage = stage,
+		Stats = stats,
+	}
 end
 
 function StageService:KnitStart()
-	function StageService:GetStage(stage)
-		return Stages[stage]
-	end
-
-	function StageService:UserOwnsStage(user, stage)
-		--Check the user's data to see if they own the stage
-		if not user.DataLoaded then
-			user.Signals.DataLoaded:Wait()
-		end
-
-		return user.Data.OwnedStages[stage]
-	end
-
-	function StageService:RegisterStage(stage)
-		local s = stageObj.new()
-		Stages[stage] = s
-
-		StageService.Signals.StageRegistered:Fire(s)
-
-		return s
-	end
-
-	function StageService:BuyStage(user, stage)
-		local s = StageService:GetStage(stage)
-		if not s then
-			return
-		end
-		return s:Buy(user)
-	end
-
-	function StageService:NextStageRequirements(user)
-		if not user.DataLoaded then
-			user.Signals.DataLoaded:Wait()
-		end
-
-    local stage = user:GetNextStage()
-
-		local stats = {}
-		for id, data in stageData[stage].RequiredForUpgrade.Stats do
-			stats[id] = 0
-		end
-
-		user.Data.CurrentStageProgress = {
-			Id = HttpService:GenerateGUID(false),
-			Stage = stage,
-			Stats = stats,
-		}
-	end
-
 	--Register stages
 	for stage, _ in stageData do
+		print(stage)
 		StageService:RegisterStage(stage)
 	end
 	--Spawn nodes

@@ -30,6 +30,18 @@ function Stage.new(stage)
 	return self
 end
 
+function Stage:GetRarity()
+	--Returns a rarity chosen from a weighted table.
+	local weightedTable = {}
+	for rarity, weight in self.StageData.Rarities do
+		for _ = 1, weight do
+			table.insert(weightedTable, rarity)
+		end
+	end
+
+	return weightedTable[math.random(1, #weightedTable)]
+end
+
 function Stage:Buy(user)
 	local StageService = knit.GetService("StageService")
 
@@ -89,7 +101,7 @@ function Stage:SpawnNode()
 	--Choose random nodetype
 	local nt = self.weightedTable[math.random(1, #self.weightedTable)]
 
-	local node = NodeService:SpawnNodeAtStage(nt, self.Stage)
+	local node = NodeService:SpawnNodeAtStage(nt, self)
 
 	node.Signals.Destroying:Connect(function()
 		--Wait a random amount of time, and then respawn the node

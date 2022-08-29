@@ -39,24 +39,25 @@ function NodeService.Client:GetSpawnedNodes(player)
 	return n
 end
 
+function NodeService:NodeDestroyed(node)
+	Nodes[node.Id] = nil
+
+	NodeService.Client.NodeDestroyed:FireAll(node.Id)
+end
+
+function NodeService:GetNodeFromId(nodeId)
+	return Nodes[nodeId]
+end
+
+function NodeService:SpawnNodeAtStage(nodeType: number, stageObj)
+	local node = nodeObj.new(nodeType, stageObj)
+	Nodes[node.Id] = node
+
+	node:Spawn()
+	return node
+end
+
 function NodeService:KnitStart()
-	function NodeService:NodeDestroyed(node)
-		Nodes[node.Id] = nil
-
-		NodeService.Client.NodeDestroyed:FireAll(node.Id)
-	end
-
-	function NodeService:GetNodeFromId(nodeId)
-		return Nodes[nodeId]
-	end
-
-	function NodeService:SpawnNodeAtStage(nodeType: number, stage: number)
-		local node = nodeObj.new(nodeType, stage)
-		Nodes[node.Id] = node
-
-		node:Spawn()
-		return node
-	end
 end
 
 function NodeService:KnitInit() end

@@ -15,20 +15,22 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local nodeData = require(ReplicatedStorage.Data.NodeData)
 local stageData = require(ReplicatedStorage.Data.StageData)
+local nodeRarityData = require(ReplicatedStorage.Data.NodeRarityData)
 
 local Node = {}
 Node.__index = Node
 
-function Node.new(NodeType: number, Stage: number)
+function Node.new(NodeType: number, StageObj)
 	local self = setmetatable({}, Node)
 
 	self.Spawned = false
 	self.Id = HttpService:GenerateGUID(false)
-	self.Stage = Stage
+	self.StageObj = StageObj
+	self.Stage = self.StageObj.Stage
 	self.NodeType = NodeType
 
 	self.NodeData = nodeData[NodeType]
-	self.StageData = stageData[Stage]
+	self.StageData = stageData[self.Stage]
 
 	self.CurrentHealth = 0 --The node's current health
 	self.MaxHealth = 0 --The maximum health the node can have
@@ -50,22 +52,19 @@ function Node:Spawn()
 
 	--Spawn the node
 	--Choose how much health the node should have
-	self.MaxHealth = nodeData.Health:GetRandomNumber() --Get health from node data
+	self.MaxHealth = self.NodeData.Health:GetRandomNumber() --Get health from node data
 	self.CurrentHealth = self.MaxHealth
-	self.Rarity = self.Stage:GetRarity() --Choose rarity from chances in stage data
+	self.Rarity = self.StageObj:GetRarity() --Choose rarity from chances in stage data
 	self.Position = Vector3.new(50, self.StageData.Height, 50) --Nodes are automatically height adjusted on the client
 
 	--Tell client to create a node
-	NodeService.Client.SpawnNode:FireAll(
-		self.Id,
-		{
-			Position = self.Position,
-			Rarity = self.Rarity,
-			Health = self.MaxHealth,
-			Type = self.NodeType,
-			Stage = self.Stage,
-		}
-	)
+	NodeService.Client.SpawnNode:FireAll(self.Id, {
+		Position = self.Position,
+		Rarity = self.Rarity,
+		Health = self.MaxHealth,
+		Type = self.NodeType,
+		Stage = self.Stage,
+	})
 	NodeService.Signals.NodeSpawned:Fire(self)
 
 	self.Spawned = true
@@ -95,7 +94,7 @@ function Node:DropResources(amount, health)
 
 		local enchants = tool:GetEnchantsMultipliers()
 
-		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1) * enchants[Enums.BoostTypes.Drops]
+		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1) * enchants[Enums.BoostTypes.Drops] * nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
 
 		DropsService:DropResourceAtNode(user, self.NodeData.Drops, dropAmount, self.Id)
 	end

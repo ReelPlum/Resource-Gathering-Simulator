@@ -27,35 +27,37 @@ local DataStoreName = "PlayerData"
 local PlayerProfileStore = profileservice.GetProfileStore(DataStoreName, profileStoreTemplate)
 local LoadedPlayerProfiles = {}
 
-function DataService:KnitStart()
-	function DataService:RequestData(player: Player)
-		return promise.new(function(resolve, reject)
-			--Check if data is already loaded
-			if LoadedPlayerProfiles[player] then
-				return LoadedPlayerProfiles[player]
-			end
+function DataService:RequestData(player: Player)
+	return promise.new(function(resolve, reject)
+		--Check if data is already loaded
+		if LoadedPlayerProfiles[player] then
+			return LoadedPlayerProfiles[player]
+		end
 
-			local profile = PlayerProfileStore:LoadProfileAsync(KeyPrefix .. player.UserId)
-			if profile ~= nil then
-				profile:AddUserId(player.UserId)
-				profile:Reconcile()
-				profile:ListenToRelease(function()
-					LoadedPlayerProfiles[player] = nil
-					player:Kick()
-				end)
-				if player:IsDescendantOf(Players) == true then
-					LoadedPlayerProfiles[player] = profile
-					resolve(profile)
-				else
-					profile:Release()
-					reject()
-				end
-			else
+		local profile = PlayerProfileStore:LoadProfileAsync(KeyPrefix .. player.UserId)
+		if profile ~= nil then
+			profile:AddUserId(player.UserId)
+			profile:Reconcile()
+			profile:ListenToRelease(function()
+				LoadedPlayerProfiles[player] = nil
 				player:Kick()
+			end)
+			if player:IsDescendantOf(Players) == true then
+				LoadedPlayerProfiles[player] = profile
+				resolve(profile)
+			else
+				profile:Release()
 				reject()
 			end
-		end)
-	end
+		else
+			player:Kick()
+			reject()
+		end
+	end)
+end
+
+function DataService:KnitStart()
+
 end
 
 function DataService:KnitInit() end

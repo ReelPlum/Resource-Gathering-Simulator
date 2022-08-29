@@ -25,24 +25,26 @@ local UserService = knit.CreateService({
 
 local Users = {}
 
+function UserService:GetUserFromPlayer(player: Player)
+	return Users[player] --Users are registered with their player
+end
+
+function UserService:GetUserFromUserId(id: string)
+	local player = Players:GetPlayerByUserId(id)
+	return Users[player]
+end
+
+function UserService:GetUserFromCharacter(character: Model)
+	local player = Players:GetPlayerFromCharacter(character)
+	return Users[player]
+end
+
+function UserService:GetUsers()
+	return Users
+end
+
 function UserService:KnitStart()
-	function UserService:GetUserFromPlayer(player: Player)
-		return Users[player] --Users are registered with their player
-	end
-
-	function UserService:GetUserFromUserId(id: string)
-		local player = Players:GetPlayerByUserId(id)
-		return Users[player]
-	end
-
-	function UserService:GetUserFromCharacter(character: Model)
-		local player = Players:GetPlayerFromCharacter(character)
-		return Users[player]
-	end
-
-	function UserService:GetUsers()
-		return Users
-	end
+	
 end
 
 function UserService:KnitInit()

@@ -58,13 +58,7 @@ function Node:Spawn()
 	self.Position = Vector3.new(50, self.StageData.Height, 50) --Nodes are automatically height adjusted on the client
 
 	--Tell client to create a node
-	NodeService.Client.SpawnNode:FireAll(self.Id, {
-		Position = self.Position,
-		Rarity = self.Rarity,
-		Health = self.MaxHealth,
-		Type = self.NodeType,
-		Stage = self.Stage,
-	})
+	NodeService.Client.SpawnNode:FireAll(self.Id, self:GetData())
 	NodeService.Signals.NodeSpawned:Fire(self)
 
 	self.Spawned = true
@@ -94,7 +88,10 @@ function Node:DropResources(amount, health)
 
 		local enchants = tool:GetEnchantsMultipliers()
 
-		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1) * enchants[Enums.BoostTypes.Drops] * nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
+		local dropAmount = amount
+			* math.clamp(data.Damage / health, 0, 1)
+			* enchants[Enums.BoostTypes.Drops]
+			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
 
 		DropsService:DropResourceAtNode(user, self.NodeData.Drops, dropAmount, self.Id)
 	end
@@ -158,6 +155,9 @@ function Node:TakeDamage(amount: number, user)
 
 	self.CurrentHealth -= dmg
 	self:CheckHealth()
+
+	local NodeService = knit.GetService("NodeService")
+	NodeService.Client.HealthChanged:FireAll(self.Id, user.Player, self.CurrentHealth)
 end
 
 function Node:Damage(user, tool)
@@ -179,6 +179,8 @@ function Node:Damage(user, tool)
 	self:TakeDamage(dmg, user)
 
 	--Damage effect on node
+	local NodeService = knit.GetService("NodeService")
+	NodeService.Client.DamageNode:FireAll(self.Id)
 end
 
 function Node:Destroy()

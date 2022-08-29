@@ -31,25 +31,57 @@ function Stage.new(stage)
 end
 
 function Stage:Buy(user)
-  local StageService = knit.GetService("StageService")
+	local StageService = knit.GetService("StageService")
 
-  if not user.DataLoaded then
-    user.Signals.DataLoaded:Wait()
-  end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
 
-  if not StageService:UserOwnsStage(user, self.StageData.Dependency) then return end
-  if StageService:UserOwnsStage(user, self.Stage) then return end --Already owns stage lol
+	if not StageService:UserOwnsStage(user, self.StageData.Dependency) then
+		return
+	end
+	if StageService:UserOwnsStage(user, self.Stage) then
+		return
+	end --Already owns stage lol
 
-  --Check if user has the needed stuff (Currencies, Resources, Stats)
+	--Check if user has the needed stuff (Currencies, Resources, Stats)
+	for currency, val in self.StageData.RequiredForUpgrade.Currencies do
+		if not user.Data.Currencies[currency] then
+			return
+		end
+		if user.Data.Currencies[currency] < val then
+			return
+		end
+	end
 
+	for resource, val in self.StageData.RequiredForUpgrade.Resources do
+		if not user.Data.Resources[resource] then
+			return
+		end
+		if user.Data.Resources[resource] < val then
+			return
+		end
+	end
 
-  --Buy the stage
-  user.Data.OwnedStages[self.Stage] = {
-    Date = tick(),
-    Playtime = user.Data.Playtime
-  }
+	for index, data in self.StageData.RequiredForUpgrade.Stats do
+		if user.Data.CurrentStageProgress.Stage ~= self.Stage then
+			return
+		end
+		if not user.Data.CurrentStageProgress.Stats[index] then
+			return
+		end
+		if user.Data.CurrentStageProgress.Stats[index] < data.Quantity then
+			return
+		end
+	end
 
-  return true
+	--Buy the stage
+	user.Data.OwnedStages[self.Stage] = {
+		Date = tick(),
+		Playtime = user.Data.Playtime,
+	}
+
+	return true
 end
 
 function Stage:SpawnNode()

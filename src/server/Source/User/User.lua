@@ -11,6 +11,7 @@ local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
 local stageData = require(ReplicatedStorage.Data.StageData)
+local starterData = require(ReplicatedStorage.Data.StarterData)
 
 local User = {}
 User.__index = User
@@ -116,12 +117,19 @@ end
 
 function User:GetNextStage()
 	--Get the current stage, and return the "next stage" value.
+	return self:GetCurrentStage().NextStage
 end
 
 function User:GetCurrentStage()
 	local StageService = knit.GetService("StageService")
 
 	--Go through all owned stages, and find the stage, where the user doesnt own the next stage.
+	local stage = starterData.StarterStage
+	while StageService:UserOwnsStage(stage.NextStage) do
+		stage = stage.NextStage
+	end
+
+	return stage
 end
 
 function User:EquipToolForNodeType(nodeType)

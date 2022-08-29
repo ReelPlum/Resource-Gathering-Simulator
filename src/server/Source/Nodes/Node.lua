@@ -101,6 +101,17 @@ function Node:DropResources(amount, health)
 	end
 end
 
+function Node:GetData()
+	return {
+		NodeType = self.NodeType,
+		Position = self.Position,
+		CurrentHealth = self.CurrentHealth,
+		MaxHealth = self.MaxHealth,
+		Rarity = self.Rarity,
+		Stage = self.Stage,
+	}
+end
+
 function Node:CheckHealth()
 	--Nodes have different drop stages specified. Check if a drop stage has been reached (or if the node has been destroyed)
 	if not self.Spawned then

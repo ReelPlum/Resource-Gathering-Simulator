@@ -4,7 +4,6 @@ StageData
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
@@ -12,7 +11,9 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 return {
 	[Enums.Stages.TestStage] = {
 		DisplayName = "Test Stage",
-    World = Enums.Worlds.TestWorld,
+		World = Enums.Worlds.TestWorld,
+		Dependency = nil,
+		NextStage = nil,
 		RequiredForUpgrade = {
 			Resources = {
 				--Resources required to buy this stage
@@ -26,12 +27,8 @@ return {
 				--Player stats required to buy this stage
 				[1] = {
 					PlayerStat = Enums.PlayerStats.DestroyedNodes,
-					RequiredNodes = {
-						[Enums.Nodes.Stone] = {
-							Rarities = {
-								Enums.NodeRarities.Normal,
-							},
-						},
+					Requirements = {
+						Enums.Nodes.Stone
 					},
 					Quantity = 100,
 				},

@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local stageData = require(ReplicatedStorage.Data.StageData)
+
 local User = {}
 User.__index = User
 
@@ -31,9 +33,11 @@ function User.new(player: Player)
 	self.Signals = {
 		Destroying = self.Janitor:Add(signal.new()),
 		DataLoaded = self.Janitor:Add(signal.new()),
+		PlayerStatChanged = self.Janitor:Add(signal.new()),
 	}
 
 	self:LoadData()
+	self:ListenForStageProgress()
 
 	return self
 end
@@ -57,6 +61,67 @@ function User:LoadData()
 		self.DataLoaded = true
 		self.Signals.DataLoaded:Fire()
 	end)
+end
+
+function User:IncrementPlayerStat(playerStat, data: { any }, val: number?)
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	if not self.Data.PlayerStats[playerStat] then
+		self.Data.PlayerStats[playerStat] = 0
+	end
+
+	self.Data.PlayerStats[playerStat] += val or 1
+	self.Signals.PlayerStatChanged:Fire(playerStat, val or 1, data)
+
+	local UserService = knit.GetService("UserService")
+	UserService.Client.PlayerStatChanged:Fire(self.Player, playerStat, self.Data.PlayerStats[playerStat])
+end
+
+function User:ListenForStageProgress()
+	--Listens for stage progress changes.
+	local StageService = knit.GetService("StageService")
+
+	self.Janitor:Add(self.Signals.PlayerStatsChanged:Connect(function(stat, data, increment)
+		if not self.DataLoaded then
+			self.Signals.DataLoaded:Wait()
+		end
+
+		local currentProgress = self.Data.CurrentStageProgress
+		local s = stageData[currentProgress.Stage]
+
+		if not s then
+			return
+		end
+		local indexes = {}
+		for index, requirementData in stageData.RequiredForUpgrade.Stats do
+			if requirementData.PlayerStat == stat then
+				table.insert(indexes, index)
+			end
+		end
+		if #indexes <= 0 then
+			return
+		end
+
+		for _, i in indexes do
+			if not table.find(stageData.RequiredForUpgrade.Stats[i].Requirements, data) then
+				continue
+			end
+			currentProgress.Stats[i] += increment
+			StageService.Client.StageStatProgressChanged:Fire(self.Player, i, currentProgress.Stats[i])
+		end
+	end))
+end
+
+function User:GetNextStage()
+	--Get the current stage, and return the "next stage" value.
+end
+
+function User:GetCurrentStage()
+	local StageService = knit.GetService("StageService")
+
+	--Go through all owned stages, and find the stage, where the user doesnt own the next stage.
 end
 
 function User:EquipToolForNodeType(nodeType)

@@ -14,7 +14,9 @@ local userObj = require(script.Parent.User)
 
 local UserService = knit.CreateService({
 	Name = "UserService",
-	Client = {},
+	Client = {
+		PlayerStatChanged = knit.CreateSignal(),
+	},
 	Signals = {
 		UserAdded = signal.new(),
 		UserRemoving = signal.new(),

@@ -33,14 +33,7 @@ function NodeService.Client:GetSpawnedNodes(player)
 	local n = {}
 
 	for id, node in Nodes do
-		n[id] = {
-			NodeType = node.NodeType,
-			Position = node.Position,
-			CurrentHealth = node.CurrentHealth,
-			MaxHealth = node.MaxHealth,
-			Rarity = node.Rarity,
-			Stage = node.Stage,
-		}
+		n[id] = node:GetData()
 	end
 
 	return n
@@ -62,6 +55,7 @@ function NodeService:KnitStart()
 		Nodes[node.Id] = node
 
 		node:Spawn()
+		return node
 	end
 end
 

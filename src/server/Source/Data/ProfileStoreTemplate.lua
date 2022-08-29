@@ -14,9 +14,17 @@ return {
 	PlaytimeGiftsAvailable = {},
 	PlaytimeGiftsStreak = 0,
 	RecievedStarterItems = false,
-	OwnedStages = {},
+	OwnedStages = {
+		--[[
+			[stage] = {
+				Date = number,
+				Playtime = number,
+			}
+		]]
+	},
 	CurrentStageProgress = {
-		Name = nil,
+		Id = nil,
+		Stage = nil,
 		Stats = {},
 	},
 	PlayerStats = {},

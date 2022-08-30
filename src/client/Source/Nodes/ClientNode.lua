@@ -120,6 +120,10 @@ function ClientNode:Render()
 	end
 end
 
+function ClientNode:DamageEffect() end
+
+function ClientNode:DestroyEffect() end
+
 function ClientNode:HealthChanged(player, newHealth)
 	self.CurrentHealth = newHealth
 

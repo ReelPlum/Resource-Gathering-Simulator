@@ -106,11 +106,11 @@ function User:ListenForStageProgress()
 		end
 
 		for _, i in indexes do
-			if not table.find(stageData.RequiredForUpgrade.Stats[i].Requirements, data) then
+			if not table.find(stageData.RequiredForUpgrade.Stats[i].Requirements, data.Type) then
 				continue
 			end
-			currentProgress.Stats[i] += increment
-			StageService.Client.StageStatProgressChanged:Fire(self.Player, i, currentProgress.Stats[i])
+			self.Data.CurrentStageProgress.Stats[i] += increment
+			StageService.Client.StageStatProgressChanged:Fire(self.Player, self.Data.CurrentStageProgress)
 		end
 	end))
 end

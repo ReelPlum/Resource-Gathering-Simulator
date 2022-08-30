@@ -156,6 +156,11 @@ function Node:CheckHealth()
 	if 0 >= self.CurrentHealth then
 		--Destroyed
 
+		--Update the stats for players who did damage
+		for user, _ in self.DamageDone do
+			user:IncrementPlayerStat(Enums.PlayerStats.DestroyedNodes, {Type = self.NodeType, Rarity = self.Rarity})
+		end
+
 		--Drop resources
 		self:DropResources(self.NodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
 

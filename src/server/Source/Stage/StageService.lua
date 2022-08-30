@@ -20,6 +20,7 @@ local StageService = knit.CreateService({
 	Client = {
 		StageStatProgressChanged = knit.CreateSignal(),
 		NewStageProgress = knit.CreateSignal(),
+		StageBought = knit.CreateSignal(),
 	},
 	Signals = {
 		StageRegistered = signal.new(),
@@ -29,7 +30,50 @@ local StageService = knit.CreateService({
 local Stages = {}
 
 --Communication
-function StageService.Client:GetCurrentStageProgresss(player: Player) end
+function StageService.Client:GetCurrentStageProgresss(player: Player)
+	local UserService = knit.GetService("UserService")
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.CurrentStageProgress
+end
+
+function StageService.Client:GetOwnedStages(player: Player)
+	local UserService = knit.GetService("UserService")
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	local ownedStages = {}
+
+	for stage, _ in user.Data.OwnedStages do
+		table.insert(ownedStages, stage)
+	end
+
+	return ownedStages
+end
+
+function StageService.Client:BuyStage(player: Player, stage: number)
+	--The player wants to buy a stage.
+	local UserService = knit.GetService("UserService")
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+
+	return StageService:BuyStage(user, stage)
+end
 
 --Server
 function StageService:GetStage(stage)
@@ -79,6 +123,8 @@ function StageService:NextStageRequirements(user)
 		Stage = stage,
 		Stats = stats,
 	}
+
+	StageService.Client.NewStageProgress:Fire(user.Player, user.Data.CurrentStageProgress)
 end
 
 function StageService:KnitStart()

@@ -117,7 +117,7 @@ end
 
 function User:GetNextStage()
 	--Get the current stage, and return the "next stage" value.
-	return self:GetCurrentStage().NextStage
+	return stageData[self:GetCurrentStage()].NextStage
 end
 
 function User:GetCurrentStage()
@@ -125,8 +125,8 @@ function User:GetCurrentStage()
 
 	--Go through all owned stages, and find the stage, where the user doesnt own the next stage.
 	local stage = starterData.StarterStage
-	while StageService:UserOwnsStage(stage.NextStage) do
-		stage = stage.NextStage
+	while StageService:UserOwnsStage(self, stageData[stage].NextStage) do
+		stage = stageData[stage].NextStage
 	end
 
 	return stage

@@ -112,6 +112,17 @@ function StageService:NextStageRequirements(user)
 	end
 
 	local stage = user:GetNextStage()
+	if not stageData[stage] then
+		--User is at the max stage
+		user.Data.CurrentStageProgress = {
+			Id = HttpService:GenerateGUID(false),
+			Stage = nil,
+			Stats = {},
+		}
+
+		StageService.Client.NewStageProgress:Fire(user.Player, user.Data.CurrentStageProgress)
+		return
+	end
 
 	local stats = {}
 	for id, _ in stageData[stage].RequiredForUpgrade.Stats do
@@ -138,6 +149,23 @@ function StageService:KnitStart()
 		task.spawn(function()
 			stage:SpawnNodes()
 		end)
+	end
+
+	local function CheckUser(User)
+		if not User.DataLoaded then
+			User.Signals.DataLoaded:Wait()
+		end
+
+		if not User.Data.CurrentStageProgress.Stage then
+			StageService:NextStageRequirements(User)
+		end
+	end
+
+	local UserService = knit.GetService("UserService")
+	UserService.Signals.UserAdded:Connect(CheckUser)
+
+	for _, user in UserService:GetUsers() do
+		CheckUser(user)
 	end
 end
 

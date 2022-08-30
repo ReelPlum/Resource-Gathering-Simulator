@@ -53,6 +53,10 @@ function StageController:KnitStart()
 
 	--For changes is stage progress
 	StageService.NewStageProgress:Connect(function(progress)
+		if not progress.Stage then
+			return
+		end
+
 		Stages[progress.Stage]:IsNextStage()
 		StageController:UpdateStageWithProgress(progress)
 	end)
@@ -62,6 +66,10 @@ function StageController:KnitStart()
 	end)
 
 	StageService:GetCurrentStageProgresss():andThen(function(progress)
+		if not progress.Stage then
+			return
+		end --No stage is set to the progress.
+
 		Stages[progress.Stage]:IsNextStage()
 		StageController:UpdateStageWithProgress(progress)
 	end)

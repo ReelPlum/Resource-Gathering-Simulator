@@ -28,6 +28,7 @@ local NodeService = knit.CreateService({
 })
 
 local Nodes = {}
+local NodesAtStage = {}
 
 function NodeService.Client:GetSpawnedNodes(player)
 	local n = {}
@@ -41,6 +42,7 @@ end
 
 function NodeService:NodeDestroyed(node)
 	Nodes[node.Id] = nil
+	NodesAtStage[node.Stage][node.Id] = nil
 
 	NodeService.Client.NodeDestroyed:FireAll(node.Id)
 end
@@ -49,16 +51,25 @@ function NodeService:GetNodeFromId(nodeId)
 	return Nodes[nodeId]
 end
 
-function NodeService:SpawnNodeAtStage(nodeType: number, stageObj)
-	local node = nodeObj.new(nodeType, stageObj)
+function NodeService:GetNodesAtStage(stage)
+	return NodesAtStage[stage]
+end
+
+function NodeService:SpawnNodeAtStage(nodeType: number, stageObj, stageSpawner: BasePart)
+	local node = nodeObj.new(nodeType, stageObj, stageSpawner)
 	Nodes[node.Id] = node
+
+	if not NodesAtStage[node.Stage] then
+		NodesAtStage[node.Stage] = {}
+	end
+
+	NodesAtStage[node.Stage][node.Id] = node
 
 	node:Spawn()
 	return node
 end
 
-function NodeService:KnitStart()
-end
+function NodeService:KnitStart() end
 
 function NodeService:KnitInit() end
 

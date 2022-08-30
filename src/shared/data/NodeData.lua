@@ -25,9 +25,11 @@ local NodeData = {
 		},
 		DropAmountOnDestruction = RandomRange.new(10, 20),
 		RequiredToolType = Enums.ToolTypes.Pickaxe,
-		Model = nil,
+		Models = {
+			[100] = ReplicatedStorage.Assets.Nodes.StoneNode[100],
+		},
 		Effects = nil,
-		Radius = 3,
+		Radius = 7.5,
 	},
 }
 

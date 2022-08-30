@@ -28,16 +28,17 @@ return {
 				[1] = {
 					PlayerStat = Enums.PlayerStats.DestroyedNodes,
 					Requirements = {
-						Enums.Nodes.Stone
+						Enums.Nodes.Stone,
 					},
 					Quantity = 100,
 				},
 			},
 		},
-		Height = 0,
 		StageBlocker = nil,
 		SpawnLocation = nil,
-		StageSpawners = {},
+		StageSpawners = {
+			game.Workspace.StageSpawners:WaitForChild("TestStage1"),
+		},
 		Nodes = {
 			--Weighted table with spawnable nodes in this stage.
 			[Enums.Nodes.Stone] = 100,

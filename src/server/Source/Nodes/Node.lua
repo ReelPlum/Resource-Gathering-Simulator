@@ -20,7 +20,7 @@ local nodeRarityData = require(ReplicatedStorage.Data.NodeRarityData)
 local Node = {}
 Node.__index = Node
 
-function Node.new(NodeType: number, StageObj)
+function Node.new(NodeType: number, StageObj, stageSpawner: BasePart)
 	local self = setmetatable({}, Node)
 
 	self.Spawned = false
@@ -28,6 +28,7 @@ function Node.new(NodeType: number, StageObj)
 	self.StageObj = StageObj
 	self.Stage = self.StageObj.Stage
 	self.NodeType = NodeType
+	self.StageSpawner = stageSpawner
 
 	self.NodeData = nodeData[NodeType]
 	self.StageData = stageData[self.Stage]
@@ -55,7 +56,31 @@ function Node:Spawn()
 	self.MaxHealth = self.NodeData.Health:GetRandomNumber() --Get health from node data
 	self.CurrentHealth = self.MaxHealth
 	self.Rarity = self.StageObj:GetRarity() --Choose rarity from chances in stage data
-	self.Position = Vector3.new(50, self.StageData.Height, 50) --Nodes are automatically height adjusted on the client
+
+	local p = nil
+
+	--Try over and over again until theres no collisions
+	local success = false
+	while not success do
+		success = true
+
+		p = (self.StageSpawner.CFrame * CFrame.new(
+			math.random(-self.StageSpawner.Size.X / 2, self.StageSpawner.Size.X / 2),
+			-self.StageSpawner.Size.Y / 2,
+			math.random(-self.StageSpawner.Size.Z / 2, self.StageSpawner.Size.Z / 2)
+		)).Position
+
+		for _, node in NodeService:GetNodesAtStage(self.Stage) do
+			if not node.Position then
+				continue
+			end
+			if not ((p - node.Position).Magnitude > self.NodeData.Radius + node.NodeData.Radius + 1) then
+				success = false
+			end
+		end
+	end
+
+	self.Position = Vector3.new(p.X, p.Y, p.Z) --Nodes are automatically height adjusted on the client
 
 	--Tell client to create a node
 	NodeService.Client.SpawnNode:FireAll(self.Id, self:GetData())

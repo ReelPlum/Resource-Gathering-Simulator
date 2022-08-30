@@ -23,9 +23,10 @@ function NodeController:GetNodeFromId(id)
 end
 
 function NodeController:SpawnNode(id, data)
+	print("Spawning node... " .. id)
+
 	local node = clientNode.new(id, data)
 	Nodes[id] = node
-	node:Load()
 end
 
 function NodeController:KnitStart()
@@ -33,6 +34,12 @@ function NodeController:KnitStart()
 
 	NodeService.SpawnNode:Connect(function(id, data)
 		NodeController:SpawnNode(id, data)
+	end)
+
+	NodeService:GetSpawnedNodes():andThen(function(nodes)
+		for id, data in nodes do
+			NodeController:SpawnNode(id, data)
+		end
 	end)
 end
 

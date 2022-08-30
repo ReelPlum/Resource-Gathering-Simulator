@@ -23,8 +23,6 @@ function NodeController:GetNodeFromId(id)
 end
 
 function NodeController:SpawnNode(id, data)
-	print("Spawning node... " .. id)
-
 	local node = clientNode.new(id, data)
 	Nodes[id] = node
 end

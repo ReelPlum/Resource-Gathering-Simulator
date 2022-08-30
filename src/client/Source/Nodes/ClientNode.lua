@@ -64,6 +64,8 @@ function ClientNode:ShowHealth() end
 
 function ClientNode:Render()
 	--Render the correct model for the client
+	local firstSpawn = not self.Model
+
 	local percentage = self.CurrentHealth / self.MaxHealth * 100
 
 	local m = nil
@@ -110,6 +112,11 @@ function ClientNode:Render()
 		self.Model.Parent = workspace
 
 		--Create healthbar
+
+		--Spawn animation
+		if firstSpawn then
+			--It's the first spawn. Animate the model in.
+		end
 	end
 
 	--Healthbar

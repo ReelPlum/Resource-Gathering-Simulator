@@ -158,7 +158,7 @@ function Node:CheckHealth()
 
 		--Update the stats for players who did damage
 		for user, _ in self.DamageDone do
-			user:IncrementPlayerStat(Enums.PlayerStats.DestroyedNodes, {Type = self.NodeType, Rarity = self.Rarity})
+			user:IncrementPlayerStat(Enums.PlayerStats.DestroyedNodes, { Type = self.NodeType, Rarity = self.Rarity })
 		end
 
 		--Drop resources
@@ -195,6 +195,9 @@ function Node:Damage(user, tool)
 	if not self.Spawned then
 		return
 	end
+
+	--Check users distance from node.
+
 	if self.NodeData.RequiredToolType ~= tool.ToolType then
 		return
 	end --Not the correct tool for the node.

@@ -25,6 +25,15 @@ local UserService = knit.CreateService({
 
 local Users = {}
 
+function UserService.Client:GetPlayerStatsValues(player: Player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.PlayerStats
+end
+
 function UserService:GetUserFromPlayer(player: Player)
 	return Users[player] --Users are registered with their player
 end
@@ -43,9 +52,7 @@ function UserService:GetUsers()
 	return Users
 end
 
-function UserService:KnitStart()
-	
-end
+function UserService:KnitStart() end
 
 function UserService:KnitInit()
 	--Load users

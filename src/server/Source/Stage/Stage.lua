@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local stageData = require(ReplicatedStorage.Data.StageData)
 
 local Stage = {}
@@ -90,7 +92,7 @@ function Stage:Buy(user)
 	--Buy the stage
 	user.Data.OwnedStages[self.Stage] = {
 		Date = tick(),
-		Playtime = user.Data.Playtime,
+		Playtime = user.Data.PlayerStats[Enums.PlayerStats.Playtime],
 	}
 
 	return true

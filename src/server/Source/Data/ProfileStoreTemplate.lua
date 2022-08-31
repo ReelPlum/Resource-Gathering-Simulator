@@ -6,7 +6,6 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 
 return {
 	JoinedAt = tick(),
-	Playtime = 0,
 	Resources = {},
 	Currencies = {},
 	Tools = {},

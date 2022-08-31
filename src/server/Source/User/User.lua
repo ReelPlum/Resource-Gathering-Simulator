@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local stageData = require(ReplicatedStorage.Data.StageData)
 local starterData = require(ReplicatedStorage.Data.StarterData)
 
@@ -39,6 +41,7 @@ function User.new(player: Player)
 
 	self:LoadData()
 	self:ListenForStageProgress()
+	self:CountPlaytime()
 
 	return self
 end
@@ -68,7 +71,7 @@ function User:IncrementPlayerStat(playerStat, data: { any }, val: number?)
 	if not self.DataLoaded then
 		self.Signals.DataLoaded:Wait()
 	end
-
+	
 	if not self.Data.PlayerStats[playerStat] then
 		self.Data.PlayerStats[playerStat] = 0
 	end
@@ -78,6 +81,21 @@ function User:IncrementPlayerStat(playerStat, data: { any }, val: number?)
 
 	local UserService = knit.GetService("UserService")
 	UserService.Client.PlayerStatChanged:Fire(self.Player, playerStat, self.Data.PlayerStats[playerStat])
+end
+
+function User:CountPlaytime()
+	local t = 5
+
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	--Count the playtime
+	task.spawn(function()
+		while task.wait(t) do
+			self:IncrementPlayerStat(Enums.PlayerStats.Playtime, {}, t)
+		end
+	end)
 end
 
 function User:ListenForStageProgress()

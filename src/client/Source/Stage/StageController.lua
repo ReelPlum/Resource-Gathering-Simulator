@@ -45,14 +45,25 @@ function StageController:KnitStart()
 	end
 
 	--Unlock owned stages
-	StageService:GetOwnedStages():andThen(function(stages)
-		for _, stage in stages do
-			StageController:UnlockStage(stage)
-		end
-	end)
+	local function GetOwnedStages()
+		StageService:GetOwnedStages():andThen(function(stages)
+			if not stages then
+				task.wait(2)
+				GetOwnedStages()
+				return
+			end
+			for _, stage in stages do
+				StageController:UnlockStage(stage)
+			end
+		end)
+	end
+	GetOwnedStages()
 
 	--For changes is stage progress
 	StageService.NewStageProgress:Connect(function(progress)
+		if not progress then
+			return
+		end
 		if not progress.Stage then
 			return
 		end
@@ -66,6 +77,9 @@ function StageController:KnitStart()
 	end)
 
 	StageService:GetCurrentStageProgresss():andThen(function(progress)
+		if not progress then
+			return
+		end
 		if not progress.Stage then
 			return
 		end --No stage is set to the progress.

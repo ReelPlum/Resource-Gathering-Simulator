@@ -29,7 +29,7 @@ local NodeData = {
 			[100] = ReplicatedStorage.Assets.Nodes.StoneNode[100],
 		},
 		Effects = nil,
-		Radius = 7.5,
+		Radius = 10,
 	},
 }
 

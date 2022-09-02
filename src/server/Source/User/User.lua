@@ -41,6 +41,7 @@ function User.new(player: Player)
 		Destroying = self.Janitor:Add(signal.new()),
 		DataLoaded = self.Janitor:Add(signal.new()),
 		PlayerStatChanged = self.Janitor:Add(signal.new()),
+		DidTeleport = self.Janitor:Add(signal.new())
 	}
 
 	self:LoadData()

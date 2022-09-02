@@ -89,12 +89,18 @@ function Node:Spawn()
 	self.Spawned = true
 end
 
-function Node:GetPosition()
+function Node:GetPosition(user)
 	--Returns a position for the player to go to
-	return (CFrame.new(self.Position) * CFrame.Angles(0, math.rad(math.random(0, 360)), 0) * CFrame.new(
+	if not user.Player.Character then
+		return
+	end
+
+	local userpos = user.Player.Character:WaitForChild("HumanoidRootPart").CFrame.Position
+
+	return (CFrame.new(self.Position, Vector3.new(userpos.X, self.Position.Y, userpos.Z)) * CFrame.new(
 		0,
 		0,
-		self.NodeData.Radius
+		-self.NodeData.Radius
 	)).Position
 end
 

@@ -6,6 +6,8 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local UserInputService = game:GetService("UserInputService")
+
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 
@@ -29,6 +31,27 @@ end
 
 function NodeController:KnitStart()
 	local NodeService = knit.GetService("NodeService")
+	local MouseController = knit.GetController("MouseController")
+
+	UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+		if gameProcessedEvent then
+			return
+		end
+
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			MouseController:GetMouseHitWithTag("Node"):andThen(function(hit)
+				if not hit then
+					return
+				end
+
+				local id = hit.Parent:GetAttribute("Id")
+				if id then
+					print(id)
+					NodeService:AttackNode(id)
+				end
+			end)
+		end
+	end)
 
 	NodeService.SpawnNode:Connect(function(id, data)
 		NodeController:SpawnNode(id, data)

@@ -40,6 +40,37 @@ function NodeService.Client:GetSpawnedNodes(player)
 	return n
 end
 
+function NodeService.Client:AttackNode(player: Player, nodeId)
+	local UserService = knit.GetService("UserService")
+
+	local user = UserService:GetUserFromPlayer(player)
+
+	local node = NodeService:GetNodeFromId(nodeId)
+	if not node then
+		return
+	end
+	--Check if user has needed tool
+
+	--Get position for move to
+	local position = node:GetPosition(user)
+	--node:Target(user, true)
+
+	warn("Attacking node " .. nodeId)
+
+	user.Character
+		:MoveToPoint(position)
+		:andThen(function()
+			if not player.Character then
+				return
+			end
+			--Make player look at node
+			local playerPos = player.Character:WaitForChild("HumanoidRootPart").CFrame.Position
+			player.Character:WaitForChild("HumanoidRootPart").CFrame =
+				CFrame.new(playerPos, Vector3.new(node.Position.X, playerPos.Y, node.Position.Z))
+		end)
+		:catch(warn)
+end
+
 function NodeService:NodeDestroyed(node)
 	Nodes[node.Id] = nil
 	NodesAtStage[node.Stage][node.Id] = nil

@@ -9,6 +9,9 @@ local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
 
+local PhysicsService = game:GetService("PhysicsService")
+local CollectionService = game:GetService("CollectionService")
+
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
@@ -89,6 +92,14 @@ function ClientNode:Render()
 
 		self.LastPercentage = best
 		self.Model = self.ModelJanitor:Add(m:Clone())
+		CollectionService:AddTag(self.Model, "Node")
+		self.Model:SetAttribute("Id", self.Id)
+
+		for _, descendant in self.Model:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				PhysicsService:SetPartCollisionGroup(descendant, "Nodes")
+			end
+		end
 
 		--Position the model
 		local cf, size = self.Model:GetBoundingBox()

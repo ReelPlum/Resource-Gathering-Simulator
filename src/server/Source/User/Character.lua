@@ -7,6 +7,7 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PathfindingService = game:GetService("PathfindingService")
+local PhysicsService = game:GetService("PhysicsService")
 
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
@@ -28,16 +29,31 @@ function Character.new(user)
 		MoveToCancelled = self.Janitor:Add(signal.new()),
 	}
 
+	self.Janitor:Add(self.User.Player.CharacterAdded:Connect(function(character)
+		--Collision group
+		for _, descendant in character:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				PhysicsService:SetPartCollisionGroup(descendant, "Players")
+			end
+		end
+
+		character.DescendantAdded:Connect(function(descendant)
+			if descendant:IsA("BasePart") then
+				PhysicsService:SetPartCollisionGroup(descendant, "Players")
+			end
+		end)
+	end))
+
 	return self
 end
 
 function Character:MoveToFailed()
-  local UserService = knit.GetService("UserService")
-  UserService.Client.ShowPathfindingNodes:Fire(self.User.Player, {})
+	local UserService = knit.GetService("UserService")
+	UserService.Client.ShowPathfindingNodes:Fire(self.User.Player, {})
 end
 
 function Character:MoveToPoint(point: Vector3)
-  local UserService = knit.GetService("UserService")
+	local UserService = knit.GetService("UserService")
 
 	local moveJanitor = self.Janitor:Add(janitor.new())
 	if not self.User.Player.Character then
@@ -61,12 +77,12 @@ function Character:MoveToPoint(point: Vector3)
 
 	--Stop the movement, if the player dies or teleports
 	moveJanitor:Add(self.User.Player.Character:WaitForChild("Humanoid").Died:Connect(function()
-    self:MoveToFailed()
+		self:MoveToFailed()
 		moveJanitor:Cleanup()
 	end))
 
 	moveJanitor:Add(self.User.Signals.DidTeleport:Connect(function()
-    self:MoveToFailed()
+		self:MoveToFailed()
 		moveJanitor:Cleanup()
 	end))
 
@@ -80,24 +96,24 @@ function Character:MoveToPoint(point: Vector3)
 	end)
 	if not success then
 		warn("Failed pathfinding... Got message: " .. msg)
-    return
+		return
 	elseif success and path.Status == Enum.PathStatus.Success then
 		local waypoints = path:GetWaypoints()
-    UserService.Client.ShowPathfindingNodes:Fire(self.User.Player, waypoints)
+		UserService.Client.ShowPathfindingNodes:Fire(self.User.Player, waypoints)
 
 		--Move the player to the target
 		local waypointIndex = 1
 
 		moveJanitor:Add(self.User.Player.Character:WaitForChild("Humanoid").MoveToFinished:Connect(function(reached)
 			if not self.User.Player.Character then
-        self:MoveToFailed()
+				self:MoveToFailed()
 				moveJanitor:Cleanup()
 				return
 			end
 
 			if not reached or waypointIndex >= #waypoints then
 				self.Signals.MoveToCancelled:Fire()
-        self:MoveToFailed()
+				self:MoveToFailed()
 				moveJanitor:Cleanup()
 				return
 			end

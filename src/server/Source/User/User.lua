@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local characterObj = require(script.Parent.Character)
+
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local stageData = require(ReplicatedStorage.Data.StageData)
@@ -22,6 +24,8 @@ function User.new(player: Player)
 	local self = setmetatable({}, User)
 
 	self.Player = player
+
+	self.Character = characterObj.new(self)
 
 	self.Data = {}
 	self._d = {}

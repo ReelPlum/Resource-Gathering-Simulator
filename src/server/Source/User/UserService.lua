@@ -16,6 +16,7 @@ local UserService = knit.CreateService({
 	Name = "UserService",
 	Client = {
 		PlayerStatChanged = knit.CreateSignal(),
+		ShowPathfindingNodes = knit.CreateSignal(),
 	},
 	Signals = {
 		UserAdded = signal.new(),

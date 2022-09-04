@@ -108,7 +108,7 @@ function Stage:SpawnNode(stageSpawner)
 	node.Signals.Destroying:Connect(function()
 		--Wait a random amount of time, and then respawn the node
 		task.wait(math.random(500, 1500) / 100)
-		self:SpawnNode()
+		self:SpawnNode(stageSpawner)
 	end)
 end
 

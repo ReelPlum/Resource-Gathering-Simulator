@@ -6,6 +6,8 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local RunService = game:GetService("RunService")
+
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
@@ -27,6 +29,8 @@ function User.new(player: Player)
 
 	self.Character = characterObj.new(self)
 
+	self.CurrentNode = nil
+
 	self.Data = {}
 	self._d = {}
 	self.DataLoaded = false
@@ -37,16 +41,29 @@ function User.new(player: Player)
 	}
 
 	self.Janitor = janitor.new()
+	self.AttackJanitor = self.Janitor:Add(janitor.new())
 	self.Signals = {
 		Destroying = self.Janitor:Add(signal.new()),
 		DataLoaded = self.Janitor:Add(signal.new()),
 		PlayerStatChanged = self.Janitor:Add(signal.new()),
-		DidTeleport = self.Janitor:Add(signal.new())
+		DidTeleport = self.Janitor:Add(signal.new()),
+		EquippedTool = self.Janitor:Add(signal.new()),
+		UnequippedTool = self.Janitor:Add(signal.new()),
+		UnselectedTool = self.Janitor:Add(signal.new()), --Removed tool as the selected tool for given material
+		SelectedTool = self.Janitor:Add(signal.new()), --Chose tool as the selected tool for given material
 	}
 
 	self:LoadData()
 	self:ListenForStageProgress()
 	self:CountPlaytime()
+
+	self.AttackJanitor:Add(self.Signals.UnselectedTool:Connect(function(tool)
+		if tool == self.EquippedTool then
+			self.EquippedTool = nil
+
+			self:StopAttacking()
+		end
+	end))
 
 	return self
 end
@@ -70,13 +87,18 @@ function User:LoadData()
 		self.DataLoaded = true
 		self.Signals.DataLoaded:Fire()
 	end)
+
+	--Testing
+	task.wait(5)
+	local ToolService = knit.GetService("ToolService")
+	self.Tools[Enums.ToolTypes.Pickaxe] = ToolService:CreateTool(self, Enums.Tools.TestTool)
 end
 
 function User:IncrementPlayerStat(playerStat, data: { any }, val: number?)
 	if not self.DataLoaded then
 		self.Signals.DataLoaded:Wait()
 	end
-	
+
 	if not self.Data.PlayerStats[playerStat] then
 		self.Data.PlayerStats[playerStat] = 0
 	end
@@ -135,6 +157,45 @@ function User:ListenForStageProgress()
 			self.Data.CurrentStageProgress.Stats[i] += increment
 			StageService.Client.StageStatProgressChanged:Fire(self.Player, self.Data.CurrentStageProgress)
 		end
+	end))
+end
+
+function User:StopAttacking()
+	--Make the user & pets stop attacking
+	self.AttackJanitor:Cleanup()
+	self.CurrentNode = nil
+
+	if self.EquippedTool then
+		self.EquippedTool:Unequip()
+	end
+end
+
+function User:AttackNode(node)
+	if not self.Player.Character then
+		return
+	end
+
+	--Make the user & pets attack the given node.
+	self.CurrentNode = node
+
+	--Find the tool, which the player will attack with.
+	local tool = self.Tools[self.CurrentNode.NodeData.RequiredToolType]
+	if not tool then
+		self:StopAttacking()
+		return
+	end
+	tool:Equip()
+	self.EquippedTool = tool
+	self.EquippedTool:StartMining(node)
+
+	self.AttackJanitor:Add(self.CurrentNode.Signals.Destroying:Connect(function()
+		self:StopAttacking()
+	end))
+
+	self.AttackJanitor:Add(self.EquippedTool.Signals.Attack:Connect(function()
+		--Attack
+		self.CurrentNode:Damage(self, self.EquippedTool)
+		print("attack!")
 	end))
 end
 

@@ -57,6 +57,39 @@ function NodeController:KnitStart()
 		NodeController:SpawnNode(id, data)
 	end)
 
+	NodeService.DamageNode:Connect(function(id)
+		--Damage node animation
+		local node = NodeController:GetNodeFromId(id)
+		if not node then
+			return
+		end
+
+		node:DamageEffect()
+	end)
+
+	NodeService.HealthChanged:Connect(function(id, player, newHealth)
+		--Change node's health
+		local node = NodeController:GetNodeFromId(id)
+		if not node then
+			return
+		end
+
+		node:HealthChanged(player, newHealth)
+	end)
+
+	NodeService.DropStageReached:Connect(function() end)
+
+	NodeService.DestroyNode:Connect(function(id)
+		--Destroy node
+		local node = NodeController:GetNodeFromId(id)
+		if not node then
+			return
+		end
+		node:DestroyEffect():andThen(function()
+			node:Destroy()
+		end)
+	end)
+
 	NodeService:GetSpawnedNodes():andThen(function(nodes)
 		for id, data in nodes do
 			NodeController:SpawnNode(id, data)

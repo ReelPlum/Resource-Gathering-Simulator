@@ -25,7 +25,7 @@ return {
 			},
 			Stats = {
 				--Player stats required to buy this stage
-				[1] = {
+				["1"] = {
 					PlayerStat = Enums.PlayerStats.DestroyedNodes,
 					Requirements = {
 						Enums.Nodes.Stone,

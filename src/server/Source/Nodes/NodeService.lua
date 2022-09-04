@@ -41,9 +41,15 @@ function NodeService.Client:GetSpawnedNodes(player)
 end
 
 function NodeService.Client:AttackNode(player: Player, nodeId)
+	local AttackJanitor = janitor.new()
+
 	local UserService = knit.GetService("UserService")
 
 	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+	user:StopAttacking()
 
 	local node = NodeService:GetNodeFromId(nodeId)
 	if not node then
@@ -67,6 +73,13 @@ function NodeService.Client:AttackNode(player: Player, nodeId)
 			local playerPos = player.Character:WaitForChild("HumanoidRootPart").CFrame.Position
 			player.Character:WaitForChild("HumanoidRootPart").CFrame =
 				CFrame.new(playerPos, Vector3.new(node.Position.X, playerPos.Y, node.Position.Z))
+
+			user:AttackNode(node)
+
+			AttackJanitor:Add(player.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+				user:StopAttacking()
+				AttackJanitor:Cleanup()
+			end))
 		end)
 		:catch(warn)
 end
@@ -75,7 +88,7 @@ function NodeService:NodeDestroyed(node)
 	Nodes[node.Id] = nil
 	NodesAtStage[node.Stage][node.Id] = nil
 
-	NodeService.Client.NodeDestroyed:FireAll(node.Id)
+	NodeService.Client.DestroyNode:FireAll(node.Id)
 end
 
 function NodeService:GetNodeFromId(nodeId)

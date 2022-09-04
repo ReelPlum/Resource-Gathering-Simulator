@@ -22,18 +22,21 @@ Tool.__index = Tool
 function Tool.new(user, tool)
 	local self = setmetatable({}, Tool)
 
+	print("Creating tool")
+
 	self.User = user
 	self.Id = HttpService:GenerateGUID(false)
 
 	self.Janitor = janitor.new()
 	self.EquipJanitor = self.Janitor:Add(janitor.new())
+	self.MineJanitor = self.Janitor:Add(janitor.new())
 
 	self.InventoryData = nil
 	self.ToolData = toolData[tool]
 	self.Tool = tool
 	self.Equipped = false
 	self.ToolModel = self.Janitor:Add(self.ToolData.Tool:Clone())
-	self.ToolModel.Parent = self.User.Player.BackPack
+	self.ToolModel.Parent = self.User.Player.Backpack
 
 	self.LastMine = 0
 	self.Mining = false
@@ -44,6 +47,7 @@ function Tool.new(user, tool)
 		Equipped = self.Janitor:Add(signal.new()),
 		Unequipped = self.Janitor:Add(signal.new()),
 		StateChanged = self.Janitor:Add(signal.new()),
+		Attack = self.Janitor:Add(signal.new()),
 	}
 
 	return self
@@ -83,13 +87,15 @@ function Tool:Equip()
 		return
 	end
 	if self.User.EquippedTool then
-		self.User.EquippedTool:UnEquip()
+		self.User.EquippedTool:Unequip()
 	end
+
+	self.EquipJanitor:Cleanup()
+	self.MineJanitor:Cleanup()
 
 	--Equip the roblox tool on the player
 	self.User.Player.Character.Humanoid:EquipTool(self.ToolModel)
 
-	self:SetState(Enums.ToolStates.Equipped)
 	self.User.EquippedTool = self
 	self.Equipped = true
 	self.CurrentTarget = nil
@@ -105,10 +111,10 @@ function Tool:Unequip()
 	if self.User.Player.Character then
 		self.User.Player.Character.Humanoid:UnequipTools()
 	end
-
-	self:SetState(Enums.ToolStates.Stowed)
 	self.User.EquippedTool = nil
 	self.Equipped = false
+	self.EquipJanitor:Cleanup()
+	self.MineJanitor:Cleanup()
 
 	self.Signals.Unequipped:Fire()
 end
@@ -119,8 +125,17 @@ function Tool:StartMining(node)
 	end
 
 	--Set the mining target
-	self:SetState(Enums.ToolStates.Mining)
 	self.CurrentTarget = node
+
+	--Load animation
+	local animator = self.User.Player.Character:WaitForChild("Humanoid"):WaitForChild("Animator")
+	local anim = self.MineJanitor:Add(animator:LoadAnimation(self.ToolData.Animations.Mine), "Stop")
+
+	self.MineJanitor:Add(anim:GetMarkerReachedSignal("Attack"):Connect(function()
+		self.Signals.Attack:Fire()
+	end))
+
+	anim:Play()
 end
 
 function Tool:StopMining()
@@ -131,18 +146,9 @@ function Tool:StopMining()
 		return
 	end
 
+	self.MineJanitor:Cleanup()
+
 	self.CurrentTarget = nil
-	self:SetState(Enums.ToolStates.Equipped)
-end
-
-function Tool:SetState(newState)
-	local oldState = self.CurrentState
-	self.CurrentState = newState
-
-	--Tell the client, that the state has changed
-	local ToolService = knit:GetService("ToolService")
-	self.Signals.StateChanged:Fire(oldState, newState)
-	ToolService.Client.StateChanged:Fire(self.User.Player, self.Id, newState)
 end
 
 function Tool:Destroy()

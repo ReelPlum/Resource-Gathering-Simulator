@@ -4,6 +4,7 @@ ClientNode
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
@@ -15,6 +16,7 @@ local CollectionService = game:GetService("CollectionService")
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
+local promise = require(ReplicatedStorage.Packages.Promise)
 
 local nodeData = require(ReplicatedStorage.Data.NodeData)
 
@@ -140,7 +142,12 @@ end
 
 function ClientNode:DamageEffect() end
 
-function ClientNode:DestroyEffect() end
+function ClientNode:DestroyEffect()
+	return promise.new(function(resolve, reject)
+		task.wait(1)
+		resolve()
+	end)
+end
 
 function ClientNode:HealthChanged(player, newHealth)
 	self.CurrentHealth = newHealth
@@ -153,7 +160,7 @@ function ClientNode:HealthChanged(player, newHealth)
 	self:Render()
 end
 
-function ClientNode:Destroy()
+function ClientNode:Destroy(withAnimation: boolean)
 	self.Signals.Destroying:Fire()
 	self.Janitor:Destroy()
 	self = nil

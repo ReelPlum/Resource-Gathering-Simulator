@@ -10,16 +10,16 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 local RandomRange = require(ReplicatedStorage.Common.RandomRange)
 
 local ToolData = {
-  StarterTool = Enums.Tools.TestTool,
+	StarterTool = Enums.Tools.TestTool,
 
-  [Enums.Tools.TestTool] = {
-    DisplayName = "Test Tool",
-    Strength = 100,
-    Damage = RandomRange.new(30, 50),
-    ToolType = Enums.ToolTypes.Pickaxe,
-    Tool = nil,
-    Animations = nil,
-  }
+	[Enums.Tools.TestTool] = {
+		DisplayName = "Test Tool",
+		Strength = 100,
+		Damage = RandomRange.new(5, 10),
+		ToolType = Enums.ToolTypes.Pickaxe,
+		Tool = ReplicatedStorage.Assets.Tools.Pickaxe,
+		Animations = ReplicatedStorage.Assets.Animations["Tool Animations"].Default,
+	},
 }
 
 return ToolData

@@ -140,12 +140,14 @@ function Node:GetData()
 end
 
 function Node:CheckHealth()
+	local NodeService = knit.GetService("NodeService")
 	--Nodes have different drop stages specified. Check if a drop stage has been reached (or if the node has been destroyed)
 	if not self.Spawned then
 		return
 	end
 
 	local percentage = self.CurrentHealth / self.MaxHealth * 100
+	print(percentage)
 
 	for p, range in self.NodeData.DropStages do
 		if self.ReachedDropStages[p] then
@@ -157,6 +159,7 @@ function Node:CheckHealth()
 		self.ReachedDropStages[p] = true
 		--NodeService:DropResources(self, range:GetRandomNumber())
 		self:DropResources(range:GetRandomNumber(), self.MaxHealth - self.MaxHealth * p / 100)
+		NodeService.Client.DropStageReached:FireAll(self.Id)
 	end
 
 	if 0 >= self.CurrentHealth then
@@ -182,14 +185,16 @@ function Node:TakeDamage(amount: number, user)
 	if not self.DamageDone[user] then
 		self.DamageDone[user] = { Damage = 0, UsedTools = {} }
 	end
-	if not self.DamageDone.UsedTools[user.EquippedTool] then
-		self.DamageDone.UsedTools[user.EquippedTool] = 0
+	if not self.DamageDone[user].UsedTools[user.EquippedTool] then
+		self.DamageDone[user].UsedTools[user.EquippedTool] = 0
 	end
-	local dmg = math.clamp(amount, 0, self.MaxHealth - self.CurrentHealth)
+	local dmg = math.clamp(amount, 0, self.MaxHealth - (self.MaxHealth - self.CurrentHealth))
 	self.DamageDone[user].Damage += dmg
-	self.DamageDone.UsedTools[user.EquippedTool] += dmg
+	self.DamageDone[user].UsedTools[user.EquippedTool] += dmg
 
-	self.CurrentHealth -= dmg
+	print(dmg)
+	self.CurrentHealth = self.CurrentHealth - dmg
+	print(self.CurrentHealth)
 	self:CheckHealth()
 
 	local NodeService = knit.GetService("NodeService")
@@ -204,17 +209,20 @@ function Node:Damage(user, tool)
 
 	--Check users distance from node.
 
-	if self.NodeData.RequiredToolType ~= tool.ToolType then
+	if self.NodeData.RequiredToolType ~= tool.ToolData.ToolType then
+		print(self.NodeData.RequiredToolType)
+		print(tool.ToolType)
 		return
 	end --Not the correct tool for the node.
 
 	local enchantsMultipliers = tool:GetEnchantsMultipliers()
 
-	local dmg = tool.Strenght
+	local dmg = tool.ToolData.Strength
 		/ self.NodeData.Resistance
 		* tool.ToolData.Damage:GetRandomNumber()
 		* enchantsMultipliers[Enums.BoostTypes.Damage]
 
+	print(dmg)
 	self:TakeDamage(dmg, user)
 
 	--Damage effect on node

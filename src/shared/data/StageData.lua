@@ -12,7 +12,46 @@ return {
 	[Enums.Stages.TestStage] = {
 		DisplayName = "Test Stage",
 		World = Enums.Worlds.TestWorld,
-		Dependency = nil,
+		Dependency = Enums.Stages.TestStage,
+		NextStage = Enums.Stages.NextStage,
+		RequiredForUpgrade = {
+			Resources = {
+				--Resources required to buy this stage
+				[Enums.Resources.Stone] = 100,
+			},
+			Currencies = {
+				--Currencies required to buy this stage
+				[Enums.Currencies.Coins] = 100,
+			},
+			Stats = {
+				--Player stats required to buy this stage
+				["1"] = {
+					PlayerStat = Enums.PlayerStats.DestroyedNodes,
+					Requirements = {
+						Enums.Nodes.Stone,
+					},
+					Quantity = 100,
+				},
+			},
+		},
+		StageBlocker = nil,
+		SpawnLocation = nil,
+		StageSpawners = {
+			game.Workspace.StageSpawners:WaitForChild("NextStage1"),
+		},
+		Nodes = {
+			--Weighted table with spawnable nodes in this stage.
+			[Enums.Nodes.Stone] = 100,
+		},
+		Rarities = {
+			[Enums.NodeRarities.Normal] = 100,
+		},
+	},
+
+	[Enums.Stages.NextStage] = {
+		DisplayName = "Test Stage",
+		World = Enums.Worlds.TestWorld,
+		Dependency = Enums.Stages.TestStage,
 		NextStage = nil,
 		RequiredForUpgrade = {
 			Resources = {

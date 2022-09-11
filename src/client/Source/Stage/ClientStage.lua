@@ -47,7 +47,7 @@ function ClientStage:IsNextStage()
 end
 
 function ClientStage:StatProgressChanged(newProgress)
-	self.StatProgressChanged = newProgress
+	self.Signals.StatProgress = newProgress
 	self.Signals.StatProgressChanged:Fire(self.StatProgress)
 end
 

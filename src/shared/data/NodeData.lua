@@ -23,10 +23,10 @@ local NodeData = {
 			[Enums.Currencies.Coins] = 100,
 		},
 		DropStages = {
-			[50] = RandomRange.new(5, 10),
-			[25] = RandomRange.new(5, 10),
+			[50] = RandomRange.new(2, 4),
+			[25] = RandomRange.new(2, 4),
 		},
-		DropAmountOnDestruction = RandomRange.new(10, 20),
+		DropAmountOnDestruction = RandomRange.new(3, 6),
 		RequiredToolType = Enums.ToolTypes.Pickaxe,
 		Models = {
 			[100] = ReplicatedStorage.Assets.Nodes.StoneNode[100],

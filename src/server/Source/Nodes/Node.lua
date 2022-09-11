@@ -124,7 +124,11 @@ function Node:DropResources(amount, health)
 			* enchants[Enums.BoostTypes.Drops]
 			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
 
-		DropsService:DropResourcesAtNode(user, self.NodeData.Drops, dropAmount, self)
+		local resources = DropsService:DropResourcesAtNode(user, self.NodeData.Drops, dropAmount, self)
+
+		for resource, a in resources do
+			user:GiveResource(resource, a)
+		end
 	end
 end
 
@@ -147,8 +151,15 @@ function Node:DropCurrencies(amount, health)
 			* math.clamp(data.Damage / health, 0, 1)
 			* enchants[Enums.BoostTypes.Drops]
 			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
+			* user:GetActiveBoosts()[Enums.BoostTypes.Drops]
+			* user:GetPetBoosts()[Enums.BoostTypes.Drops]
+			* user:GetUpgradeBoosts()[Enums.BoostTypes.Drops]
 
-		DropsService:DropCurrenciesAtNode(user, self.NodeData.Currencies, dropAmount, self)
+		local currencies = DropsService:DropCurrenciesAtNode(user, self.NodeData.Currencies, dropAmount, self)
+
+		for currency, a in currencies do
+			user:GiveCurrency(currency, a)
+		end
 	end
 end
 
@@ -183,21 +194,16 @@ function Node:CheckHealth()
 		self.ReachedDropStages[p] = true
 		--NodeService:DropResources(self, range:GetRandomNumber())
 		self:DropResources(range:GetRandomNumber(), self.MaxHealth - self.MaxHealth * p / 100)
-		self:DropCurrencies(range:GetRandomNumber() / 2, self.MaxHealth - self.MaxHealth * p / 100)
+		self:DropCurrencies(range:GetRandomNumber(), self.MaxHealth - self.MaxHealth * p / 100)
 		NodeService.Client.DropStageReached:FireAll(self.Id)
 	end
 
 	if 0 >= self.CurrentHealth then
 		--Destroyed
 
-		--Update the stats for players who did damage
-		for user, _ in self.DamageDone do
-			user:IncrementPlayerStat(Enums.PlayerStats.DestroyedNodes, { Type = self.NodeType, Rarity = self.Rarity })
-		end
-
 		--Drop resources
 		self:DropResources(self.NodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
-		self:DropCurrencies(self.NodeData.DropAmountOnDestruction:GetRandomNumber() / 2, self.MaxHealth)
+		self:DropCurrencies(self.NodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
 
 		self:Destroy()
 	end

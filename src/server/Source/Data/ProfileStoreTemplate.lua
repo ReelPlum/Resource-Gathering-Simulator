@@ -8,6 +8,7 @@ return {
 	JoinedAt = os.time(),
 	Resources = {},
 	Currencies = {},
+	EquippedTools = {},
 	Tools = {
 		--[[
 		[id]
@@ -36,6 +37,7 @@ return {
 			}
 		]]
 	},
+	ActiveBoosts = {},
 	PlaytimeGiftsAvailable = {},
 	PlaytimeGiftsStreak = 0,
 	RecievedStarterItems = false,

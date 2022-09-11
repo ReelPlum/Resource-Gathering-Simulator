@@ -89,8 +89,7 @@ function Character:MoveToPoint(point: Vector3)
 			end
 
 			if not reached then
-				reject("Character was nil")
-				moveJanitor:Cleanup()
+				self.User.Player.Character:WaitForChild("Humanoid"):MoveTo(point)
 				return
 			end
 

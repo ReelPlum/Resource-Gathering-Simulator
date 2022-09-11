@@ -12,7 +12,7 @@ return {
 	[CustomEnums.Currencies.Coins] = {
 		DisplayName = "Coin",
 		Plural = "Coins",
-		Image = "52151251", --Imageid for displaying
+		Image = "6403436054", --Imageid for displaying
 		Color = Color3.fromRGB(255, 208, 0),
 	},
 }

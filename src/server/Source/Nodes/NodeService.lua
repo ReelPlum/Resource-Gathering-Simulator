@@ -96,6 +96,7 @@ function NodeService:NodeDestroyed(node)
 	NodesAtStage[node.Stage][node.Id] = nil
 
 	NodeService.Client.DestroyNode:FireAll(node.Id)
+	NodeService.Signals.NodeDestroyed:Fire(node.DamageDone, node)
 end
 
 function NodeService:GetNodeFromId(nodeId)

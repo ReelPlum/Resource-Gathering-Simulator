@@ -66,9 +66,21 @@ function ClientDrop:Spawn()
 
 	self.Obj.Size = Vector3.new(1, 1, 1)
 	self.Obj.Anchored = false
-	self.Obj.Transparency = 0
+	self.Obj.Transparency = 1
+	self.Obj.Color = self.DropData.Color
 	self.Obj.Position = self.SpawnLocation
 		+ Vector3.new(math.random(-1500, 1500) / 1000, 0, math.random(-1500, 1500) / 1000)
+
+	local billboard = self.Janitor:Add(Instance.new("BillboardGui"))
+	billboard.Size = UDim2.new(1, 0, 1, 0)
+	billboard.AlwaysOnTop = false
+	billboard.LightInfluence = 0
+	local frame = self.Janitor:Add(Instance.new("ImageLabel"))
+	frame.Parent = billboard
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.BackgroundTransparency = 1
+	frame.Image = "rbxassetid://" .. self.DropData.Image
+	billboard.Parent = self.Obj
 
 	PhysicsService:SetPartCollisionGroup(self.Obj, "Drops")
 

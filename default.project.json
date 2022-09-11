@@ -12,6 +12,9 @@
       },
       "Common": {
         "$path": "src/shared/common"
+      },
+      "Components": {
+        "$path": "src/shared/components"
       }
     },
     "ServerScriptService": {

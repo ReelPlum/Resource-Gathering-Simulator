@@ -38,6 +38,7 @@ local CustomEnums = {
 	},
 	["Stages"] = {
 		["TestStage"] = "1",
+		["NextStage"] = "2",
 	},
 	["Worlds"] = {
 		["TestWorld"] = "1",
@@ -63,7 +64,7 @@ local CustomEnums = {
 	["DropTypes"] = {
 		["Resource"] = "1",
 		["Currency"] = "2",
-	}
+	},
 }
 
 return CustomEnums

@@ -118,6 +118,7 @@ function StageService:NextStageRequirements(user)
 	end
 
 	local stage = user:GetNextStage()
+	print(stage)
 	if not stageData[stage] then
 		--User is at the max stage
 		user.Data.CurrentStageProgress = {
@@ -141,6 +142,7 @@ function StageService:NextStageRequirements(user)
 		Stats = stats,
 	}
 
+	warn("New stage progress!")
 	StageService.Client.NewStageProgress:Fire(user.Player, user.Data.CurrentStageProgress)
 end
 
@@ -158,6 +160,8 @@ function StageService:KnitStart()
 	end
 
 	local function CheckUser(User)
+		print("Checking user")
+
 		if not User.DataLoaded then
 			User.Signals.DataLoaded:Wait()
 		end

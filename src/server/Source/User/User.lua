@@ -18,6 +18,7 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local stageData = require(ReplicatedStorage.Data.StageData)
 local starterData = require(ReplicatedStorage.Data.StarterData)
+local boostsData = require(ReplicatedStorage.Data.BoostsData)
 
 local User = {}
 User.__index = User
@@ -51,11 +52,15 @@ function User.new(player: Player)
 		UnequippedTool = self.Janitor:Add(signal.new()),
 		UnselectedTool = self.Janitor:Add(signal.new()), --Removed tool as the selected tool for given material
 		SelectedTool = self.Janitor:Add(signal.new()), --Chose tool as the selected tool for given material
+		CurrencyChanged = self.Janitor:Add(signal.new()),
+		ResourceChanged = self.Janitor:Add(signal.new()),
 	}
 
 	self:LoadData()
+	self:Playerstats()
 	self:ListenForStageProgress()
 	self:CountPlaytime()
+	self:CheckBoosts()
 
 	self.AttackJanitor:Add(self.Signals.UnselectedTool:Connect(function(tool)
 		if tool == self.EquippedTool then
@@ -81,7 +86,7 @@ function User:LoadData()
 		if not self.Data.RecievedStarterItems then
 			--The player has not recieved the starter items.
 
-			self.Data.OwnedStages[Enums.Stages.TestStage] = {
+			self.Data.OwnedStages[starterData.StarterStage] = {
 				Date = os.time(),
 				Playtime = self.Data.PlayerStats[Enums.PlayerStats.Playtime] or 0,
 			}
@@ -102,7 +107,7 @@ function User:LoadData()
 	self.Tools[Enums.ToolTypes.Pickaxe] = ToolService:CreateTool(self, Enums.Tools.TestTool)
 end
 
-function User:IncrementPlayerStat(playerStat, data: { any }, val: number?)
+function User:IncrementPlayerStat(playerStat, val: number?, data)
 	if not self.DataLoaded then
 		self.Signals.DataLoaded:Wait()
 	end
@@ -118,6 +123,24 @@ function User:IncrementPlayerStat(playerStat, data: { any }, val: number?)
 	UserService.Client.PlayerStatChanged:Fire(self.Player, playerStat, self.Data.PlayerStats[playerStat])
 end
 
+function User:Playerstats()
+	local PlayerStatsData = require(ReplicatedStorage.Data.PlayerStatsData)
+
+	for playerstat, data in PlayerStatsData do
+		print(data.Trigger)
+		if not data.Trigger then
+			continue
+		end
+
+		self.Janitor:Add(data.Trigger:Connect(function(...)
+			print("STAT!")
+			if data.CheckFunction(self, ...) then
+				self:IncrementPlayerStat(playerstat, 1, data.GetData(self, ...))
+			end
+		end))
+	end
+end
+
 function User:CountPlaytime()
 	local t = 5
 
@@ -128,7 +151,32 @@ function User:CountPlaytime()
 	--Count the playtime
 	task.spawn(function()
 		while task.wait(t) do
-			self:IncrementPlayerStat(Enums.PlayerStats.Playtime, {}, t)
+			self:IncrementPlayerStat(Enums.PlayerStats.Playtime, t, { Type = "Time" })
+		end
+	end)
+end
+
+function User:CheckBoosts()
+	local BoostsService = knit.GetService("BoostsService")
+
+	local t = 5
+
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	--Check boosts every t seconds
+	task.spawn(function()
+		while task.wait(t) do
+			for boost, _ in self.Data.ActiveBoosts do
+				self.Data.ActiveBoosts[boost] -= t
+				BoostsService.Client.BoostTimeChanged:Fire(self.Player, boost, self.Data.ActiveBoosts[boost])
+
+				if self.Data.ActiveBoosts <= 0 then
+					self.Data.ActiveBoosts[boost] = nil
+					BoostsService.Client.BoostEnded:Fire(self.Player, boost)
+				end
+			end
 		end
 	end)
 end
@@ -137,7 +185,7 @@ function User:ListenForStageProgress()
 	--Listens for stage progress changes.
 	local StageService = knit.GetService("StageService")
 
-	self.Janitor:Add(self.Signals.PlayerStatChanged:Connect(function(stat, data, increment)
+	self.Janitor:Add(self.Signals.PlayerStatChanged:Connect(function(stat, increment, data)
 		if not self.DataLoaded then
 			self.Signals.DataLoaded:Wait()
 		end
@@ -149,7 +197,7 @@ function User:ListenForStageProgress()
 			return
 		end
 		local indexes = {}
-		for index, requirementData in stageData.RequiredForUpgrade.Stats do
+		for index, requirementData in s.RequiredForUpgrade.Stats do
 			if requirementData.PlayerStat == stat then
 				table.insert(indexes, index)
 			end
@@ -159,7 +207,7 @@ function User:ListenForStageProgress()
 		end
 
 		for _, i in indexes do
-			if not table.find(stageData.RequiredForUpgrade.Stats[i].Requirements, data.Type) then
+			if not table.find(s.RequiredForUpgrade.Stats[i].Requirements, data.Type) then
 				continue
 			end
 			self.Data.CurrentStageProgress.Stats[i] += increment
@@ -207,6 +255,34 @@ function User:AttackNode(node)
 	end))
 end
 
+function User:GiveCurrency(currency, amount)
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	if not self.Data.Currencies[currency] then
+		self.Data.Currencies[currency] = 0
+	end
+
+	self.Data.Currencies[currency] += amount
+
+	self.Signals.CurrencyChanged:Fire(currency, self.Data.Currencies[currency])
+end
+
+function User:GiveResource(resource, amount)
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	if not self.Data.Currencies[resource] then
+		self.Data.Resources[resource] = 0
+	end
+
+	self.Data.Resources[resource] += amount
+
+	self.Signals.ResourceChanged:Fire(resource, self.Data.Resources[resource])
+end
+
 function User:GetNextStage()
 	--Get the current stage, and return the "next stage" value.
 	return stageData[self:GetCurrentStage()].NextStage
@@ -221,6 +297,8 @@ function User:GetCurrentStage()
 		stage = stageData[stage].NextStage
 	end
 
+	print("Found current stage!")
+	print(stage)
 	return stage
 end
 
@@ -236,14 +314,42 @@ end
 
 function User:GetUpgradeBoosts()
 	--Gets the boosts the user has from upgrades
+	return {
+		[Enums.BoostTypes.Drops] = 1,
+	}
 end
 
 function User:GetPetBoosts()
 	--Boosts from pets
+	return {
+		[Enums.BoostTypes.Drops] = 1,
+	}
 end
 
 function User:GetActiveBoosts()
 	--Activated boosts either bought from robux or from rewards etc.
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	local boosts = {
+		[Enums.BoostTypes.Drops] = 1,
+	}
+
+	for boost, _ in self.Data.ActiveBoosts do
+		local data = boostsData[boost]
+		if not data then
+			continue
+		end
+		for b, val in data.Boosts do
+			if not boosts[b] then
+				boosts[b] = 1
+			end
+			boosts[b] += val
+		end
+	end
+
+	return boosts
 end
 
 function User:Destroy()

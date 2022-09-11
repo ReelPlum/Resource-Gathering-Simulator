@@ -41,20 +41,27 @@ function NodeService.Client:GetSpawnedNodes(player)
 end
 
 function NodeService.Client:AttackNode(player: Player, nodeId)
+	print("Trying to attack!")
 	local AttackJanitor = janitor.new()
 
 	local UserService = knit.GetService("UserService")
 
 	local user = UserService:GetUserFromPlayer(player)
 	if not user then
-		return
+		return warn("User was not found...")
 	end
 	user:StopAttacking()
 
 	local node = NodeService:GetNodeFromId(nodeId)
 	if not node then
-		return
+		return warn("Node was not found...")
 	end
+	--Check if user owns stage
+	if not node:UserOwnsStage(user) then
+		print(user.Data)
+		return warn("User does not own the stage for the node! " .. node.Stage)
+	end
+
 	--Check if user has needed tool
 
 	--Get position for move to

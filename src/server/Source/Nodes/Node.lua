@@ -124,7 +124,31 @@ function Node:DropResources(amount, health)
 			* enchants[Enums.BoostTypes.Drops]
 			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
 
-		DropsService:DropResourceAtNode(user, self.NodeData.Drops, dropAmount, self.Id)
+		DropsService:DropResourcesAtNode(user, self.NodeData.Drops, dropAmount, self)
+	end
+end
+
+function Node:DropCurrencies(amount, health)
+	local DropsService = knit.GetService("DropsService")
+
+	for user, data in self.DamageDone do
+		local tool = nil
+		local highestdmg = 0
+		for t, dmg in data.UsedTools do
+			if dmg > highestdmg then
+				highestdmg = dmg
+				tool = t
+			end
+		end
+
+		local enchants = tool:GetEnchantsMultipliers()
+
+		local dropAmount = amount
+			* math.clamp(data.Damage / health, 0, 1)
+			* enchants[Enums.BoostTypes.Drops]
+			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
+
+		DropsService:DropCurrenciesAtNode(user, self.NodeData.Currencies, dropAmount, self)
 	end
 end
 
@@ -159,6 +183,7 @@ function Node:CheckHealth()
 		self.ReachedDropStages[p] = true
 		--NodeService:DropResources(self, range:GetRandomNumber())
 		self:DropResources(range:GetRandomNumber(), self.MaxHealth - self.MaxHealth * p / 100)
+		self:DropCurrencies(range:GetRandomNumber() / 2, self.MaxHealth - self.MaxHealth * p / 100)
 		NodeService.Client.DropStageReached:FireAll(self.Id)
 	end
 
@@ -172,6 +197,7 @@ function Node:CheckHealth()
 
 		--Drop resources
 		self:DropResources(self.NodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
+		self:DropCurrencies(self.NodeData.DropAmountOnDestruction:GetRandomNumber() / 2, self.MaxHealth)
 
 		self:Destroy()
 	end
@@ -206,9 +232,11 @@ function Node:Damage(user, tool)
 	if not self.Spawned then
 		return
 	end
+	if not self:UserOwnsStage(user) then
+		return
+	end
 
 	--Check users distance from node.
-
 	if self.NodeData.RequiredToolType ~= tool.ToolData.ToolType then
 		print(self.NodeData.RequiredToolType)
 		print(tool.ToolType)
@@ -228,6 +256,12 @@ function Node:Damage(user, tool)
 	--Damage effect on node
 	local NodeService = knit.GetService("NodeService")
 	NodeService.Client.DamageNode:FireAll(self.Id)
+end
+
+function Node:UserOwnsStage(user)
+	local StageService = knit.GetService("StageService")
+
+	return StageService:UserOwnsStage(user, self.Stage)
 end
 
 function Node:Destroy()

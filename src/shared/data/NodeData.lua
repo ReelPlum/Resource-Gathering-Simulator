@@ -19,6 +19,9 @@ local NodeData = {
 			--[Drop] = weight
 			[Enums.Resources.Stone] = 100,
 		},
+		Currencies = {
+			[Enums.Currencies.Coins] = 100,
+		},
 		DropStages = {
 			[50] = RandomRange.new(5, 10),
 			[25] = RandomRange.new(5, 10),

@@ -27,6 +27,11 @@ function CollisionGroupService:KnitInit()
   PhysicsService:CreateCollisionGroup("Players")
   PhysicsService:CollisionGroupSetCollidable("Players", "Players", false)
   PhysicsService:CollisionGroupSetCollidable("Players", "Nodes", false)
+
+  PhysicsService:CreateCollisionGroup("Drops")
+  PhysicsService:CollisionGroupSetCollidable("Drops", "Players", false)
+  PhysicsService:CollisionGroupSetCollidable("Drops", "Drops", false)
+  PhysicsService:CollisionGroupSetCollidable("Drops", "Nodes", false)
 end
 
 return CollisionGroupService

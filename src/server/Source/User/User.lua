@@ -70,6 +70,7 @@ end
 
 function User:LoadData()
 	local DataService = knit.GetService("DataService")
+	local StageService = knit.GetService("StageService")
 
 	--Load the user's data
 	DataService:RequestData(self.Player):andThen(function(data)
@@ -80,12 +81,19 @@ function User:LoadData()
 		if not self.Data.RecievedStarterItems then
 			--The player has not recieved the starter items.
 
+			self.Data.OwnedStages[Enums.Stages.TestStage] = {
+				Date = os.time(),
+				Playtime = self.Data.PlayerStats[Enums.PlayerStats.Playtime] or 0,
+			}
+
 			self.Data.RecievedStarterItems = true
 		end
 
 		--The data has been loaded
 		self.DataLoaded = true
 		self.Signals.DataLoaded:Fire()
+
+		StageService:NextStageRequirements(self)
 	end)
 
 	--Testing

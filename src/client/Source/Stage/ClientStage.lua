@@ -68,7 +68,7 @@ end
 function ClientStage:Unlock()
 	--Unlocks the stage (Removes the stageblocker)
 
-	self.Signal.Unlocked:Fire()
+	self.Signals.Unlocked:Fire()
 end
 
 function ClientStage:Destroy()

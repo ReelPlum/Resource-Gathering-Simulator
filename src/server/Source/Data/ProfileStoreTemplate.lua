@@ -5,11 +5,37 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
 return {
-	JoinedAt = tick(),
+	JoinedAt = os.time(),
 	Resources = {},
 	Currencies = {},
-	Tools = {},
-	Pets = {},
+	Tools = {
+		--[[
+		[id]
+			Item = Enum,
+			AquireDate = number,
+			Metadata = {
+
+			},
+			Enchants = {
+				[Enchant] = number,
+			}
+		}
+		]]
+	},
+	Pets = {
+		--[[
+			[id] = {
+				Item = Enum,
+				AquireDate = number,
+				Metadata = {
+
+				},
+				Enchants = {
+					[Enchant] = number
+				},
+			}
+		]]
+	},
 	PlaytimeGiftsAvailable = {},
 	PlaytimeGiftsStreak = 0,
 	RecievedStarterItems = false,
@@ -27,16 +53,22 @@ return {
 		Stats = {},
 	},
 	PlayerStats = {},
+	TradeHistory = {
+		--[[
+			[id] = {
+				Date = number,
+				OtherPlayerUserId = number,
+				RecievedItems = {
+					list of itemids
+				},
+				SentItems = {
+					list of itemids
+				},
+			}
+		]]
+	},
 
 	Monitization = {
-		Gamepasses = {
-			--[[
-				[gamepassid] = {
-					date = number,
-					price = number,
-				}
-			]]
-		},
 		DeveloperProducts = {
 			--[[
 				[developerproductid] = {

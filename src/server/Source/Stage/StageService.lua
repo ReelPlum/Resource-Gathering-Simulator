@@ -111,6 +111,12 @@ function StageService:NextStageRequirements(user)
 		user.Signals.DataLoaded:Wait()
 	end
 
+	if user.Data.CurrentStageProgress.Stage then
+		if not StageService:UserOwnsStage(user, user.Data.CurrentStageProgress.Stage) then
+			return --The user does not own the next stage yet.
+		end
+	end
+
 	local stage = user:GetNextStage()
 	if not stageData[stage] then
 		--User is at the max stage

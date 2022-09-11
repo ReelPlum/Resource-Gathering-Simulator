@@ -60,6 +60,10 @@ local CustomEnums = {
 		["WalkSpeed"] = "1",
 		["Damage"] = "1",
 	},
+	["DropTypes"] = {
+		["Resource"] = "1",
+		["Currency"] = "2",
+	}
 }
 
 return CustomEnums

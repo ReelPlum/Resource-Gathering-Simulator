@@ -233,7 +233,7 @@ function Node:TakeDamage(amount: number, user)
 	NodeService.Client.HealthChanged:FireAll(self.Id, user.Player, self.CurrentHealth)
 end
 
-function Node:Damage(user, tool)
+function Node:Damage(user, tool, crit)
 	--Damage a node with a tool
 	if not self.Spawned then
 		return
@@ -251,12 +251,14 @@ function Node:Damage(user, tool)
 
 	local enchantsMultipliers = tool:GetEnchantsMultipliers()
 
-	local dmg = tool.ToolData.Strength
-		/ self.NodeData.Resistance
-		* tool.ToolData.Damage:GetRandomNumber()
-		* enchantsMultipliers[Enums.BoostTypes.Damage]
+	--Crit stuff
+	local dmg = tool.ToolData.Damage:GetRandomNumber()
+	if crit then
+		dmg = dmg * 1.5
+	end
 
-	print(dmg)
+	dmg = tool.ToolData.Strength / self.NodeData.Resistance * dmg * enchantsMultipliers[Enums.BoostTypes.Damage]
+
 	self:TakeDamage(dmg, user)
 
 	--Damage effect on node

@@ -10,8 +10,6 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 local RandomRange = require(ReplicatedStorage.Common.RandomRange)
 
 local ToolData = {
-	StarterTool = Enums.Tools.TestTool,
-
 	[Enums.Tools.TestTool] = {
 		DisplayName = "Test Tool",
 		Strength = 100,
@@ -19,6 +17,7 @@ local ToolData = {
 		ToolType = Enums.ToolTypes.Pickaxe,
 		Tool = ReplicatedStorage.Assets.Tools.Pickaxe,
 		Animations = ReplicatedStorage.Assets.Animations["Tool Animations"].Default,
+		CritChance = 15 --In percent
 	},
 }
 

@@ -248,10 +248,9 @@ function User:AttackNode(node)
 		self:StopAttacking()
 	end))
 
-	self.AttackJanitor:Add(self.EquippedTool.Signals.Attack:Connect(function()
+	self.AttackJanitor:Add(self.EquippedTool.Signals.Attack:Connect(function(crit)
 		--Attack
-		self.CurrentNode:Damage(self, self.EquippedTool)
-		print("attack!")
+		self.CurrentNode:Damage(self, self.EquippedTool, crit)
 	end))
 end
 

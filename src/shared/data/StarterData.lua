@@ -10,4 +10,5 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 return {
   StarterStage = Enums.Stages.TestStage,
+  StarterTool = Enums.Tools.TestTool
 }

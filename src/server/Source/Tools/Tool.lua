@@ -130,9 +130,34 @@ function Tool:StartMining(node)
 	--Load animation
 	local animator = self.User.Player.Character:WaitForChild("Humanoid"):WaitForChild("Animator")
 	local anim = self.MineJanitor:Add(animator:LoadAnimation(self.ToolData.Animations.Mine), "Stop")
+	local critAnim = self.MineJanitor:Add(animator:LoadAnimation(self.ToolData.Animations.MineCrit), "Stop")
+
+	local function AttackStuff(a)
+		--Random crit chance
+		if math.random(1, 100) <= self.ToolData.CritChance then
+			self.Signals.Attack:Fire(true)
+			print("Crit!")
+
+			a.Stopped:Wait()
+			task.wait()
+
+			critAnim:Play()
+		else
+			self.Signals.Attack:Fire()
+
+			a.Stopped:Wait()
+			task.wait()
+
+			anim:Play()
+		end
+	end
 
 	self.MineJanitor:Add(anim:GetMarkerReachedSignal("Attack"):Connect(function()
-		self.Signals.Attack:Fire()
+		AttackStuff(anim)
+	end))
+
+	self.MineJanitor:Add(critAnim:GetMarkerReachedSignal("Attack"):Connect(function()
+		AttackStuff(critAnim)
 	end))
 
 	anim:Play()

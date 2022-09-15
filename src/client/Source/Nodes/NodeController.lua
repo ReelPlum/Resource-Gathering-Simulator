@@ -5,6 +5,9 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -29,9 +32,25 @@ function NodeController:SpawnNode(id, data)
 	Nodes[id] = node
 end
 
+function NodeController:GetNearestNode()
+	--Go through each node and see if they're close
+	local pos = LocalPlayer.Character.HumanoidRootPart.Position
+
+	local minDist = 25 --Add upgrades to this, when they're synced to client.
+	local closest, lowestDist = nil, math.huge
+	for _, node in Nodes do
+		local dist = (node.Position - pos).Magnitude
+		if dist < lowestDist and dist <= minDist then
+			closest = node
+			lowestDist = dist
+		end
+	end
+
+	return closest
+end
+
 function NodeController:KnitStart()
 	local NodeService = knit.GetService("NodeService")
-	local MouseController = knit.GetController("MouseController")
 
 	UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 		if gameProcessedEvent then
@@ -39,17 +58,20 @@ function NodeController:KnitStart()
 		end
 
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			MouseController:GetMouseHitWithTag("Node"):andThen(function(hit)
-				if not hit then
-					return
-				end
+			--Get the nearest node.
+			--Attack that node.
+			local node = NodeController:GetNearestNode()
+			if not node then
+				return
+			end
 
-				local id = hit.Parent:GetAttribute("Id")
-				if id then
-					print(id)
-					NodeService:AttackNode(id)
-				end
-			end)
+			NodeService:AttackNode(node.Id)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			NodeService:StopAttacking()
 		end
 	end)
 

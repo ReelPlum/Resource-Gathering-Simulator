@@ -10,6 +10,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local nodeObj = require(script.Parent.Node)
 
 local NodeService = knit.CreateService({
@@ -40,10 +42,18 @@ function NodeService.Client:GetSpawnedNodes(player)
 	return n
 end
 
+function NodeService.Client:StopAttacking(player: Player)
+	--Stop attacking
+	local UserService = knit.GetService("UserService")
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return warn("User was not found...")
+	end
+	user:StopAttacking()
+end
+
 function NodeService.Client:AttackNode(player: Player, nodeId)
 	print("Trying to attack!")
-	local AttackJanitor = janitor.new()
-
 	local UserService = knit.GetService("UserService")
 
 	local user = UserService:GetUserFromPlayer(player)
@@ -51,6 +61,9 @@ function NodeService.Client:AttackNode(player: Player, nodeId)
 		return warn("User was not found...")
 	end
 	user:StopAttacking()
+	if not user.Player.Character then
+		return
+	end
 
 	local node = NodeService:GetNodeFromId(nodeId)
 	if not node then
@@ -64,31 +77,16 @@ function NodeService.Client:AttackNode(player: Player, nodeId)
 
 	--Check if user has needed tool
 
-	--Get position for move to
-	local position = node:GetPosition(user)
-	--node:Target(user, true)
+	--Check distance
+	if
+		(user.Player.Character:WaitForChild("HumanoidRootPart").CFrame.Position - node.Position).Magnitude
+		> user:GetUpgradeBoosts()[Enums.BoostTypes.MineDistance] * 20
+	then
+		return
+	end
 
-	warn("Attacking node " .. nodeId)
-
-	user.Character
-		:MoveToPoint(position)
-		:andThen(function()
-			if not player.Character then
-				return
-			end
-			--Make player look at node
-			local playerPos = player.Character:WaitForChild("HumanoidRootPart").CFrame.Position
-			player.Character:WaitForChild("HumanoidRootPart").CFrame =
-				CFrame.new(playerPos, Vector3.new(node.Position.X, playerPos.Y, node.Position.Z))
-
-			user:AttackNode(node)
-
-			AttackJanitor:Add(player.Character.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-				user:StopAttacking()
-				AttackJanitor:Cleanup()
-			end))
-		end)
-		:catch(warn)
+	--Attack
+	user:AttackNode(node)
 end
 
 function NodeService:NodeDestroyed(node)

@@ -248,8 +248,20 @@ function User:AttackNode(node)
 		self:StopAttacking()
 	end))
 
+	self.AttackJanitor:Add(self.Player.Character:WaitForChild("Humanoid").Died:Connect(function()
+		self:StopAttacking()
+	end))
+
 	self.AttackJanitor:Add(self.EquippedTool.Signals.Attack:Connect(function(crit)
 		--Attack
+		if
+			(self.Player.Character:WaitForChild("HumanoidRootPart").CFrame.Position - node.Position).Magnitude
+			> self:GetUpgradeBoosts()[Enums.BoostTypes.MineDistance] * 20
+		then
+			self:StopAttacking()
+			return
+		end
+
 		self.CurrentNode:Damage(self, self.EquippedTool, crit)
 	end))
 end
@@ -315,6 +327,7 @@ function User:GetUpgradeBoosts()
 	--Gets the boosts the user has from upgrades
 	return {
 		[Enums.BoostTypes.Drops] = 1,
+		[Enums.BoostTypes.MineDistance] = 1,
 	}
 end
 

@@ -53,6 +53,7 @@ local CustomEnums = {
 	["BoostTypes"] = {
 		["Drops"] = "1",
 		["Damage"] = "2",
+		["MineDistance"] = "3",
 	},
 	["Pets"] = {
 		["TestPet"] = "1",

@@ -59,7 +59,6 @@ function ClientNode.new(id, data)
 
 	-- Create CameraShaker instance:
 	self.Shake = self.Janitor:Add(cameraShaker.new(1, ShakeModel), "Stop")
-	self.Shake:Start()
 
 	self.Signals = {
 		Destroying = self.Janitor:Add(signal.new()),
@@ -89,7 +88,18 @@ function ClientNode:ShakeModel(crit)
 	self.Shake:Shake(shakePresets.NodeDamaged())
 end
 
+function ClientNode:UnRender()
+	--Performance optimizations.
+	self.ModelJanitor:Cleanup()
+	self.Model = false
+	self.Shake:Stop()
+
+	self.Rendered = false
+end
+
 function ClientNode:Render()
+	self.Shake:Start()
+
 	return promise.new(function(resolve, reject)
 		--Render the correct model for the client
 		local firstSpawn = not self.Model
@@ -119,6 +129,7 @@ function ClientNode:Render()
 			self.Model = self.ModelJanitor:Add(m:Clone())
 			CollectionService:AddTag(self.Model, "Node")
 			self.Model:SetAttribute("Id", self.Id)
+			self.Model.Parent = ReplicatedStorage
 
 			--Make uncollideable
 			for _, descendant in self.Model:GetDescendants() do
@@ -132,9 +143,10 @@ function ClientNode:Render()
 				PhysicsService:SetPartCollisionGroup(descendant, "Nodes")
 			end
 
-			self.Model:SetPrimaryPartCFrame(self:CalcuateCF())
+			--self.Model:SetPrimaryPartCFrame(self:CalcuateCF())
 
 			--Create healthbar
+			self.Rendered = true
 
 			--Spawn animation
 			if firstSpawn then

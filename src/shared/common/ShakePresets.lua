@@ -25,6 +25,27 @@ local CameraShakePresets = {
 		return c
 	end,
 
+	NodeDamaged = function()
+		local c = CameraShakeInstance.new(2.5, 10, 0, 0.35)
+		c.PositionInfluence = Vector3.new(2, 2, 2)
+		c.RotationInfluence = Vector3.new(1, 1, 1)
+		return c
+	end,
+
+	NodeDamagedCrit = function()
+		local c = CameraShakeInstance.new(3.5, 10, 0, 0.5)
+		c.PositionInfluence = Vector3.new(2, 2, 2)
+		c.RotationInfluence = Vector3.new(1, 1, 1)
+		return c
+	end,
+
+	NodeSpawn = function()
+		local c = CameraShakeInstance.new(2, 20, 2, 2)
+		c.PositionInfluence = Vector3.new(1, 0.15, 1)
+		c.RotationInfluence = Vector3.new(4, 0, 4)
+		return c
+	end,
+
 	-- A high-magnitude, short, yet smooth shake.
 	-- Should happen once.
 	Bump = function()
@@ -40,20 +61,6 @@ local CameraShakePresets = {
 		local c = CameraShakeInstance.new(5, 10, 0, 1.5)
 		c.PositionInfluence = Vector3.new(0.25, 0.25, 0.25)
 		c.RotationInfluence = Vector3.new(4, 1, 1)
-		return c
-	end,
-
-	NodeDamaged = function()
-		local c = CameraShakeInstance.new(2.5, 10, 0, 0.35)
-		c.PositionInfluence = Vector3.new(2, 2, 2)
-		c.RotationInfluence = Vector3.new(1, 1, 1)
-		return c
-	end,
-
-	NodeDamagedCrit = function()
-		local c = CameraShakeInstance.new(3.5, 10, 0, 0.5)
-		c.PositionInfluence = Vector3.new(2, 2, 2)
-		c.RotationInfluence = Vector3.new(1, 1, 1)
 		return c
 	end,
 

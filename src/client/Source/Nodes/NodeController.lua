@@ -42,6 +42,9 @@ function NodeController:GetNearestNode()
 	local minDist = 25 --Add upgrades to this, when they're synced to client.
 	local closest, lowestDist = nil, math.huge
 	for _, node in Nodes do
+		if node.Dead then
+			continue
+		end
 		local dist = (node.Position - pos).Magnitude
 		if dist < lowestDist and dist <= minDist then
 			closest = node
@@ -100,8 +103,11 @@ function NodeController:KnitStart()
 		if not node then
 			return
 		end
+
+		node.Dead = true
 		node:DestroyEffect():andThen(function()
 			node:Destroy()
+			Nodes[id] = nil
 		end)
 	end)
 

@@ -66,7 +66,7 @@ function NodeService.Client:AttackNode(player: Player, nodeId)
 
 	local node = NodeService:GetNodeFromId(nodeId)
 	if not node then
-		return warn("Node was not found...")
+		return warn("Node was not found... " .. nodeId)
 	end
 	--Check if user owns stage
 	if not node:UserOwnsStage(user) then

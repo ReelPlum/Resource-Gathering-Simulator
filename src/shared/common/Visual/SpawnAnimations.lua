@@ -4,26 +4,46 @@ SpawnAnimations
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local RunService = game:GetService("RunService")
+
+local EasingStyles = require(ReplicatedStorage.Common.EasingStyles)
 
 return {
 	StoneSpawnAnimation = function(node)
 		local cf, size = node:CalcuateCF()
-    local originalCF = cf * CFrame.new(0, -size.Y - 10, 0)
-    node.Model:SetPrimaryPartCFrame(originalCF)
+		local originalCF = cf * CFrame.new(0, -size.Y - 10, 0)
+		--node.Model:SetPrimaryPartCFrame(originalCF)
+		node.CurrentCF = originalCF
 
-		node.Model.Parent = workspace
+		local magrough = Vector2.new(math.random(170, 220) / 100, math.random(170, 220) / 10)
 
-		local x = 0
+		local x = 0.01
 		local render = nil
 		render = node.Janitor:Add(RunService.RenderStepped:Connect(function(dt)
-			x += 1 / 2 * dt
-			node.CurrentCF = originalCF:Lerp(cf, x)
+			x += 1 / (math.random(125, 250) / 100) * dt
+			node.CurrentCF = originalCF:Lerp(cf, EasingStyles.easeOutCirc(x))
+			node.Model.Parent = workspace
+
+			local mr = magrough:Lerp(
+				Vector2.new(math.random(25, 40) / 100, math.random(45, 70) / 10),
+				EasingStyles.easeOutCirc(x)
+			)
+
+			--Shake spawn anim.
+			node.Shake:ShakeOnce(
+				mr.X,
+				mr.Y,
+				math.random(3, 7) / 100,
+				math.random(15, 30) / 100,
+				Vector3.new(1, 0.15, 1),
+				Vector3.new(4, 0.2, 4)
+			)
 
 			if x >= 1 then
 				render:Disconnect()
 				node.CurrentCF = nil
-				print(x)
 			end
 		end))
 	end,

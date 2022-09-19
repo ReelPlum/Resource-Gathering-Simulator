@@ -19,6 +19,7 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 local stageData = require(ReplicatedStorage.Data.StageData)
 local starterData = require(ReplicatedStorage.Data.StarterData)
 local boostsData = require(ReplicatedStorage.Data.BoostsData)
+local recipeData = require(ReplicatedStorage.Data.RecipeData)
 
 local User = {}
 User.__index = User
@@ -59,6 +60,7 @@ function User.new(player: Player)
 	self:LoadData()
 	self:Playerstats()
 	self:ListenForStageProgress()
+	self:ListenForCraftingProgress()
 	self:CountPlaytime()
 	self:CheckBoosts()
 
@@ -181,6 +183,53 @@ function User:CheckBoosts()
 	end)
 end
 
+function User:ListenForCraftingProgress()
+	local CraftingService = knit.GetService("CraftingService")
+
+	self.Janitor:Add(self.Signals.PlayerStatChanged:Connect(function(stat, increment, data)
+		if not self.DataLoaded then
+			self.Signals.DataLoaded:Wait()
+		end
+
+		--Go through each recipe, and check if playerstat is required
+		local indexes = {}
+
+		for recipe, dataForRecipe in self.Data.Crafting do
+			if not dataForRecipe.TrackStats then
+				continue
+			end
+			indexes[recipe] = {}
+			for index, d in recipeData[recipe].Cost.Stats do
+				if d.PlayerStat == stat then
+					table.insert(indexes[recipe], index)
+				end
+			end
+			if #indexes[recipe] <= 0 then
+				indexes[recipe] = nil
+			end
+		end
+
+		if #indexes <= 0 then
+			return
+		end
+
+		for recipe, recipeIndexes in indexes do
+			for _, index in recipeIndexes do
+				if
+					recipeData[recipe].Cost.Stats[index].Requirements
+					and data.Type ~= nil
+					and not table.find(recipeData[recipe].Cost.Stats[index].Requirements, data.Type)
+				then
+					continue
+				end
+
+				self.Data.Crafting[recipe].Progress.Stats[index] += increment
+				CraftingService.Client.RecipeProgressChanged:Fire(self.Player, recipe, self.Data.Crafting[recipe])
+			end
+		end
+	end))
+end
+
 function User:ListenForStageProgress()
 	--Listens for stage progress changes.
 	local StageService = knit.GetService("StageService")
@@ -207,7 +256,11 @@ function User:ListenForStageProgress()
 		end
 
 		for _, i in indexes do
-			if not table.find(s.RequiredForUpgrade.Stats[i].Requirements, data.Type) then
+			if
+				s.RequiredForUpgrade.Stats[i].Requirements
+				and data.Type ~= nil
+				and not table.find(s.RequiredForUpgrade.Stats[i].Requirements, data.Type)
+			then
 				continue
 			end
 			self.Data.CurrentStageProgress.Stats[i] += increment
@@ -292,6 +345,42 @@ function User:GiveResource(resource, amount)
 	self.Data.Resources[resource] += amount
 
 	self.Signals.ResourceChanged:Fire(resource, self.Data.Resources[resource])
+end
+
+function User:TakeResource(resource, quantity, takeAll)
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	if not takeAll and self.Data.Resources[resource] < quantity then
+		return
+	end
+
+	quantity = math.clamp(quantity, 0, self.Data.Resources[resource])
+	self.Data.Resources[resource] -= quantity
+
+	return quantity
+end
+
+function User:TakeCurrency(currency, quantity, takeAll)
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	if not takeAll and self.Data.Currencies[currency] < quantity then
+		return
+	end
+
+	quantity = math.clamp(quantity, 0, self.Data.Currencies[currency])
+	self.Data.Currencies[currency] -= quantity
+
+	return quantity
+end
+
+function User:TakeItem(itemType, item, quantity, takeAll)
+	--TODO: Make when the inventory system is made.
+
+	return 1
 end
 
 function User:GetNextStage()

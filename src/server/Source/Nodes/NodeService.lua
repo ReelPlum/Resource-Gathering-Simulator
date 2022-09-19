@@ -18,7 +18,6 @@ local NodeService = knit.CreateService({
 	Name = "NodeService",
 	Client = {
 		SpawnNode = knit.CreateSignal(),
-		DamageNode = knit.CreateSignal(),
 		DestroyNode = knit.CreateSignal(),
 		HealthChanged = knit.CreateSignal(),
 		DropStageReached = knit.CreateSignal(),

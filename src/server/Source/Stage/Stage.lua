@@ -121,7 +121,7 @@ function Stage:SpawnNodes()
 	end
 
 	for _, spawner in self.StageData.StageSpawners do
-		for _ = 1, 500 / #self.StageData.StageSpawners do
+		for _ = 1, 10 / #self.StageData.StageSpawners do
 			self:SpawnNode(spawner)
 		end
 	end

@@ -18,7 +18,10 @@ local clientNode = require(script.Parent.ClientNode)
 
 local NodeController = knit.CreateController({
 	Name = "NodeController",
-	Signals = {},
+	Signals = {
+		NodeDamaged = signal.new(),
+		NodeDestroyed = signal.new(),
+	},
 })
 
 local Nodes = {}
@@ -79,24 +82,14 @@ function NodeController:KnitStart()
 		NodeController:SpawnNode(id, data)
 	end)
 
-	NodeService.DamageNode:Connect(function(id)
-		--Damage node animation
-		local node = NodeController:GetNodeFromId(id)
-		if not node then
-			return
-		end
-
-		node:DamageEffect()
-	end)
-
-	NodeService.HealthChanged:Connect(function(id, player, newHealth)
+	NodeService.HealthChanged:Connect(function(id, player, newHealth, crit)
 		--Change node's health
 		local node = NodeController:GetNodeFromId(id)
 		if not node then
 			return
 		end
 
-		node:HealthChanged(player, newHealth)
+		node:HealthChanged(player, newHealth, crit)
 	end)
 
 	NodeService.DropStageReached:Connect(function() end)

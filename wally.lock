@@ -3,6 +3,11 @@
 registry = "test"
 
 [[package]]
+name = "brittonfischer/camerashaker"
+version = "0.1.0"
+dependencies = []
+
+[[package]]
 name = "evaera/cmdr"
 version = "1.9.0"
 dependencies = []
@@ -15,7 +20,7 @@ dependencies = []
 [[package]]
 name = "frede/resource-gathering-simulator"
 version = "0.1.0"
-dependencies = [["Cmdr", "evaera/cmdr@1.9.0"], ["Janitor", "howmanysmall/janitor@1.14.1"], ["Knit", "sleitnick/knit@1.4.7"], ["ProfileService", "surnautica/profileservice@1.0.0"], ["Promise", "evaera/promise@4.0.0"], ["Roact", "roblox/roact@1.4.4"], ["Roact-Rodux", "roblox/roact-rodux@0.3.0"], ["Rodux", "roblox/rodux@3.0.0"], ["Signal", "sleitnick/signal@1.2.1"]]
+dependencies = [["CameraShaker", "brittonfischer/camerashaker@0.1.0"], ["Cmdr", "evaera/cmdr@1.9.0"], ["Janitor", "howmanysmall/janitor@1.14.1"], ["Knit", "sleitnick/knit@1.4.7"], ["ProfileService", "surnautica/profileservice@1.0.0"], ["Promise", "evaera/promise@4.0.0"], ["Roact", "roblox/roact@1.4.4"], ["Roact-Rodux", "roblox/roact-rodux@0.3.0"], ["Rodux", "roblox/rodux@3.0.0"], ["Signal", "sleitnick/signal@1.2.1"]]
 
 [[package]]
 name = "howmanysmall/janitor"

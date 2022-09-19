@@ -5,6 +5,9 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
 local CustomEnums = {
+	["ItemTypes"] = {
+		["Tool"] = "1",
+	},
 	["Nodes"] = {
 		["Stone"] = "1",
 	},
@@ -65,6 +68,9 @@ local CustomEnums = {
 	["DropTypes"] = {
 		["Resource"] = "1",
 		["Currency"] = "2",
+	},
+	["Recipes"] = {
+		["TestRecipe"] = "1",
 	},
 }
 

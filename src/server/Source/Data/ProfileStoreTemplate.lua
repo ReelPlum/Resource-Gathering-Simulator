@@ -54,6 +54,24 @@ return {
 		Stage = nil,
 		Stats = {},
 	},
+	Crafting = {
+		--[[
+			[Recipe] = {
+				StartDate = number,
+				Progress = {
+					Resources = {
+						(List of added resources to recipe)
+					},
+					Currencies = {
+						(List of added currencies to recipe)
+					},
+					Stats = {
+						(Like in current stage progress)
+					},
+				}
+			}
+		]]
+	},
 	PlayerStats = {},
 	TradeHistory = {
 		--[[

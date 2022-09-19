@@ -209,7 +209,7 @@ function Node:CheckHealth()
 	end
 end
 
-function Node:TakeDamage(amount: number, user)
+function Node:TakeDamage(amount: number, user, crit)
 	if not self.Spawned then
 		return
 	end
@@ -230,7 +230,7 @@ function Node:TakeDamage(amount: number, user)
 	self:CheckHealth()
 
 	local NodeService = knit.GetService("NodeService")
-	NodeService.Client.HealthChanged:FireAll(self.Id, user.Player, self.CurrentHealth)
+	NodeService.Client.HealthChanged:FireAll(self.Id, user.Player, self.CurrentHealth, crit)
 end
 
 function Node:Damage(user, tool, crit)
@@ -259,11 +259,7 @@ function Node:Damage(user, tool, crit)
 
 	dmg = tool.ToolData.Strength / self.NodeData.Resistance * dmg * enchantsMultipliers[Enums.BoostTypes.Damage]
 
-	self:TakeDamage(dmg, user)
-
-	--Damage effect on node
-	local NodeService = knit.GetService("NodeService")
-	NodeService.Client.DamageNode:FireAll(self.Id)
+	self:TakeDamage(dmg, user, crit)
 end
 
 function Node:UserOwnsStage(user)

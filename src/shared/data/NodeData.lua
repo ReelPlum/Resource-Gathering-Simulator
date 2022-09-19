@@ -10,6 +10,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RandomRange = require(ReplicatedStorage.Common.RandomRange)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
+local SpawnAnimations = require(ReplicatedStorage.Common.Visual.SpawnAnimations)
+local ModelChangeAnimations = require(ReplicatedStorage.Common.Visual.ModelChangeAnimations)
+
 local NodeData = {
 	[Enums.Nodes.Stone] = {
 		DisplayName = "Stone",
@@ -36,6 +39,8 @@ local NodeData = {
 		},
 		Effects = nil,
 		Radius = 10,
+		SpawnAnimation = SpawnAnimations.StoneSpawnAnimation,
+		ModelChangeAnimation = ModelChangeAnimations.StoneModelChangeAnimation
 	},
 }
 

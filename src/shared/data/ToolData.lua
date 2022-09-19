@@ -17,7 +17,7 @@ local ToolData = {
 		ToolType = Enums.ToolTypes.Pickaxe,
 		Tool = ReplicatedStorage.Assets.Tools.Pickaxe,
 		Animations = ReplicatedStorage.Assets.Animations["Tool Animations"].Default,
-		CritChance = 15 --In percent
+		CritChance = 15, --In percent
 	},
 }
 

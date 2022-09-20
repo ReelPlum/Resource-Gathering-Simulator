@@ -4,29 +4,25 @@ ProfileStoreTemplate
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 return {
 	JoinedAt = os.time(),
 	Resources = {},
 	Currencies = {},
 	EquippedTools = {},
-	Tools = {
-		--[[
-		[id]
-			Item = Enum,
-			AquireDate = number,
-			Metadata = {
-
-			},
-			Enchants = {
-				[Enchant] = number,
-			}
-		}
-		]]
+	InventorySizes = { --Can be upgraded
+		[Enums.ItemTypes.Pet] = 25,
+		[Enums.ItemTypes.Tool] = 10,
 	},
-	Pets = {
+	Inventory = {
 		--[[
+			[itemtype] = {
 			[id] = {
 				Item = Enum,
+				Type = Enum,
 				AquireDate = number,
 				Metadata = {
 
@@ -35,6 +31,7 @@ return {
 					[Enchant] = number
 				},
 			}
+		}
 		]]
 	},
 	ActiveBoosts = {},

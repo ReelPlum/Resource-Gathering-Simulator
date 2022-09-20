@@ -24,6 +24,64 @@ local CraftingService = knit.CreateService({
 	Signals = {},
 })
 
+function CraftingService.Client:GetCurrentRecipes(player)
+	local UserService = knit.GetService("UserService")
+
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.Crafting
+end
+
+function CraftingService.Client:StartRecipe(player, recipe)
+	local UserService = knit.GetService("UserService")
+
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return CraftingService:StartRecipe(user, recipe)
+end
+
+function CraftingService.Client:CancelRecipe(player, recipe)
+	local UserService = knit.GetService("UserService")
+
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return CraftingService:CancelRecipe(user, recipe)
+end
+
+function CraftingService.Client:AddToRecipe(player, recipe, toAdd)
+	--Client sends in the format the server wants.
+
+	local UserService = knit.GetService("UserService")
+
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		return
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return CraftingService:AddToRecipe(user, recipe, toAdd)
+end
+
 function CraftingService:CheckRecipe(user, recipe)
 	--Check if user has completed a recipe, or if it's ready for stat tracking
 	if not user.DataLoaded then
@@ -108,6 +166,10 @@ function CraftingService:AddToRecipe(user, recipe, toAdd)
 		return
 	end
 
+	if not toAdd.Currencies or not toAdd.Resources or not toAdd.Items then
+		return
+	end
+
 	for currency, quantity in toAdd.Currencies do
 		local max = data.Cost.Currencies[currency]
 		if user.Data.Crafting[recipe].Progress.Currencies[currency] + quantity > max then
@@ -165,6 +227,11 @@ function CraftingService:StartRecipe(user, recipe)
 
 	local data = RecipeData[recipe]
 	if not data then
+		return
+	end
+
+	local StageService = knit.GetService("StageService")
+	if not StageService:UserOwnsStage(data.RequiredStage) then
 		return
 	end
 

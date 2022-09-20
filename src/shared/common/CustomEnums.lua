@@ -7,6 +7,8 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 local CustomEnums = {
 	["ItemTypes"] = {
 		["Tool"] = "1",
+		["Pet"] = "2",
+		["Boost"] = "3",
 	},
 	["Nodes"] = {
 		["Stone"] = "1",

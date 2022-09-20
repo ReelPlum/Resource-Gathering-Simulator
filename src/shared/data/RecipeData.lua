@@ -10,6 +10,8 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 return {
 	[Enums.Recipes.TestRecipe] = {
+		RequiredStage = Enums.Stages.TestStage,
+
 		Rewards = {
 			{
 				Type = Enums.ItemTypes.Tool,

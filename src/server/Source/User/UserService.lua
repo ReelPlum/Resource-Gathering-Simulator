@@ -16,7 +16,7 @@ local UserService = knit.CreateService({
 	Name = "UserService",
 	Client = {
 		PlayerStatChanged = knit.CreateSignal(),
-		ShowPathfindingNodes = knit.CreateSignal(),
+		InventoryChanged = knit.CreateSignal(),
 	},
 	Signals = {
 		UserAdded = signal.new(),
@@ -25,6 +25,16 @@ local UserService = knit.CreateService({
 })
 
 local Users = {}
+
+function UserService.Client:GetInventory(player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then return end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.Inventory
+end
 
 function UserService.Client:GetPlayerStatsValues(player: Player)
 	local user = UserService:GetUserFromPlayer(player)

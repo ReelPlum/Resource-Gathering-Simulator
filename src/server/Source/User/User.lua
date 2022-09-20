@@ -4,6 +4,7 @@ User
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local RunService = game:GetService("RunService")
@@ -18,7 +19,7 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local stageData = require(ReplicatedStorage.Data.StageData)
 local starterData = require(ReplicatedStorage.Data.StarterData)
-local boostsData = require(ReplicatedStorage.Data.BoostsData)
+local itemData = require(ReplicatedStorage.Data.ItemData)
 local recipeData = require(ReplicatedStorage.Data.RecipeData)
 
 local User = {}
@@ -377,10 +378,83 @@ function User:TakeCurrency(currency, quantity, takeAll)
 	return quantity
 end
 
-function User:TakeItem(itemType, item, quantity, takeAll)
-	--TODO: Make when the inventory system is made.
+function User:GiveItem(itemType, item, quantity, id, metadata, enchants)
+	--Give user item
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
 
-	return 1
+	if not itemData[itemType] then
+		return 0
+	end
+	local data = itemData[itemType][item]
+	if not data then
+		return 0
+	end
+
+	if not self.Data.Inventory[itemType] then
+		self.Data.Inventory[itemType] = {}
+	end
+
+	for i = 1, quantity do
+		if #self.Data.Inventory[itemType] >= self.Data.InventorySizes[itemType] then
+			return i-1
+		end
+
+		--Add item
+		self.Data.Inventory[itemType][if id then id else HttpService:GenerateGUID(false)] = {
+			Item = item,
+			Type = itemType,
+			AquireDate = os.time(),
+			Metadata = if metadata then metadata else item.DefaultMetaData,
+			Enchants = if enchants then enchants else item.DefaultEnchants,
+		}
+	end
+
+	--Update client with new inventory information.
+	self:InventoryChanged()
+
+	return quantity
+end
+
+function User:TakeItem(itemType, item, quantity, takeAll)
+	--Remove a given quantity of a given item from users inventory.
+	if not self.DataLoaded then
+		self.Signals.DataLoaded:Wait()
+	end
+
+	if not self.Data.Inventory[itemType] then
+		return 0
+	end
+
+	local toRemove = {}
+
+	for id, data in self.Data.Inventory[itemType] do
+		if data.Item == item then
+			table.insert(toRemove, id)
+		end
+
+		if #toRemove == quantity then
+			break
+		end
+	end
+
+	if #toRemove < quantity and not takeAll then
+		return 0
+	end
+
+	--Remove items
+	for _, id in toRemove do
+		self.Data.Inventory[itemType][id] = nil
+	end
+
+	return #toRemove
+end
+
+function User:InventoryChanged()
+	local UserService = knit.GetService("UserService")
+
+	UserService.Client.InventoryChanged:Fire(self.Player, self.User.Inventory)
 end
 
 function User:GetNextStage()
@@ -438,7 +512,7 @@ function User:GetActiveBoosts()
 	}
 
 	for boost, _ in self.Data.ActiveBoosts do
-		local data = boostsData[boost]
+		local data = itemData[Enums.ItemTypes.Boost][boost]
 		if not data then
 			continue
 		end

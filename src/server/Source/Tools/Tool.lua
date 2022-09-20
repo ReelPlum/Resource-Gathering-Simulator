@@ -14,7 +14,7 @@ local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
-local toolData = require(ReplicatedStorage.Data.ToolData)
+local itemData = require(ReplicatedStorage.Data.ItemData)
 
 local Tool = {}
 Tool.__index = Tool
@@ -32,7 +32,7 @@ function Tool.new(user, tool)
 	self.MineJanitor = self.Janitor:Add(janitor.new())
 
 	self.InventoryData = nil
-	self.ToolData = toolData[tool]
+	self.ToolData = itemData[Enums.ItemTypes.Tool][tool]
 	self.Tool = tool
 	self.Equipped = false
 	self.ToolModel = self.Janitor:Add(self.ToolData.Tool:Clone())

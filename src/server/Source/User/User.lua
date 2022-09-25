@@ -56,6 +56,8 @@ function User.new(player: Player)
 		SelectedTool = self.Janitor:Add(signal.new()), --Chose tool as the selected tool for given material
 		CurrencyChanged = self.Janitor:Add(signal.new()),
 		ResourceChanged = self.Janitor:Add(signal.new()),
+		ItemAddedToInventory = self.Janitor:Add(signal.new()),
+		ItemRemovedFromInventory = self.Janitor:Add(signal.new()),
 	}
 
 	self:LoadData()
@@ -79,6 +81,7 @@ end
 function User:LoadData()
 	local DataService = knit.GetService("DataService")
 	local StageService = knit.GetService("StageService")
+	local EquipmentService = knit.GetService("EquipmentService")
 
 	--Load the user's data
 	DataService:RequestData(self.Player):andThen(function(data)
@@ -89,12 +92,19 @@ function User:LoadData()
 		if not self.Data.RecievedStarterItems then
 			--The player has not recieved the starter items.
 
-			self.Data.OwnedStages[starterData.StarterStage] = {
-				Date = os.time(),
-				Playtime = self.Data.PlayerStats[Enums.PlayerStats.Playtime] or 0,
-			}
+			task.spawn(function()
+				self.Data.OwnedStages[starterData.StarterStage] = {
+					Date = os.time(),
+					Playtime = self.Data.PlayerStats[Enums.PlayerStats.Playtime] or 0,
+				}
 
-			self.Data.RecievedStarterItems = true
+				self:GiveItem(Enums.ItemTypes.Tool, starterData.StarterTool, 1)
+
+				self.Data.RecievedStarterItems = true
+
+				task.wait(1.5)
+				EquipmentService:EquipBestTools(self)
+			end)
 		end
 
 		--The data has been loaded
@@ -102,12 +112,8 @@ function User:LoadData()
 		self.Signals.DataLoaded:Fire()
 
 		StageService:NextStageRequirements(self)
+		EquipmentService:GiveUserEquippedTools(self)
 	end)
-
-	--Testing
-	task.wait(5)
-	local ToolService = knit.GetService("ToolService")
-	self.Tools[Enums.ToolTypes.Pickaxe] = ToolService:CreateTool(self, Enums.Tools.TestTool)
 end
 
 function User:IncrementPlayerStat(playerStat, val: number?, data)
@@ -130,7 +136,6 @@ function User:Playerstats()
 	local PlayerStatsData = require(ReplicatedStorage.Data.PlayerStatsData)
 
 	for playerstat, data in PlayerStatsData do
-		print(data.Trigger)
 		if not data.Trigger then
 			continue
 		end
@@ -398,17 +403,21 @@ function User:GiveItem(itemType, item, quantity, id, metadata, enchants)
 
 	for i = 1, quantity do
 		if #self.Data.Inventory[itemType] >= self.Data.InventorySizes[itemType] then
-			return i-1
+			return i - 1
 		end
 
 		--Add item
-		self.Data.Inventory[itemType][if id then id else HttpService:GenerateGUID(false)] = {
+		local inventory_id = if id then id else HttpService:GenerateGUID(false)
+
+		self.Data.Inventory[itemType][inventory_id] = {
 			Item = item,
 			Type = itemType,
 			AquireDate = os.time(),
 			Metadata = if metadata then metadata else item.DefaultMetaData,
 			Enchants = if enchants then enchants else item.DefaultEnchants,
 		}
+
+		self.Signals.ItemAddedToInventory:Fire(itemType, inventory_id)
 	end
 
 	--Update client with new inventory information.
@@ -446,7 +455,10 @@ function User:TakeItem(itemType, item, quantity, takeAll)
 	--Remove items
 	for _, id in toRemove do
 		self.Data.Inventory[itemType][id] = nil
+		self.Signals.ItemRemovedFromInventory:Fire(itemType, id)
 	end
+
+	self:InventoryChanged()
 
 	return #toRemove
 end
@@ -454,7 +466,7 @@ end
 function User:InventoryChanged()
 	local UserService = knit.GetService("UserService")
 
-	UserService.Client.InventoryChanged:Fire(self.Player, self.User.Inventory)
+	UserService.Client.InventoryChanged:Fire(self.Player, self.Data.Inventory)
 end
 
 function User:GetNextStage()

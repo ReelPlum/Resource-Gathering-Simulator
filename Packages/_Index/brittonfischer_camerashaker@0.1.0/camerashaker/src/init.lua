@@ -65,6 +65,8 @@ local profileBegin = debug.profilebegin
 local profileEnd = debug.profileend
 local profileTag = "CameraShakerUpdate"
 
+local HttpService = game:GetService("HttpService")
+
 local V3 = Vector3.new
 local CF = CFrame.new
 local ANG = CFrame.Angles
@@ -86,7 +88,7 @@ function CameraShaker.new(renderPriority, callback)
 
 	local self = setmetatable({
 		_running = false,
-		_renderName = game:GetService("HttpService"):GenerateGUID(false),
+		_renderName = "CameraShaker" .. HttpService:GenerateGUID(false),
 		_renderPriority = renderPriority,
 		_posAddShake = v3Zero,
 		_rotAddShake = v3Zero,

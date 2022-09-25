@@ -15,17 +15,19 @@ local janitor = require(ReplicatedStorage.Packages.Janitor)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local itemData = require(ReplicatedStorage.Data.ItemData)
+local enchantData = require(ReplicatedStorage.Data.EnchantData)
 
 local Tool = {}
 Tool.__index = Tool
 
-function Tool.new(user, tool)
+function Tool.new(user, tool, inventoryId)
 	local self = setmetatable({}, Tool)
 
 	print("Creating tool")
 
 	self.User = user
 	self.Id = HttpService:GenerateGUID(false)
+	self.InventoryId = inventoryId
 
 	self.Janitor = janitor.new()
 	self.EquipJanitor = self.Janitor:Add(janitor.new())
@@ -78,6 +80,22 @@ function Tool:GetEnchantsMultipliers()
 		[Enums.BoostTypes.Damage] = 1,
 		[Enums.BoostTypes.Drops] = 1,
 	}
+
+	if self.InventoryId then
+		if not self.User.Data.Inventory[Enums.ItemTypes.Tool][self.InventoryId].Enchants then
+			return Boosts
+		end
+
+		for enchant, lvl in self.User.Data.Inventory[Enums.ItemTypes.Tool][self.InventoryId].Enchants do
+			for boost, add in enchantData[enchant][lvl] do
+				if not Boosts[boost] then
+					Boosts[boost] = 1
+				end
+
+				Boosts[boost] += add
+			end
+		end
+	end
 
 	return Boosts
 end
@@ -179,9 +197,9 @@ end
 function Tool:Destroy()
 	self:Unequip()
 
-	if self.User.Tools[self.ToolType] == self then
+	if self.User.Tools[self.ToolData.ToolType] == self then
 		--Just making sure, but a system will probably already have removed the tool from being equipped, before the tool is destroyed.
-		self.User.Tools[self.ToolType] = nil
+		self.User.Tools[self.ToolData.ToolType] = nil
 	end
 
 	self.Signals.Destroying:Fire()

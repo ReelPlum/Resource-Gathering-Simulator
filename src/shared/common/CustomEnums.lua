@@ -10,6 +10,17 @@ local CustomEnums = {
 		["Pet"] = "2",
 		["Boost"] = "3",
 	},
+	["UIStates"] = {
+		["Enabled"] = "1",
+	},
+	["UIThemes"] = {
+		["Default"] = "1",
+		["Pink"] = "2",
+	},
+	["UITypes"] = {
+		["Button"] = "1",
+		["Frame"] = "2",
+	},
 	["Nodes"] = {
 		["Stone"] = "1",
 	},

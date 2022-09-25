@@ -35,8 +35,8 @@ function ToolService:RemoveTool(toolId)
 	Tools[toolId]:Destroy()
 end
 
-function ToolService:CreateTool(user, tool)
-	local createdTool = toolObj.new(user, tool)
+function ToolService:CreateTool(user, tool, inventoryId)
+	local createdTool = toolObj.new(user, tool, inventoryId)
 
 	Tools[createdTool.Id] = createdTool
 	return createdTool

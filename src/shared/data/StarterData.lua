@@ -6,9 +6,11 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
+local HttpService = game:GetService("HttpService")
+
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 return {
   StarterStage = Enums.Stages.TestStage,
-  StarterTool = Enums.Tools.TestTool
+  StarterTool = Enums.Tools.TestTool,
 }

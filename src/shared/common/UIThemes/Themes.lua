@@ -11,12 +11,18 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 return {
 
 	[Enums.UIThemes.Pink] = {
-		BackgroundColor = Color3.fromRGB(255, 25, 255),
-		TextColor = Color3.fromRGB(255, 255, 255),
-		CornerRadius = UDim.new(0, 10),
-		MouseDown = Color3.fromRGB(240, 240, 240),
-		BorderSizePixel = 0,
-		BorderColor = Color3.fromRGB(255, 255, 255),
+		[Enums.UITypes.Button] = {
+			[Enums.UIStates.Enabled] = {
+				BackgroundColor = Color3.fromRGB(255, 25, 255),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				CornerRadius = UDim.new(0, 10),
+				MouseDown = Color3.fromRGB(240, 240, 240),
+				BorderSizePixel = 0,
+				BorderColor = Color3.fromRGB(255, 255, 255),
+				Font = Enum.Font.SourceSansBold,
+				TextSize = 20,
+			},
+		},
 	},
 
 	[Enums.UIThemes.Default] = {

@@ -1,6 +1,6 @@
 --[[
 TextButton
-2022, 09, 25
+2022, 09, 26
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
@@ -12,6 +12,7 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 local signal = require(ReplicatedStorage.Packages.Signal)
 local roact = require(ReplicatedStorage.Packages.Roact)
+local roactHooks = require(ReplicatedStorage.Packages.RoactHooks)
 local roactSpring = require(ReplicatedStorage.Packages.RoactSpring)
 
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
@@ -20,9 +21,9 @@ local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
 --[[
 Roact documentation: https://roblox.github.io/roact/
-Information about Button
+Information about TextButton
 Properties:
-	Size: UDim2?
+  Size: UDim2?
   Position: UDim2?
   AnchorPoint: Vector2?
   BackgroundTransparency: number?
@@ -33,18 +34,10 @@ Properties:
   State: CustomEnum?
   ReactionSize: UDim2?
   EnterSize: UDim2?
-	
-	Text: string?
-	MaxVisibleGraphemes: number?
-	RichText: boolean?
-	TextScaled: boolean?
-	TextTruncate: EnumItem?
-	TextWrapped: boolean?
-	TextXAlignment: EnumItem?
-	TextYAlignment: EnumItem?
+  Image: string?
+  ImageScaled: boolean?
+  ImageSize: Vector2?
 ]]
-
-local Button = roact.Component:extend("Button")
 
 local defaultProps = {
 	Size = UDim2.new(0.5, 0, 0.5, 0),
@@ -70,16 +63,13 @@ local defaultProps = {
 	EnterSize = UDim2.new(0, 0, 0, 0),
 }
 
-local supportedTypes = {
-	"Color3",
-	"UDim2",
-	"UDim",
-	"number",
-	"Vector2",
-	"Vector3",
-}
+local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
-function Button:init()
+local Button = require(script.Parent.Button)
+
+local TextButton = roact.Component:extend("TextButton")
+
+function TextButton:init()
 	for index, val in defaultProps do
 		if not self.props[index] then
 			self.props[index] = val
@@ -88,11 +78,9 @@ function Button:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
-
-		Entered = false,
 	})
 
-	local t = { Size = self.props.Size, HoverDown = 0 }
+	local t = {}
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Button][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -104,9 +92,7 @@ function Button:init()
 	self.Janitor = janitor.new()
 end
 
-function Button:render()
-	local props = self.props
-
+function TextButton:render()
 	local t = { config = {
 		duration = 0.25,
 		easing = roactSpring.easings.easeOutQuad,
@@ -119,20 +105,41 @@ function Button:render()
 	end
 	self.api:start(t)
 
-	local children = roact.createFragment({
-		unpack(props[roact.Children]),
-		roact.createElement("UICorner", {
-			CornerRadius = self.style.CornerRadius,
-		}),
-		roact.createElement("UIStroke", {
-			Thickness = self.style.BorderSizePixel,
-			Color = self.style.BorderColor,
-			Transparency = self.style.BorderTransparency,
-		}),
-		roact.createElement("TextLabel", {
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 1, 0),
+	local props = self.props
 
+	local function getSize()
+		local TextService = game:GetService("TextService")
+
+		print(UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize)
+
+		local size = TextService:GetTextSize(
+			props.Text,
+			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
+			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
+			Vector2.new(0, 0)
+		)
+		return size --Find out how to do autosize properly :)
+	end
+
+	return roact.createElement(Button, {
+		Size = UDim2.new(0, getSize().X, props.Size.Y.Scale, props.Size.Y.Offset),
+		Position = props.Position,
+		AnchorPoint = props.AnchorPoint,
+		BackgroundTransparency = props.BackgroundTransparency,
+		Rotation = props.Rotation,
+		Visible = props.Visible,
+		ZIndex = props.ZIndex,
+		AutoButtonColor = props.AutoButtonColor,
+
+		State = props.State,
+
+		ReactionSize = props.ReactionSize,
+		EnterSize = props.EnterSize,
+
+		[roact.Event.Activated] = self.props[roact.Event.Activated],
+	}, {
+		roact.createElement("TextLabel", {
+			Size = UDim2.new(1, 0, 1, 0),
 			Text = props.Text,
 			MaxVisibleGraphemes = props.MaxVisibleGraphemes,
 			RichText = props.RichText,
@@ -141,139 +148,23 @@ function Button:render()
 			TextWrapped = props.TextWrapped,
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
+
 			Font = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
 			TextSize = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-
 			LineHeight = self.style.LineHeight,
 			TextColor3 = self.style.TextColor,
 			TextStrokeColor3 = self.style.TextStrokeColor,
 			TextStrokeTransparency = self.style.TextStrokeTransparency,
 			TextTransparency = self.style.TextTransparency,
+
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+			AnchorPoint = Vector2.new(0.5, 0.5),
 		}),
 	})
-
-	return roact.createElement("ImageButton", {
-		Size = self.style.Size,
-		Position = props.Position,
-		AnchorPoint = props.AnchorPoint,
-		BackgroundTransparency = props.BackgroundTransparency,
-		Rotation = props.Rotation,
-		Visible = props.Visible,
-		ZIndex = props.ZIndex,
-
-		AutoButtonColor = false,
-		BackgroundColor3 = self.style.HoverDown:map(function(val)
-			return self.style.BackgroundColor:getValue():lerp(self.style.MouseDown:getValue(), val)
-		end),
-
-		[roact.Event.MouseButton1Down] = function(...)
-			if props[roact.Event.Activated] then
-				props[roact.Event.Activated](...)
-			end
-
-			self.api:start({
-				Size = props.Size + props.EnterSize + props.ReactionSize,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 1000,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 1,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
-		[roact.Event.MouseButton1Up] = function()
-			self.api:start({
-				Size = if self.state.Entered then props.Size + props.EnterSize else props.Size,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 2000,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 0.5,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
-		[roact.Event.MouseEnter] = function(...)
-			self:setState({
-				Entered = true,
-			})
-
-			if props[roact.Event.MouseEnter] then
-				props[roact.Event.MouseEnter](...)
-			end
-
-			self.api:start({
-				Size = props.Size + props.EnterSize,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 2500,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 0.5,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
-		[roact.Event.MouseLeave] = function(...)
-			self:setState({
-				Entered = false,
-			})
-
-			if props[roact.Event.MouseLeave] then
-				props[roact.Event.MouseLeave](...)
-			end
-
-			self.api:start({
-				Size = props.Size,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 3500,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 0,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
-	}, children)
 end
 
-function Button:didMount()
+function TextButton:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
@@ -281,8 +172,8 @@ function Button:didMount()
 	end))
 end
 
-function Button:willUnmount()
+function TextButton:willUnmount()
 	self.Janitor:Destroy()
 end
 
-return Button
+return TextButton

@@ -8,13 +8,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local roact = require(ReplicatedStorage.Packages.Roact)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local Button = require(ReplicatedStorage.Components.ImageButton)
+
+local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
 return function(target)
 	local m = roact.mount(
 		roact.createElement(Button, {
 			[roact.Event.Activated] = function()
-				print("Hello world!")
+				
 			end,
 			ReactionSize = UDim2.new(0, 15, 0, 15),
 			EnterSize = UDim2.new(0, 5, 0, 5),

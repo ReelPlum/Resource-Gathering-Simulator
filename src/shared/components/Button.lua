@@ -53,14 +53,7 @@ local defaultProps = {
 	EnterSize = UDim2.new(0, 0, 0, 0),
 }
 
-local supportedTypes = {
-	"Color3",
-	"UDim2",
-	"UDim",
-	"number",
-	"Vector2",
-	"Vector3",
-}
+local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
 function Button:init()
 	for index, val in defaultProps do
@@ -71,8 +64,6 @@ function Button:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
-
-		Entered = false,
 	})
 
 	local t = { Size = self.props.Size, HoverDown = 0 }
@@ -84,16 +75,39 @@ function Button:init()
 	end
 	self.style, self.api = roactSpring.Controller.new(t)
 
+	self.LastSize = self.props.Size
 	self.Janitor = janitor.new()
 end
 
 function Button:render()
 	local props = self.props
 
-	local t = { config = {
-		duration = 0.25,
-		easing = roactSpring.easings.easeOutQuad,
-	} }
+	if self.LastSize ~= props.Size then
+		self.LastSize = props.Size
+
+		local size = props.Size
+		if self.Entered and not self.MouseDown then
+			size = props.Size + props.EnterSize
+		elseif self.MouseDown then
+			size = props.Size + props.EnterSize + props.ReactionSize
+		end
+
+		self.api:start({
+			Size = size,
+			config = {
+				mass = 1,
+				friction = 26.0,
+				tension = 1000,
+			},
+		})
+	end
+
+	local t = {
+		config = {
+			duration = 0.25,
+			easing = roactSpring.easings.easeOutQuad,
+		},
+	}
 	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -124,16 +138,18 @@ function Button:render()
 		ZIndex = props.ZIndex,
 
 		AutoButtonColor = false,
-		BackgroundColor3 = self.style.HoverDown:map(function(val)
-			return self.style.BackgroundColor:getValue():lerp(self.style.MouseDown:getValue(), val)
-		end),
-    
+		BackgroundColor3 = roact
+			.joinBindings({
+				BackgroundColor = self.style.BackgroundColor,
+				HoverDown = self.style.HoverDown,
+				MouseDown = self.style.MouseDown,
+			})
+			:map(function(vals)
+				return vals.BackgroundColor:lerp(vals.MouseDown, vals.HoverDown)
+			end),
 
 		[roact.Event.MouseButton1Down] = function(...)
-			if props[roact.Event.Activated] then
-				props[roact.Event.Activated](...)
-			end
-
+			self.MouseDown = true
 			self.api:start({
 				Size = props.Size + props.EnterSize + props.ReactionSize,
 				config = {
@@ -153,12 +169,18 @@ function Button:render()
 					easing = roactSpring.easings.easeOutQuad,
 				},
 			})
+
+			if props[roact.Event.Activated] then
+				props[roact.Event.Activated](...)
+			end
 		end,
 		[roact.Event.MouseButton1Up] = function()
+			self.MouseDown = false
 			self.api:start({
-				Size = if self.state.Entered then props.Size + props.EnterSize else props.Size,
+				Size = if self.Entered then props.Size + props.EnterSize else props.Size,
 				config = {
 					mass = 1,
+					Random = math.random(1, 100),
 					friction = 26.0,
 					tension = 2000,
 				},
@@ -176,9 +198,8 @@ function Button:render()
 			})
 		end,
 		[roact.Event.MouseEnter] = function(...)
-			self:setState({
-				Entered = true,
-			})
+			self.MouseDown = false
+			self.Entered = true
 
 			if props[roact.Event.MouseEnter] then
 				props[roact.Event.MouseEnter](...)
@@ -205,9 +226,8 @@ function Button:render()
 			})
 		end,
 		[roact.Event.MouseLeave] = function(...)
-			self:setState({
-				Entered = false,
-			})
+			self.MouseDown = false
+			self.Entered = false
 
 			if props[roact.Event.MouseLeave] then
 				props[roact.Event.MouseLeave](...)

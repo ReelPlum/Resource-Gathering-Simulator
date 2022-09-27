@@ -182,7 +182,6 @@ function Node:CheckHealth()
 	end
 
 	local percentage = self.CurrentHealth / self.MaxHealth * 100
-	print(percentage)
 
 	for p, range in self.NodeData.DropStages do
 		if self.ReachedDropStages[p] then
@@ -224,9 +223,7 @@ function Node:TakeDamage(amount: number, user, crit)
 	self.DamageDone[user].Damage += dmg
 	self.DamageDone[user].UsedTools[user.EquippedTool] += dmg
 
-	print(dmg)
 	self.CurrentHealth = self.CurrentHealth - dmg
-	print(self.CurrentHealth)
 	self:CheckHealth()
 
 	local NodeService = knit.GetService("NodeService")
@@ -244,9 +241,7 @@ function Node:Damage(user, tool, crit)
 
 	--Check users distance from node.
 	if self.NodeData.RequiredToolType ~= tool.ToolData.ToolType then
-		print(self.NodeData.RequiredToolType)
-		print(tool.ToolType)
-		return
+		return warn("Tooltype was not correct")
 	end --Not the correct tool for the node.
 
 	local enchantsMultipliers = tool:GetEnchantsMultipliers()

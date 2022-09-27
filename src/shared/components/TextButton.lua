@@ -118,11 +118,16 @@ function TextButton:render()
 			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
 			Vector2.new(0, 0)
 		)
-		return size --Find out how to do autosize properly :)
+		return size + Vector2.new(10, 0) --Find out how to do autosize properly :)
 	end
 
 	return roact.createElement(Button, {
-		Size = UDim2.new(0, getSize().X, props.Size.Y.Scale, props.Size.Y.Offset),
+		Size = UDim2.new(
+			0,
+			math.clamp(getSize().X, props.Size.X.Offset, math.huge),
+			props.Size.Y.Scale,
+			props.Size.Y.Offset
+		),
 		Position = props.Position,
 		AnchorPoint = props.AnchorPoint,
 		BackgroundTransparency = props.BackgroundTransparency,

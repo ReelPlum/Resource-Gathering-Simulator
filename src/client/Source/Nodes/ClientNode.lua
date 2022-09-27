@@ -108,7 +108,6 @@ function ClientNode:Render()
 
 		local m = nil
 		local best = 1000
-		print(percentage)
 		for p, model in self.NodeData.Models do
 			if percentage <= p then
 				if best > p then

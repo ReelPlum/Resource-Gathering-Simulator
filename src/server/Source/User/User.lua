@@ -37,6 +37,7 @@ function User.new(player: Player)
 	self.Data = {}
 	self._d = {}
 	self.DataLoaded = false
+	self.ToolsLoaded = false
 
 	self.EquippedTool = nil
 	self.Tools = {
@@ -58,6 +59,7 @@ function User.new(player: Player)
 		ResourceChanged = self.Janitor:Add(signal.new()),
 		ItemAddedToInventory = self.Janitor:Add(signal.new()),
 		ItemRemovedFromInventory = self.Janitor:Add(signal.new()),
+		ToolsLoaded = self.Janitor:Add(signal.new()),
 	}
 
 	self:LoadData()
@@ -101,8 +103,6 @@ function User:LoadData()
 				self:GiveItem(Enums.ItemTypes.Tool, starterData.StarterTool, 1)
 
 				self.Data.RecievedStarterItems = true
-
-				task.wait(1.5)
 				EquipmentService:EquipBestTools(self)
 			end)
 		end
@@ -112,7 +112,18 @@ function User:LoadData()
 		self.Signals.DataLoaded:Fire()
 
 		StageService:NextStageRequirements(self)
-		EquipmentService:GiveUserEquippedTools(self)
+
+		task.spawn(function()
+			repeat
+				task.wait()
+			until self.Player.Character and self.Player:FindFirstChild("Backpack")
+			task.wait(0.1)
+			EquipmentService:GiveUserEquippedTools(self)
+
+			--Loading stuff.
+			self.ToolsLoaded = true
+			self.Signals.ToolsLoaded:Fire()
+		end)
 	end)
 end
 
@@ -141,7 +152,6 @@ function User:Playerstats()
 		end
 
 		self.Janitor:Add(data.Trigger:Connect(function(...)
-			print("STAT!")
 			if data.CheckFunction(self, ...) then
 				self:IncrementPlayerStat(playerstat, 1, data.GetData(self, ...))
 			end

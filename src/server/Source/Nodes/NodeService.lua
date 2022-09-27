@@ -52,7 +52,6 @@ function NodeService.Client:StopAttacking(player: Player)
 end
 
 function NodeService.Client:AttackNode(player: Player, nodeId)
-	print("Trying to attack!")
 	local UserService = knit.GetService("UserService")
 
 	local user = UserService:GetUserFromPlayer(player)
@@ -70,7 +69,6 @@ function NodeService.Client:AttackNode(player: Player, nodeId)
 	end
 	--Check if user owns stage
 	if not node:UserOwnsStage(user) then
-		print(user.Data)
 		return warn("User does not own the stage for the node! " .. node.Stage)
 	end
 

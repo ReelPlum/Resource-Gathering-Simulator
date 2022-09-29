@@ -55,7 +55,7 @@ function Background:init()
 
 	self.visible, self.setVisible = roact.createBinding(self.props.Visible)
 
-	local t = { Size = self.props.Size, BackgroundTransparency = self.props.BackgroundTransparency }
+	local t = { Size = self.props.Size, CornerRadiusStar = 0 }
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -87,7 +87,14 @@ function Background:render()
 	local children = roact.createFragment({
 		unpack(props[roact.Children]),
 		roact.createElement("UICorner", {
-			CornerRadius = self.style.CornerRadius,
+			CornerRadius = roact
+				.joinBindings({ themeRadius = self.style.CornerRadius, cornerRadius = self.style.CornerRadiusStar })
+				:map(function(vals)
+					local v = Vector2.new(vals.themeRadius.Scale, vals.themeRadius.Offset)
+						:Lerp(Vector2.new(1, 0), vals.cornerRadius)
+
+					return UDim.new(v.X, v.Y)
+				end),
 		}),
 		roact.createElement("UIStroke", {
 			Thickness = self.style.BorderSizePixel,
@@ -103,44 +110,41 @@ function Background:render()
 		Position = props.Position,
 		ZIndex = props.ZIndex,
 		Rotation = props.Rotation,
-		Visible = roact
-			.joinBindings({ visible = props.Visible, size = self.style.Size, transparency = self.style.BackgroundTransparency })
-			:map(function(vals)
-				local visible = vals.transparency < 1
-				if vals.visible ~= self.LastVisible then
-					self.LastVisible = vals.visible
+		Visible = roact.joinBindings({ visible = props.Visible, size = self.style.Size }):map(function(vals)
+			local visible = vals.size.X.Offset > 0 and vals.size.Y.Offset > 0
+			if vals.visible ~= self.LastVisible then
+				self.LastVisible = vals.visible
 
-					if vals.visible then
-						self.api:start({
-							Size = props.Size,
-							BackgroundTransparency = props.BackgroundTransparency,
-							config = {
-								tension = 750,
-								friction = 25,
-								mass = 1.25,
-							},
-						})
-					else
-						self.api:start({
-							Size = UDim2.new(0, 0, 0, 0),
-							BackgroundTransparency = 1,
-							config = {
-								tension = 750,
-								friction = 25,
-								mass = 0.25,
-							},
-						})
-					end
+				if vals.visible then
+					self.api:start({
+						Size = props.Size,
+						CornerRadiusStar = 0,
+						config = {
+							tension = 750,
+							friction = 25,
+							mass = 1.25,
+						},
+					})
+				else
+					self.api:start({
+						Size = UDim2.new(0, 0, 0, 0),
+						CornerRadiusStar = 1,
+						config = {
+							tension = 750,
+							friction = 25,
+							mass = 0.25,
+						},
+					})
 				end
-				return visible
-			end),
+			end
+			return visible
+		end),
 
 		Size = self.style.Size:map(function(val)
 			return val
 		end),
-		GroupTransparency = self.style.BackgroundTransparency:map(function(val)
-			return val
-		end),
+
+		ClipsDescendants = true,
 	}, children)
 end
 

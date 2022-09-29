@@ -22,12 +22,21 @@ return function(target)
 					print("HALLO!")
 				end,
 				Size = UDim2.new(0, 175, 0, 35),
-				Position = UDim2.new(0.5, 0, 0.75, 0),
+				Position = UDim2.new(0.5, 0, 0.5, 250 / 1.5),
 			}, {}),
 			roact.createElement(Background, {
-				Size = UDim2.new(0, 250, 0, 250),
+				Size = UDim2.new(0, 350, 0, 250),
 				Visible = binding,
-			}, {}),
+			}, {
+				roact.createElement("TextLabel", {
+					Position = UDim2.new(0.5, 0, 0.5, 250 / 4),
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Text = "Hello world!",
+					BackgroundColor3 = Color3.fromRGB(255, 0, 255),
+					Size = UDim2.new(0, 100, 0, 25),
+					TextScaled = true,
+				}),
+			}),
 		}),
 		target
 	)

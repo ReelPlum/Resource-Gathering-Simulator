@@ -33,7 +33,7 @@ return {
 		},
 		[Enums.UITypes.Background] = {
 			BackgroundColor = Color3.fromRGB(235, 252, 250),
-			CornerRadius = UDim.new(0, 2),
+			CornerRadius = UDim.new(0, 5),
 			BorderSizePixel = 0,
 			BorderColor = Color3.fromRGB(255, 255, 255),
 		},

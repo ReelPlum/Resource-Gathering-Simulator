@@ -15,11 +15,13 @@ local ClientController = knit.CreateController({
 
 	Cache = {
 		PlayerStats = {},
+		StageProgress = {}
 	},
 })
 
 function ClientController:KnitStart()
 	local UserService = knit.GetService("UserService")
+	
 
 	UserService.PlayerStatChanged:Connect(function(playerstat, val)
 		ClientController.Cache.PlayerStats[playerstat] = val

@@ -77,7 +77,7 @@ function PercentageBar:init()
 		end
 	end
 
-	local t = { Value = self.props.Value:getValue() }
+	local t = { Value = math.clamp(self.props.Value:getValue(), 0, self.props.MaxValue) }
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.PercentageBar] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -144,7 +144,7 @@ function PercentageBar:render()
 					.joinBindings({ Value = props.Value, AnimatedValue = self.style.Value })
 					:map(function(vals)
 						self.api:start({
-							Value = vals.Value,
+							Value = math.clamp(vals.Value, 0, props.MaxValue),
 							config = {
 								mass = 1,
 								tension = 250,

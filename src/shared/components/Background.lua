@@ -143,7 +143,9 @@ function Background:render()
 		Size = self.style.Size:map(function(val)
 			return val
 		end),
+		GroupTransparency = self.style.CornerRadiusStar,
 
+		BorderSizePixel = 0,
 		ClipsDescendants = true,
 	}, children)
 end

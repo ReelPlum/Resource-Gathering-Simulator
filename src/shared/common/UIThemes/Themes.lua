@@ -23,16 +23,16 @@ return {
 			},
 			[Enums.UIStates.Disabled] = {},
 		},
-		[Enums.UITypes.Background] = {},
 		[Enums.UITypes.PercentageBar] = {
 			BackgroundColor = Color3.fromRGB(235, 252, 250),
 			BarColor = Color3.fromRGB(63, 148, 187),
-			CornerRadius = UDim.new(0, 2),
+			CornerRadius = UDim.new(0, 6),
 			BorderSizePixel = 0,
 			BorderColor = Color3.fromRGB(255, 255, 255),
 		},
 		[Enums.UITypes.Background] = {
 			BackgroundColor = Color3.fromRGB(235, 252, 250),
+			BackgroundColor2 = Color3.fromRGB(138, 155, 153),
 			CornerRadius = UDim.new(0, 5),
 			BorderSizePixel = 0,
 			BorderColor = Color3.fromRGB(255, 255, 255),

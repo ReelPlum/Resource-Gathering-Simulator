@@ -27,8 +27,6 @@ return function(target)
 				[roact.Event.Activated] = function()
 					UIThemes:SetTheme(Enums.UIThemes.Pink)
 				end,
-				ReactionSize = UDim2.new(0, 8, 0, 8),
-				EnterSize = UDim2.new(0, 6, 0, 6),
 				Size = UDim2.new(0, 100, 0, 100),
 				Position = UDim2.new(8 / 10, 0, 0.25, 0),
 			}, {}),
@@ -36,22 +34,16 @@ return function(target)
 				[roact.Event.Activated] = function()
 					UIThemes:SetTheme(Enums.UIThemes.Default)
 				end,
-				ReactionSize = UDim2.new(0, 8, 0, 8),
-				EnterSize = UDim2.new(0, 6, 0, 6),
 				Size = UDim2.new(0, 100, 0, 100),
 				Position = UDim2.new(5 / 10, 0, 0.25, 0),
 			}, {}),
 			roact.createElement(ImageButton, {
 				[roact.Event.Activated] = function() end,
-				ReactionSize = UDim2.new(0, 8, 0, 8),
-				EnterSize = UDim2.new(0, 6, 0, 6),
 				Size = UDim2.new(0, 100, 0, 100),
 				Position = UDim2.new(2 / 10, 0, 0.25, 0),
 			}, {}),
 			roact.createElement(ButtonWithTextAndImage, {
 				[roact.Event.Activated] = function() end,
-				ReactionSize = UDim2.new(0, 8, 0, 8),
-				EnterSize = UDim2.new(0, 6, 0, 6),
 				Size = UDim2.new(0, 100, 0, 100),
 				Text = "CLICK TO DO STUFF!",
 				Position = UDim2.new(5 / 10, 0, 0.75, 0),

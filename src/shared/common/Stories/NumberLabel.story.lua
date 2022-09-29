@@ -11,7 +11,7 @@ local roact = require(ReplicatedStorage.Packages.Roact)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local Button = require(ReplicatedStorage.Components.Button)
-local PercentageBar = require(ReplicatedStorage.Components.PercentageBar)
+local NumberLabel = require(ReplicatedStorage.Components.NumberLabel)
 
 local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
@@ -21,17 +21,14 @@ return function(target)
 	local fragment = roact.createFragment({
 		roact.createElement(Button, {
 			[roact.Event.Activated] = function()
-				set(math.random(0, 100))
-				UIThemes:SetTheme(
-					if UIThemes.CurrentTheme == Enums.UIThemes.Pink then Enums.UIThemes.Default else Enums.UIThemes.Pink
-				)
+				set(math.random(0, 1000000000))
 			end,
 			Position = UDim2.new(0.5, 0, 0.75, 0),
 			Size = UDim2.new(0, 100, 0, 100),
 		}, {}),
-		roact.createElement(PercentageBar, {
-			MaxValue = 100,
+		roact.createElement(NumberLabel, {
 			Value = binding,
+			Size = UDim2.new(0, 50, 0, 35),
 		}, {}),
 	})
 

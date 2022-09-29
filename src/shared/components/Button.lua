@@ -4,6 +4,7 @@ Button
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local RunService = game:GetService("RunService")
@@ -66,7 +67,7 @@ function Button:init()
 		Theme = UIThemes.CurrentTheme,
 	})
 
-	local t = { Size = self.props.Size, HoverDown = 0 }
+	local t = { Size = self.props.Size, HoverDown = 0, HoverPos = UDim2.new(0, 0) }
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Button][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -74,6 +75,9 @@ function Button:init()
 		t[index] = val
 	end
 	self.style, self.api = roactSpring.Controller.new(t)
+
+	self.ClickEffects = {}
+	self.CurrentClickEffect = nil
 
 	self.LastSize = self.props.Size
 	self.Janitor = janitor.new()
@@ -126,9 +130,134 @@ function Button:render()
 			Color = self.style.BorderColor,
 			Transparency = self.style.BorderTransparency,
 		}),
+		roact.createElement("ImageButton", {
+
+			Size = UDim2.new(1, 0, 1, 0),
+			BackgroundTransparency = 1,
+			Image = "",
+
+			[roact.Event.MouseButton1Down] = function(...)
+				self.MouseDown = true
+				self.api:start({
+					Size = props.Size + props.EnterSize + props.ReactionSize,
+					config = {
+						mass = 1,
+						friction = 26.0,
+						tension = 1000,
+					},
+				})
+
+				self.api:start({
+					HoverDown = 1,
+					config = {
+						duration = 0.25,
+						easing = roactSpring.easings.easeOutQuad,
+					},
+				})
+
+				if not self.props.AutoButtonColor then
+					return
+				end
+
+				if props[roact.Event.Activated] then
+					props[roact.Event.Activated](...)
+				end
+			end,
+			[roact.Event.MouseButton1Up] = function()
+				self.MouseDown = false
+				self.api:start({
+					Size = if self.Entered then props.Size + props.EnterSize else props.Size,
+					config = {
+						mass = 1,
+						Random = math.random(1, 100),
+						friction = 26.0,
+						tension = 2000,
+					},
+				})
+
+				if not self.props.AutoButtonColor then
+					return
+				end
+				self.api:start({
+					HoverDown = 0.5,
+					config = {
+						duration = 0.25,
+						easing = roactSpring.easings.easeOutQuad,
+					},
+				})
+			end,
+			[roact.Event.MouseEnter] = function(...)
+				self.MouseDown = false
+				self.Entered = true
+
+				if props[roact.Event.MouseEnter] then
+					props[roact.Event.MouseEnter](...)
+				end
+
+				self.api:start({
+					Size = props.Size + props.EnterSize,
+					config = {
+						mass = 1,
+						friction = 26.0,
+						tension = 2500,
+					},
+				})
+
+				if not self.props.AutoButtonColor then
+					return
+				end
+				self.api:start({
+					HoverDown = 0.5,
+					config = {
+						duration = 0.25,
+						easing = roactSpring.easings.easeOutQuad,
+					},
+				})
+			end,
+			[roact.Event.MouseLeave] = function(...)
+				self.MouseDown = false
+				self.Entered = false
+
+				if props[roact.Event.MouseLeave] then
+					props[roact.Event.MouseLeave](...)
+				end
+
+				self.api:start({
+					Size = props.Size,
+					config = {
+						mass = 1,
+						friction = 26.0,
+						tension = 3500,
+					},
+				})
+
+				if not self.props.AutoButtonColor then
+					return
+				end
+				self.api:start({
+					HoverDown = 0,
+					config = {
+						duration = 0.25,
+						easing = roactSpring.easings.easeOutQuad,
+					},
+				})
+			end,
+			[roact.Event.MouseMoved] = function(rbx, x, y)
+				local pos = Vector2.new(x, y) - rbx.AbsolutePosition
+				local scalepos = pos / rbx.AbsoluteSize
+
+				self.api:start({
+					HoverPos = UDim2.new(scalepos.X, 0, scalepos.Y, 0),
+					config = {
+						duration = 0.1,
+					},
+				})
+			end,
+		}),
+		roact.createFragment(self.ClickEffects),
 	})
 
-	return roact.createElement("ImageButton", {
+	return roact.createElement("Frame", {
 		Size = self.style.Size,
 		Position = props.Position,
 		AnchorPoint = props.AnchorPoint,
@@ -137,122 +266,15 @@ function Button:render()
 		Visible = props.Visible,
 		ZIndex = props.ZIndex,
 
-		AutoButtonColor = false,
 		BackgroundColor3 = roact
 			.joinBindings({
-				BackgroundColor = self.style.BackgroundColor,
-				HoverDown = self.style.HoverDown,
 				MouseDown = self.style.MouseDown,
+				HoverDown = self.style.HoverDown,
+				BackgroundColor = self.style.BackgroundColor,
 			})
 			:map(function(vals)
 				return vals.BackgroundColor:lerp(vals.MouseDown, vals.HoverDown)
 			end),
-
-		[roact.Event.MouseButton1Down] = function(...)
-			self.MouseDown = true
-			self.api:start({
-				Size = props.Size + props.EnterSize + props.ReactionSize,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 1000,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 1,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-
-			if props[roact.Event.Activated] then
-				props[roact.Event.Activated](...)
-			end
-		end,
-		[roact.Event.MouseButton1Up] = function()
-			self.MouseDown = false
-			self.api:start({
-				Size = if self.Entered then props.Size + props.EnterSize else props.Size,
-				config = {
-					mass = 1,
-					Random = math.random(1, 100),
-					friction = 26.0,
-					tension = 2000,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 0.5,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
-		[roact.Event.MouseEnter] = function(...)
-			self.MouseDown = false
-			self.Entered = true
-
-			if props[roact.Event.MouseEnter] then
-				props[roact.Event.MouseEnter](...)
-			end
-
-			self.api:start({
-				Size = props.Size + props.EnterSize,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 2500,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 0.5,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
-		[roact.Event.MouseLeave] = function(...)
-			self.MouseDown = false
-			self.Entered = false
-
-			if props[roact.Event.MouseLeave] then
-				props[roact.Event.MouseLeave](...)
-			end
-
-			self.api:start({
-				Size = props.Size,
-				config = {
-					mass = 1,
-					friction = 26.0,
-					tension = 3500,
-				},
-			})
-
-			if not self.props.AutoButtonColor then
-				return
-			end
-			self.api:start({
-				HoverDown = 0,
-				config = {
-					duration = 0.25,
-					easing = roactSpring.easings.easeOutQuad,
-				},
-			})
-		end,
 	}, children)
 end
 

@@ -16,9 +16,7 @@ return function(target)
 			[roact.Event.Activated] = function()
 				print("Hello world!")
 			end,
-			ReactionSize = UDim2.new(0, 15, 0, 15),
-			EnterSize = UDim2.new(0, 5, 0, 5),
-			Size = UDim2.new(0, 100, 0, 100),
+			Size = UDim2.new(0, 175, 0, 35),
 		}, {}),
 		target
 	)

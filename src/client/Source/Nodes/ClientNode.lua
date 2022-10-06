@@ -48,6 +48,16 @@ function ClientNode.new(id, data)
 
 	self.NodeData = nodeData[self.Type]
 
+	self.ParticlePoint = self.Janitor:Add(Instance.new("Part"))
+	self.ParticlePoint.Anchored = true
+	self.ParticlePoint.CanCollide = false
+	self.ParticlePoint.Size = Vector3.new(0.1, 0.1, 0.1)
+	self.ParticlePoint.Position = self.Position
+	self.ParticlePoint.Transparency = 1
+	self.ParticleAttachment = self.Janitor:Add(Instance.new("Attachment"))
+	self.ParticleAttachment.Parent = self.ParticlePoint
+	self.ParticlePoint.Parent = workspace.Misc
+
 	self.Model = nil
 
 	self.LastHealthChange = 0
@@ -170,7 +180,7 @@ end
 
 function ClientNode:CalcuateCF()
 	local cf, size = self.Model:GetBoundingBox()
-	local diff = cf.Position - self.Model.PrimaryPart.Position
+	local diff = cf.Position - self.Model.PrimaryPart.Position + self.NodeData.Offset
 
 	return CFrame.new(self.Position + Vector3.new(0, size.Y / 2, 0) + diff / 2) * CFrame.Angles(
 		0,
@@ -186,7 +196,7 @@ function ClientNode:SpawnAnimation()
 end
 
 function ClientNode:ModelChangeEffect()
-	self.Model.Parent = workspace
+	self.NodeData.ModelChangeAnimation(self)
 end
 
 function ClientNode:DamageEffect(crit, player)
@@ -216,9 +226,10 @@ function ClientNode:DamageEffect(crit, player)
 end
 
 function ClientNode:DestroyEffect()
-	return promise.new(function(resolve, reject)
-		task.wait(1)
-		resolve()
+	return promise.new(function(resolve)
+		self.NodeData.DestroyAnimation(self):andThen(function()
+			resolve()
+		end)
 	end)
 end
 

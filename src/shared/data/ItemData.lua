@@ -13,7 +13,7 @@ return {
 	[Enums.ItemTypes.Tool] = {
 		[Enums.Tools.TestTool] = {
 			DisplayName = "Test Tool",
-			Strength = 10000,
+			Strength = 250,
 			Damage = RandomRange.new(5, 10),
 			ToolType = Enums.ToolTypes.Pickaxe,
 			Tool = ReplicatedStorage.Assets.Tools.Pickaxe,

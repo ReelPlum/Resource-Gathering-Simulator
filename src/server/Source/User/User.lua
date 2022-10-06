@@ -103,6 +103,7 @@ function User:LoadData()
 				self:GiveItem(Enums.ItemTypes.Tool, starterData.StarterTool, 1)
 
 				self.Data.RecievedStarterItems = true
+				task.wait(0.5)
 				EquipmentService:EquipBestTools(self)
 			end)
 		end
@@ -160,7 +161,7 @@ function User:Playerstats()
 end
 
 function User:CountPlaytime()
-	local t = 5
+	local t = 1
 
 	if not self.DataLoaded then
 		self.Signals.DataLoaded:Wait()
@@ -347,6 +348,9 @@ function User:GiveCurrency(currency, amount)
 	self.Data.Currencies[currency] += amount
 
 	self.Signals.CurrencyChanged:Fire(currency, self.Data.Currencies[currency])
+
+	local UserService = knit.GetService("UserService")
+	UserService.Client.CurrencyChanged:Fire(self.Player, currency, self.Data.Currencies[currency])
 end
 
 function User:GiveResource(resource, amount)
@@ -354,13 +358,16 @@ function User:GiveResource(resource, amount)
 		self.Signals.DataLoaded:Wait()
 	end
 
-	if not self.Data.Currencies[resource] then
+	if not self.Data.Resources[resource] then
 		self.Data.Resources[resource] = 0
 	end
 
 	self.Data.Resources[resource] += amount
 
 	self.Signals.ResourceChanged:Fire(resource, self.Data.Resources[resource])
+
+	local UserService = knit.GetService("UserService")
+	UserService.Client.ResourceChanged:Fire(self.Player, resource, self.Data.Resources[resource])
 end
 
 function User:TakeResource(resource, quantity, takeAll)
@@ -374,6 +381,9 @@ function User:TakeResource(resource, quantity, takeAll)
 
 	quantity = math.clamp(quantity, 0, self.Data.Resources[resource])
 	self.Data.Resources[resource] -= quantity
+
+	local UserService = knit.GetService("UserService")
+	UserService.Client.ResourceChanged:Fire(self.Player, resource, self.Data.Resources[resource])
 
 	return quantity
 end
@@ -389,6 +399,9 @@ function User:TakeCurrency(currency, quantity, takeAll)
 
 	quantity = math.clamp(quantity, 0, self.Data.Currencies[currency])
 	self.Data.Currencies[currency] -= quantity
+
+	local UserService = knit.GetService("UserService")
+	UserService.Client.CurrencyChanged:Fire(self.Player, currency, self.Data.Currencies[currency])
 
 	return quantity
 end

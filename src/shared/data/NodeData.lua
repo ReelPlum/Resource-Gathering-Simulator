@@ -12,6 +12,7 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local SpawnAnimations = require(ReplicatedStorage.Common.Visual.SpawnAnimations)
 local ModelChangeAnimations = require(ReplicatedStorage.Common.Visual.ModelChangeAnimations)
+local DestroyAnimations = require(ReplicatedStorage.Common.Visual.DestroyAnimations)
 
 local NodeData = {
 	[Enums.Nodes.Stone] = {
@@ -39,8 +40,10 @@ local NodeData = {
 		},
 		Effects = nil,
 		Radius = 10,
+		Offset = Vector3.new(0, -1 * 2.5, 0),
 		SpawnAnimation = SpawnAnimations.StoneSpawnAnimation,
-		ModelChangeAnimation = ModelChangeAnimations.StoneModelChangeAnimation
+		ModelChangeAnimation = ModelChangeAnimations.StoneModelChangeAnimation,
+		DestroyAnimation = DestroyAnimations.StoneDestroyAnimation,
 	},
 }
 

@@ -22,6 +22,17 @@ return {
 				TextSize = 24,
 			},
 			[Enums.UIStates.Disabled] = {},
+			[Enums.UIStates.Secondary] = {
+				BackgroundColor = Color3.fromRGB(100, 157, 184),
+				TextColor = Color3.fromRGB(46, 110, 139),
+				CornerRadius = UDim.new(0, 5),
+				MouseDown = Color3.fromRGB(137, 181, 189),
+				BorderSizePixel = 1,
+				BorderTransparency = 0,
+				BorderColor = Color3.fromRGB(255, 255, 255),
+				Font = Enum.Font.SourceSansBold,
+				TextSize = 24,
+			},
 		},
 		[Enums.UITypes.PercentageBar] = {
 			BackgroundColor = Color3.fromRGB(235, 252, 250),
@@ -33,32 +44,22 @@ return {
 		[Enums.UITypes.Background] = {
 			BackgroundColor = Color3.fromRGB(235, 252, 250),
 			BackgroundColor2 = Color3.fromRGB(138, 155, 153),
+			CompletedColor = Color3.fromRGB(41, 145, 194),
 			CornerRadius = UDim.new(0, 5),
 			BorderSizePixel = 0,
 			BorderColor = Color3.fromRGB(255, 255, 255),
 		},
-	},
-
-	[Enums.UIThemes.Pink] = {
-		[Enums.UITypes.Button] = {
+		[Enums.UITypes.Header] = {
 			[Enums.UIStates.Enabled] = {
-				BackgroundColor = Color3.fromRGB(255, 25, 255),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				CornerRadius = UDim.new(0, 10),
-				MouseDown = Color3.fromRGB(240, 240, 240),
-				BorderSizePixel = 0,
+				BackgroundColor = Color3.fromRGB(63, 148, 187),
+				TextColor = Color3.fromRGB(63, 148, 187),
+				CornerRadius = UDim.new(0, 5),
+				BorderSizePixel = 4,
+				TextStrokeTransparency = 0,
 				BorderColor = Color3.fromRGB(255, 255, 255),
 				Font = Enum.Font.SourceSansBold,
-				TextSize = 20,
+				TextSize = 100,
 			},
-		},
-		[Enums.UITypes.Background] = {},
-		[Enums.UITypes.PercentageBar] = {
-			BackgroundColor = Color3.fromRGB(230, 92, 243),
-			BarColor = Color3.fromRGB(236, 227, 236),
-			CornerRadius = UDim.new(0, 6),
-			BorderSizePixel = 0,
-			BorderColor = Color3.fromRGB(201, 47, 47),
 		},
 	},
 }

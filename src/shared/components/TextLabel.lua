@@ -1,6 +1,6 @@
 --[[
-ProgressLabel
-2022, 09, 29
+TextLabel
+2022, 10, 04
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
@@ -15,15 +15,13 @@ local roact = require(ReplicatedStorage.Packages.Roact)
 local roactHooks = require(ReplicatedStorage.Packages.RoactHooks)
 local roactSpring = require(ReplicatedStorage.Packages.RoactSpring)
 
-local formatnumber = require(ReplicatedStorage.Common.FormatNumber.Main)
-
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
 --[[
 Roact documentation: https://roblox.github.io/roact/
-Information about ProgressLabel
+Information about TextLabel
 Properties:
 
 ]]
@@ -38,11 +36,8 @@ local defaultProps = {
 	ZIndex = 1,
 	AutoSize = true,
 
-	MaxValue = 0,
-	Value = roact.createBinding(0),
 	MaxLetters = math.huge,
 	Text = "Hello world!",
-	formatter = formatnumber.NumberFormatter.with(),
 
 	State = Enums.UIStates.Enabled,
 	Type = Enums.UITypes.Button,
@@ -50,9 +45,9 @@ local defaultProps = {
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
-local ProgressLabel = roact.Component:extend("ProgressLabel")
+local TextLabel = roact.Component:extend("TextLabel")
 
-function ProgressLabel:init()
+function TextLabel:init()
 	self.Janitor = janitor.new()
 
 	self:setState({
@@ -65,8 +60,7 @@ function ProgressLabel:init()
 		end
 	end
 
-	self.lastValue = self.props.Value:getValue()
-	local t = { Value = math.clamp(self.props.Value:getValue(), 0, self.props.MaxValue) }
+	local t = {}
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.Type][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -76,7 +70,7 @@ function ProgressLabel:init()
 	self.style, self.api = roactSpring.Controller.new(t)
 end
 
-function ProgressLabel:render()
+function TextLabel:render()
 	for index, val in defaultProps do
 		if not self.props[index] then
 			self.props[index] = val
@@ -98,23 +92,6 @@ function ProgressLabel:render()
 	end
 	self.api:start(t)
 
-	local function getText(val)
-		return props.formatter:Format(math.floor(val)) .. " / " .. props.formatter:Format(props.MaxValue)
-	end
-
-	local function getSize(val)
-		local TextService = game:GetService("TextService")
-
-		local size = TextService:GetTextSize(
-			getText(val),
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
-			Vector2.new(0, props.Size.Y.Offset)
-		)
-		return UDim2.new(0, math.clamp(size.X, props.Size.X.Offset, math.huge), 0, props.Size.Y.Offset)
-			+ UDim2.new(0, 10, 0, 0)
-	end
-
 	return roact.createElement(
 		"TextLabel",
 		{
@@ -124,33 +101,18 @@ function ProgressLabel:render()
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
 
-			Text = roact.joinBindings({ Value = props.Value, animatedValue = self.style.Value }):map(function(vals)
-				if self.lastValue ~= vals.Value then
-					self.api:start({
-						Value = math.clamp(vals.Value, 0, props.MaxValue),
-						config = {
-							duration = 0.05,
-							easing = roactSpring.easings.easeOutQuad,
-						},
-					})
-				end
-
-				return getText(vals.animatedValue)
-			end),
-			Size = self.style.Value:map(function(val)
-				return getSize(val)
-			end),
+			Text = props.Text,
+			Size = props.Size,
+			TextTruncate = Enum.TextTruncate.AtEnd,
 			BackgroundColor3 = self.style.BackgroundColor,
 
-			Font = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
-			TextSize = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
+			Font = UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State].Font,
+			TextSize = UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State].TextSize,
 			LineHeight = self.style.LineHeight,
 			TextColor3 = self.style.TextColor,
 			TextStrokeColor3 = self.style.TextStrokeColor,
 			TextStrokeTransparency = self.style.TextStrokeTransparency,
 			TextTransparency = self.style.TextTransparency,
-
-			ZIndex = props.ZIndex,
 		},
 		roact.createFragment({
 			roact.createElement("UICorner", {
@@ -165,7 +127,7 @@ function ProgressLabel:render()
 	)
 end
 
-function ProgressLabel:didMount()
+function TextLabel:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
@@ -173,8 +135,8 @@ function ProgressLabel:didMount()
 	end))
 end
 
-function ProgressLabel:willUnmount()
+function TextLabel:willUnmount()
 	self.Janitor:Destroy()
 end
 
-return ProgressLabel
+return TextLabel

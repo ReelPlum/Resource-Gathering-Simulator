@@ -30,10 +30,12 @@ local defaultProps = {
 	MaxValue = 0,
 	Value = roact.createBinding(0),
 	SortValue = 1,
+	Text = "Hello world!",
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
+local TextLabel = require(ReplicatedStorage.Components.TextLabel)
 local PercentageBar = require(ReplicatedStorage.Components.PercentageBar)
 local ProgressLabel = require(ReplicatedStorage.Components.ProgressLabel)
 
@@ -63,6 +65,11 @@ function RequirementProgress:init()
 end
 
 function RequirementProgress:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
 	local props = self.props
 
 	local t = {
@@ -78,18 +85,28 @@ function RequirementProgress:render()
 		t[index] = val
 	end
 	self.api:start(t)
-
 	return roact.createElement(
 		"Frame",
 		{
 			Name = props.Value:map(function(val)
-				return if val >= props.MaxValue then 99 + props.SortValue else props.SortValue
+				return if val >= props.MaxValue then "X" .. tostring(99 + props.SortValue) else props.SortValue
 			end),
-			Size = UDim2.new(0, 300, 0, 120),
+			Size = UDim2.new(0, 300, 0, 90),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
-			AutomaticSize = Enum.AutomaticSize.X,
+			AutomaticSize = Enum.AutomaticSize.None,
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundColor3 = self.style.BackgroundColor2,
+			BackgroundColor3 = roact
+				.joinBindings({
+					BackgroundColor = self.style.BackgroundColor2,
+					CompletedColor = self.style.CompletedColor,
+					Value = props.Value,
+				})
+				:map(function(vals)
+					return vals.BackgroundColor:Lerp(
+						vals.CompletedColor,
+						math.clamp(math.floor(vals.Value / props.MaxValue), 0, 1)
+					)
+				end),
 		},
 		roact.createFragment({
 			roact.createElement("UICorner", {
@@ -105,9 +122,18 @@ function RequirementProgress:render()
 				MaxValue = props.MaxValue,
 
 				BackgroundTransparency = 1,
-				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0, 10),
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.new(0.5, 0, 1, -10),
 				Size = UDim2.new(1, -20, 0, 45),
+				State = Enums.UIStates.Secondary,
+				ZIndex = 5,
+			}),
+			roact.createElement(TextLabel, {
+				Size = UDim2.new(1, -20, 0, 20),
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0, 5),
+				Text = string.format(props.Text, props.MaxValue),
+				BackgroundTransparency = 1,
 			}),
 			roact.createElement(PercentageBar, {
 				Value = props.Value,

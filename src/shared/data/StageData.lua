@@ -71,9 +71,13 @@ return {
 					},
 					Quantity = 100,
 				},
+				["2"] = {
+					PlayerStat = Enums.PlayerStats.Playtime,
+					Quantity = 100,
+				},
 			},
 		},
-		StageBlocker = nil,
+		StageBlocker = workspace.StageBlockers.NextStageBlocker,
 		SpawnLocation = nil,
 		StageSpawners = {
 			game.Workspace.StageSpawners:WaitForChild("TestStage1"),

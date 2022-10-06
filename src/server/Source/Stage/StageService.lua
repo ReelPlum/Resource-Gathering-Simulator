@@ -34,7 +34,18 @@ function StageService.Client:GetCurrentStageProgresss(player: Player)
 	local UserService = knit.GetService("UserService")
 	local user = UserService:GetUserFromPlayer(player)
 	if not user then
-		return
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
 	end
 
 	if not user.DataLoaded then

@@ -21,7 +21,7 @@ return function(target)
 	local fragment = roact.createFragment({
 		roact.createElement(Button, {
 			[roact.Event.Activated] = function()
-				set(math.random(0, 100000))
+				set(100000)
 			end,
 			Position = UDim2.new(0.5, 0, 0.75, 0),
 			Size = UDim2.new(0, 100, 0, 100),
@@ -29,6 +29,7 @@ return function(target)
 		roact.createElement(RequirementProgress, {
 			MaxValue = 100000,
 			Value = binding,
+			Text = "Collect 200 coins",
 		}, {}),
 	})
 

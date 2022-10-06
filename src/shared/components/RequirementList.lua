@@ -27,32 +27,20 @@ Properties:
 ]]
 
 local defaultProps = {
+	Size = UDim2.new(0, 300 * 3 + 10 + 20, 0, 90 * 2.5 + 10 + 20),
+	Position = UDim2.new(0.5, 0, 1, -50),
+	CellSize = UDim2.new(0, 300, 0, 90),
+	BackgroundTransparency = 1,
+
 	RequirementsData = require(ReplicatedStorage.Data.StageData)[Enums.Stages.TestStage].RequiredForUpgrade,
 	Data = {
-		{
+		--[[{
 			Type = "Resources",
 			Index = Enums.Resources.Stone,
 			Value = roact.createBinding(0),
 			MaxValue = 100,
-		},
-		{
-			Type = "Resourceses",
-			Index = Enums.Resources.Stone,
-			Value = roact.createBinding(0),
-			MaxValue = 1000,
-		},
-		{
-			Type = "Resourceseses",
-			Index = Enums.Resources.Stone,
-			Value = roact.createBinding(0),
-			MaxValue = 10000,
-		},
-		{
-			Type = "Resourceseses",
-			Index = Enums.Resources.Stone,
-			Value = roact.createBinding(0),
-			MaxValue = 1000,
-		},
+			Text = "Do something",
+		}, --]]
 	},
 }
 
@@ -67,6 +55,7 @@ function RequirementList:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
+		CanvasSize = Vector2.new(0, 0),
 	})
 
 	for index, val in defaultProps do
@@ -83,9 +72,17 @@ function RequirementList:init()
 		t[index] = val
 	end
 	self.style, self.api = roactSpring.Controller.new(t)
+
+	self.GridLayout = roact.createRef()
 end
 
 function RequirementList:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
+
 	local props = self.props
 
 	local t = {
@@ -107,8 +104,9 @@ function RequirementList:render()
 	local fragTable = {
 		roact.createElement("UIGridLayout", {
 			CellPadding = UDim2.new(0, 5, 0, 5),
-			CellSize = UDim2.new(0, 300, 0, 120),
+			CellSize = props.CellSize,
 			SortOrder = Enum.SortOrder.Name,
+			[roact.Ref] = self.GridLayout,
 		}),
 	}
 	for i, data in props.Data do
@@ -119,27 +117,42 @@ function RequirementList:render()
 				Value = data.Value,
 				--Data = props.RequirementsData[data.Type][data.Index],
 				SortValue = i,
+				Text = data.Text,
 			})
 		)
 	end
-
-	return roact.createElement("ScrollingFrame", {
-		BackgroundTransparency = 1,
+	return roact.createElement("Frame", {
+		BackgroundTransparency = props.BackgroundTransparency,
+		Size = props.Size + UDim2.new(0, barSize, 0, 0),
+		Position = props.Position,
+		AnchorPoint = Vector2.new(0.5, 1),
 		BorderSizePixel = 0,
-		Size = UDim2.new(0, 300 * 3 + 10 + barSize + 20, 0, 120 * 3 + 10 + 20),
-		Position = UDim2.new(0.5, barSize, 1, -125),
-		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollBarThickness = barSize,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		AnchorPoint = Vector2.new(0.5, 0),
-		CanvasPosition = Vector2.new(400, 10),
+
+		BackgroundColor3 = self.style.BackgroundColor2,
 	}, {
-		roact.createElement("Frame", {
-			Size = UDim2.new(1, -20, 1, -20),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, 0, 0.5, 0),
-			BackgroundTransparency = 1,
-		}, { roact.createFragment(fragTable) }),
+		roact.createFragment({
+			roact.createElement("ScrollingFrame", {
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Size = UDim2.new(1, 0, 1, 0),
+				Position = UDim2.new(0.5, 0, 0.5, 0),
+				AutomaticCanvasSize = Enum.AutomaticSize.None,
+				ScrollBarThickness = barSize,
+				ScrollingDirection = Enum.ScrollingDirection.Y,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				CanvasSize = UDim2.new(0, self.state.CanvasSize.X, 0, self.state.CanvasSize.Y + 20),
+			}, {
+				roact.createElement("Frame", {
+					Size = UDim2.new(1, -20, 1, -20),
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.new(0.5, 0, 0.5, 0),
+					BackgroundTransparency = 1,
+				}, { roact.createFragment(fragTable) }),
+			}),
+			roact.createElement("UICorner", {
+				CornerRadius = self.style.CornerRadius,
+			}),
+		}),
 	})
 end
 
@@ -149,6 +162,16 @@ function RequirementList:didMount()
 			Theme = newTheme,
 		})
 	end))
+
+	self.Janitor:Add(self.GridLayout.current:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		self:setState({
+			CanvasSize = self.GridLayout.current.AbsoluteContentSize,
+		})
+	end))
+
+	self:setState({
+		CanvasSize = self.GridLayout.current.AbsoluteContentSize,
+	})
 end
 
 function RequirementList:willUnmount()

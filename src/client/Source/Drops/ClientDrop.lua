@@ -37,8 +37,6 @@ function ClientDrop.new(location, dropType, drop, value)
 	self.Drop = drop
 	self.SpawnLocation = location
 
-	warn("Spawned!")
-
 	if self.DropType == Enums.DropTypes.Resource then
 		self.DropData = ResourceData[self.Drop]
 	elseif self.DropType == Enums.DropTypes.Currency then

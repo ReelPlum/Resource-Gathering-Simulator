@@ -93,6 +93,12 @@ function TextButton:init()
 end
 
 function TextButton:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
+
 	local t = { config = {
 		duration = 0.25,
 		easing = roactSpring.easings.easeOutQuad,
@@ -109,8 +115,6 @@ function TextButton:render()
 
 	local function getSize()
 		local TextService = game:GetService("TextService")
-
-		print(UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize)
 
 		local size = TextService:GetTextSize(
 			props.Text,

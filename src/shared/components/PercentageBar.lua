@@ -88,6 +88,11 @@ function PercentageBar:init()
 end
 
 function PercentageBar:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
 	local props = self.props
 
 	local t = {

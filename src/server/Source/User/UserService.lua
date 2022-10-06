@@ -17,6 +17,8 @@ local UserService = knit.CreateService({
 	Client = {
 		PlayerStatChanged = knit.CreateSignal(),
 		InventoryChanged = knit.CreateSignal(),
+		CurrencyChanged = knit.CreateSignal(),
+		ResourceChanged = knit.CreateSignal(),
 	},
 	Signals = {
 		UserAdded = signal.new(),
@@ -28,7 +30,20 @@ local Users = {}
 
 function UserService.Client:GetInventory(player)
 	local user = UserService:GetUserFromPlayer(player)
-	if not user then return end
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
 	if not user.DataLoaded then
 		user.Signals.DataLoaded:Wait()
 	end
@@ -36,8 +51,68 @@ function UserService.Client:GetInventory(player)
 	return user.Data.Inventory
 end
 
+function UserService.Client:GetCurrencies(player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.Currencies
+end
+
+function UserService.Client:GetResources(player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.Resources
+end
+
 function UserService.Client:GetPlayerStatsValues(player: Player)
 	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
 	if not user.DataLoaded then
 		user.Signals.DataLoaded:Wait()
 	end

@@ -32,9 +32,6 @@ function DropsController:KnitStart()
 	local DropsService = knit.GetService("DropsService")
 
 	DropsService.SpawnDropsAtLocation:Connect(function(location, dropType, drops)
-		print(drops)
-
-		print("Dropping at location!")
 		for drop, amount in drops do
 			task.spawn(function()
 				if StackSize > amount then

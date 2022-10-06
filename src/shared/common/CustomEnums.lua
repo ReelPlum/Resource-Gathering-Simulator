@@ -13,6 +13,7 @@ local CustomEnums = {
 	["UIStates"] = {
 		["Enabled"] = "1",
 		["Disabled"] = "2",
+		["Secondary"] = "3",
 	},
 	["UIThemes"] = {
 		["Default"] = "1",
@@ -22,6 +23,7 @@ local CustomEnums = {
 		["Button"] = "1",
 		["Background"] = "2",
 		["PercentageBar"] = "3",
+		["Header"] = "4",
 	},
 	["Nodes"] = {
 		["Stone"] = "1",

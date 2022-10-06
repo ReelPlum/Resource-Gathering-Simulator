@@ -108,6 +108,7 @@ function Tool:Equip()
 		self.User.EquippedTool:Unequip()
 	end
 
+	
 	self.EquipJanitor:Cleanup()
 	self.MineJanitor:Cleanup()
 

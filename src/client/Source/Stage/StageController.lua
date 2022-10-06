@@ -29,6 +29,15 @@ function StageController:UpdateStageWithProgress(progress)
 	Stages[progress.Stage]:StatProgressChanged(progress.Stats)
 end
 
+function StageController:BuyStage(stage)
+	if not Stages[stage] then
+		warn("Could not find stage " .. stage)
+		return
+	end
+
+	Stages[stage]:Buy()
+end
+
 function StageController:UnlockStage(stage)
 	if not Stages[stage] then
 		return

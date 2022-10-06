@@ -8,10 +8,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local RunService = game:GetService("RunService")
 
+local janitor = require(ReplicatedStorage.Packages.Janitor)
+
 local EasingStyles = require(ReplicatedStorage.Common.EasingStyles)
 
 return {
 	StoneSpawnAnimation = function(node)
+		local j = node.Janitor:Add(janitor.new())
+
 		local cf, size = node:CalcuateCF()
 		local originalCF = cf * CFrame.new(0, -size.Y - 10, 0)
 		--node.Model:SetPrimaryPartCFrame(originalCF)
@@ -20,11 +24,10 @@ return {
 		local magrough = Vector2.new(math.random(170, 220) / 100, math.random(170, 220) / 10)
 
 		local x = 0.01
-		local render = nil
-		render = node.Janitor:Add(RunService.RenderStepped:Connect(function(dt)
+		j:Add(node.Janitor:Add(RunService.RenderStepped:Connect(function(dt)
 			x += 1 / (math.random(125, 250) / 100) * dt
 			node.CurrentCF = originalCF:Lerp(cf, EasingStyles.easeOutCirc(x))
-			node.Model.Parent = workspace
+			node.Model.Parent = workspace.Nodes
 
 			local mr = magrough:Lerp(
 				Vector2.new(math.random(25, 40) / 100, math.random(45, 70) / 10),
@@ -42,9 +45,9 @@ return {
 			)
 
 			if x >= 1 then
-				render:Disconnect()
+				j:Destroy()
 				node.CurrentCF = nil
 			end
-		end))
+		end)))
 	end,
 }

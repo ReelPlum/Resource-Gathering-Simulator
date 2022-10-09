@@ -36,6 +36,9 @@ return {
 		},
 		StageBlocker = nil,
 		SpawnLocation = nil,
+		Hitboxes = {
+			game.Workspace.StageHitboxes:WaitForChild("NextStage1"),
+		},
 		StageSpawners = {
 			game.Workspace.StageSpawners:WaitForChild("NextStage1"),
 		},
@@ -55,7 +58,7 @@ return {
 	},
 
 	[Enums.Stages.NextStage] = {
-		DisplayName = "Test Stage",
+		DisplayName = "Next Stage",
 		World = Enums.Worlds.TestWorld,
 		Dependency = Enums.Stages.TestStage,
 		NextStage = nil,
@@ -85,6 +88,9 @@ return {
 		},
 		StageBlocker = workspace.StageBlockers.NextStageBlocker,
 		SpawnLocation = nil,
+		Hitboxes = {
+			game.Workspace.StageHitboxes:WaitForChild("NextStage2"),
+		},
 		StageSpawners = {
 			game.Workspace.StageSpawners:WaitForChild("TestStage1"),
 		},
@@ -99,7 +105,7 @@ return {
 			Enums.Currencies.Coins,
 		},
 		Resources = {
-			Enums.Resources.Stone,
+			--Enums.Resources.Stone,
 		},
 	},
 }

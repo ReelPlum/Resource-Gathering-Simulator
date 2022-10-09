@@ -57,6 +57,20 @@ function StageController:KnitStart()
 	--Register stages
 	for stage, _ in stageData do
 		Stages[stage] = clientStageObj.new(stage, nil)
+
+		Stages[stage].Signals.LocalPlayerEntered:Connect(function()
+			if not self.CurrentStage then
+				self.CurrentStage = stage
+				StageController.Signals.StageChanged:Fire(self.CurrentStage)
+				return
+			end
+
+			if not Stages[self.CurrentStage].LocalPlayerIsInStage then
+				self.CurrentStage = stage
+				StageController.Signals.StageChanged:Fire(self.CurrentStage)
+				return
+			end
+		end)
 	end
 
 	--Unlock owned stages

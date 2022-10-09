@@ -6,6 +6,7 @@ Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -29,6 +30,7 @@ function ClientStage.new(Stage, StatProgress)
 	self.Stage = Stage
 	self.StatProgress = StatProgress
 	self.NextStage = false
+	self.LocalPlayerIsInStage = false
 
 	self.StageData = stageData[self.Stage]
 
@@ -39,10 +41,13 @@ function ClientStage.new(Stage, StatProgress)
 		Unlocked = self.Janitor:Add(signal.new()),
 		StatProgressChanged = self.Janitor:Add(signal.new()),
 		UIDataUpdated = self.Janitor:Add(signal.new()),
+		LocalPlayerEntered = self.Janitor:Add(signal.new()),
+		LocalPlayerLeft = self.Janitor:Add(signal.new()),
 	}
 
 	self.UIData = {}
 	self:Load()
+	self:CheckIfInStage()
 
 	return self
 end
@@ -84,6 +89,43 @@ function ClientStage:Load()
 		end
 	end))
 	--Proximity prompt etc.
+end
+
+function ClientStage:CheckIfInStage()
+	self.Janitor:Add(RunService.Heartbeat:Connect(function()
+		--Check if localplayer is in stagehitbox
+		local Character = LocalPlayer.Character
+		if not Character then
+			return
+		end
+		if not Character:FindFirstChild("Humanoid") then
+			return
+		end
+		if Character:FindFirstChild("Humanoid").Health <= 0 then
+			return
+		end
+
+		for _, stageHitBox in self.StageData.Hitboxes do
+			local size = stageHitBox.Size
+			local relPos = stageHitBox.CFrame:ToObjectSpace(Character.HumanoidRootPart.CFrame).Position
+			if not (relPos.X > size.X / 2 or relPos.X < -size.X / 2) then
+				if not (relPos.Z > size.Z / 2 or relPos.Z < -size.Z / 2) then
+					if not self.LocalPlayerIsInStage then
+						self.LocalPlayerIsInStage = true
+						self.Signals.LocalPlayerEntered:Fire()
+						print("Entered!")
+					end
+					return
+				end
+			end
+		end
+
+		if self.LocalPlayerIsInStage then
+			self.LocalPlayerIsInStage = false
+			print("Left!")
+			self.Signals.LocalPlayerLeft:Fire()
+		end
+	end))
 end
 
 function ClientStage:IsNextStage()

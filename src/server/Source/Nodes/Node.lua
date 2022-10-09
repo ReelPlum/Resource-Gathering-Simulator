@@ -124,10 +124,12 @@ function Node:DropResources(amount, health)
 			* enchants[Enums.BoostTypes.Drops]
 			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
 
-		local resources = DropsService:DropResourcesAtNode(user, self.NodeData.Drops, dropAmount, self)
+		if #self.NodeData.Drops <= 0 then
+			local resources = DropsService:DropResourcesAtNode(user, self.NodeData.Drops, dropAmount, self)
 
-		for resource, a in resources do
-			user:GiveResource(resource, a)
+			for resource, a in resources do
+				user:GiveResource(resource, a)
+			end
 		end
 	end
 end
@@ -155,10 +157,12 @@ function Node:DropCurrencies(amount, health)
 			* user:GetPetBoosts()[Enums.BoostTypes.Drops]
 			* user:GetUpgradeBoosts()[Enums.BoostTypes.Drops]
 
-		local currencies = DropsService:DropCurrenciesAtNode(user, self.NodeData.Currencies, dropAmount, self)
+		if #self.NodeData.Currencies <= 0 then
+			local currencies = DropsService:DropCurrenciesAtNode(user, self.NodeData.Currencies, dropAmount, self)
 
-		for currency, a in currencies do
-			user:GiveCurrency(currency, a)
+			for currency, a in currencies do
+				user:GiveCurrency(currency, a)
+			end
 		end
 	end
 end

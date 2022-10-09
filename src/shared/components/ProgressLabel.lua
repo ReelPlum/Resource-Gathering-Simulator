@@ -50,6 +50,9 @@ local defaultProps = {
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
+local TextLabel = require(ReplicatedStorage.Components.TextLabel)
+local UIStroke = require(ReplicatedStorage.Components.UIStroke)
+
 local ProgressLabel = roact.Component:extend("ProgressLabel")
 
 function ProgressLabel:init()
@@ -116,13 +119,15 @@ function ProgressLabel:render()
 	end
 
 	return roact.createElement(
-		"TextLabel",
+		TextLabel,
 		{
 			Position = props.Position,
 			BackgroundTransparency = props.BackgroundTransparency,
 			AnchorPoint = props.AnchorPoint,
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
+			TextScaled = true,
+			DontScale = props.DontScale,
 
 			Text = roact.joinBindings({ Value = props.Value, animatedValue = self.style.Value }):map(function(vals)
 				if self.lastValue ~= vals.Value then
@@ -149,6 +154,8 @@ function ProgressLabel:render()
 			TextStrokeColor3 = self.style.TextStrokeColor,
 			TextStrokeTransparency = self.style.TextStrokeTransparency,
 			TextTransparency = self.style.TextTransparency,
+			Type = Enums.UITypes.Button,
+			State = props.State,
 
 			ZIndex = props.ZIndex,
 		},
@@ -156,10 +163,11 @@ function ProgressLabel:render()
 			roact.createElement("UICorner", {
 				CornerRadius = self.style.CornerRadius,
 			}),
-			roact.createElement("UIStroke", {
+			roact.createElement(UIStroke, {
 				Thickness = self.style.BorderSizePixel,
 				Color = self.style.BorderColor,
 				Transparency = self.style.BorderTransparency,
+				DontScale = props.DontScale,
 			}),
 		})
 	)

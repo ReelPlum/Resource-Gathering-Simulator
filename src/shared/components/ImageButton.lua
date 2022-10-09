@@ -74,6 +74,12 @@ function ImageButton:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
+		SizeScale = if not self.props.DontScale
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
+				1920,
+				1920
+			)
+			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	local t = {}
@@ -89,7 +95,7 @@ function ImageButton:init()
 end
 
 function ImageButton:render()
-  local t = { config = {
+	local t = { config = {
 		duration = 0.25,
 		easing = roactSpring.easings.easeOutQuad,
 	} }
@@ -110,6 +116,7 @@ function ImageButton:render()
 		Visible = self.props.Visible,
 		ZIndex = self.props.ZIndex,
 		AutoButtonColor = self.props.AutoButtonColor,
+		DontScale = self.props.DontScale,
 
 		State = self.props.State,
 
@@ -121,7 +128,12 @@ function ImageButton:render()
 		roact.createElement("ImageLabel", {
 			Size = if self.props.ImageScaled
 				then UDim2.new(1, 0, 1, 0)
-				else UDim2.new(0, self.props.ImageSize.X, 0, self.props.ImageSize.Y),
+				else UDim2.new(
+					0,
+					self.props.ImageSize.X * self.state.SizeScale.X,
+					0,
+					self.props.ImageSize.Y * self.state.SizeScale.Y
+				),
 			Image = self.props.Image,
 			ScaleType = self.props.ScaleType,
 
@@ -136,9 +148,24 @@ function ImageButton:render()
 end
 
 function ImageButton:didMount()
-  self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
+	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
+		})
+	end))
+
+	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		if self.props.DontScale then
+			self:setState({
+				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+			})
+			return
+		end
+
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+
+		self:setState({
+			SizeScale = s,
 		})
 	end))
 end

@@ -38,6 +38,7 @@ local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedType
 local TextLabel = require(ReplicatedStorage.Components.TextLabel)
 local PercentageBar = require(ReplicatedStorage.Components.PercentageBar)
 local ProgressLabel = require(ReplicatedStorage.Components.ProgressLabel)
+local UIStroke = require(ReplicatedStorage.Components.UIStroke)
 
 local RequirementProgress = roact.Component:extend("RequirementProgress")
 
@@ -112,10 +113,11 @@ function RequirementProgress:render()
 			roact.createElement("UICorner", {
 				CornerRadius = self.style.CornerRadius,
 			}),
-			roact.createElement("UIStroke", {
+			roact.createElement(UIStroke, {
 				Thickness = self.style.BorderSizePixel,
 				Color = self.style.BorderColor,
 				Transparency = self.style.BorderTransparency,
+				DontScale = props.DontScale
 			}),
 			roact.createElement(ProgressLabel, {
 				Value = props.Value,
@@ -127,6 +129,7 @@ function RequirementProgress:render()
 				Size = UDim2.new(1, -20, 0, 45),
 				State = Enums.UIStates.Secondary,
 				ZIndex = 5,
+				DontScale = props.DontScale
 			}),
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(1, -20, 0, 20),
@@ -134,6 +137,7 @@ function RequirementProgress:render()
 				Position = UDim2.new(0.5, 0, 0, 5),
 				Text = string.format(props.Text, props.MaxValue),
 				BackgroundTransparency = 1,
+				DontScale = props.DontScale,
 			}),
 			roact.createElement(PercentageBar, {
 				Value = props.Value,
@@ -142,6 +146,7 @@ function RequirementProgress:render()
 				AnchorPoint = Vector2.new(0.5, 1),
 				Size = UDim2.new(1, -20, 0, 45),
 				Position = UDim2.new(0.5, 0, 1, -10),
+				DontScale = props.DontScale,
 			}),
 		})
 	)

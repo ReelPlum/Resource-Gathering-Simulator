@@ -11,11 +11,17 @@ local signal = require(ReplicatedStorage.Packages.Signal)
 
 local clientStageObj = require(script.Parent.ClientStage)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local stageData = require(ReplicatedStorage.Data.StageData)
 
 local StageController = knit.CreateController({
 	Name = "StageController",
-	Signals = {},
+	Signals = {
+		StageChanged = signal.new(),
+	},
+
+	CurrentStage = Enums.Stages.TestStage,
 })
 
 local Stages = {}

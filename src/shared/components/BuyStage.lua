@@ -65,6 +65,9 @@ function BuyStage:init()
 	self:setState({
 		Data = self.props.Data,
 		Stage = nil,
+		SizeScale = if not self.props.DontScale
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	local t = {}
@@ -87,12 +90,15 @@ function BuyStage:render()
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Visible = self.Visible,
 		ZIndex = -1,
+		DontScale = props.DontScale,
 	}, {
 		roact.createFragment({
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(500, 0, 0, 150),
 				Position = UDim2.new(0.5, 0, 0, -10),
 				AnchorPoint = Vector2.new(0.5, 0),
+				TextScaled = true,
+				DontScale = props.DontScale,
 
 				BackgroundTransparency = 1,
 				Type = Enums.UITypes.Header,
@@ -101,9 +107,11 @@ function BuyStage:render()
 			}),
 			roact.createElement(RequirementList, {
 				Data = self.state.Data,
+				DontScale = props.DontScale,
 				Size = UDim2.new(0, 300 * 2 + 5 + 20, 0, 90 * 2 + 10 + 20),
 				Position = UDim2.new(0.5, 0, 1, -10),
 				CellSize = UDim2.new(0, 300, 0, 90),
+				CellPadding = UDim2.new(0, 5 * self.state.SizeScale.X, 0, 5 * self.state.SizeScale.Y),
 				BackgroundTransparency = 0.5,
 			}),
 			roact.createElement(TextButton, {
@@ -111,6 +119,7 @@ function BuyStage:render()
 				Position = UDim2.new(0.5, 0, 0, 10) + UDim2.new(0, 0, 0, 150 - 10),
 				Text = string.upper("Buy stage!"),
 				TextScaled = true,
+				DontScale = props.DontScale,
 				[roact.Event.Activated] = function()
 					local StageController = knit.GetController("StageController")
 					StageController:BuyStage(self.state.Stage)
@@ -126,11 +135,13 @@ function BuyStage:didMount()
 
 	self.Janitor:Add(self.props.ToggleVisibility:Connect(function(visible, clientStage)
 		if not clientStage.NextStage then
+			warn("Not next stage...")
 			return
 		end
 		if not visible and self.CurrentStage == clientStage then
 			self.SetVisible(visible)
 			self.CurrentStage = nil
+			warn("Making invisible :)")
 			return
 		end
 		if self.CurrentStage then
@@ -154,6 +165,21 @@ function BuyStage:didMount()
 			Stage = self.CurrentStage.Stage,
 		})
 		self.SetVisible(visible)
+	end))
+
+	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		if self.props.DontScale then
+			self:setState({
+				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+			})
+			return
+		end
+
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+
+		self:setState({
+			SizeScale = s,
+		})
 	end))
 end
 

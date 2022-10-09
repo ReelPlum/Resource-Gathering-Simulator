@@ -139,6 +139,7 @@ function TextButton:render()
 		Visible = props.Visible,
 		ZIndex = props.ZIndex,
 		AutoButtonColor = props.AutoButtonColor,
+		DontScale = props.DontScale,
 
 		State = props.State,
 

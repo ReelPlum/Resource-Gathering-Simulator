@@ -1,6 +1,6 @@
 --[[
-Background
-2022, 09, 29
+ResourceDisplayList
+2022, 10, 09
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
@@ -16,32 +16,33 @@ local roactHooks = require(ReplicatedStorage.Packages.RoactHooks)
 local roactSpring = require(ReplicatedStorage.Packages.RoactSpring)
 
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
+local StageData = require(ReplicatedStorage.Data.StageData)
 
 local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
 --[[
 Roact documentation: https://roblox.github.io/roact/
-Information about Background
+Information about ResourceDisplayList
 Properties:
 
 ]]
 
 local defaultProps = {
-	Size = UDim2.new(0.5, 0, 0.5, 0),
-	Position = UDim2.new(0.5, 0, 0.5, 0),
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	BackgroundTransparency = 0,
-	Rotation = 0,
-	Visible = roact.createBinding(false),
-	ZIndex = 1,
+	Size = UDim2.new(0, 300, 0, 500),
+	Position = UDim2.new(1, -15, 0.5, 5),
+	AnchorPoint = Vector2.new(1, 0),
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
-local Background = roact.Component:extend("Background")
+local ResourceDisplay = require(ReplicatedStorage.Components.ResourceDisplay)
 
-function Background:init()
+local ResourceDisplayList = roact.Component:extend("ResourceDisplayList")
+
+function ResourceDisplayList:init()
 	self.Janitor = janitor.new()
+
+	local StageController = knit.GetController("StageController")
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
@@ -51,6 +52,7 @@ function Background:init()
 				1920
 			)
 			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+		CurrentStage = StageController.CurrentStage,
 	})
 
 	for index, val in defaultProps do
@@ -59,9 +61,7 @@ function Background:init()
 		end
 	end
 
-	self.visible, self.setVisible = roact.createBinding(self.props.Visible)
-
-	local t = { Size = self.props.Size, CornerRadiusStar = 0 }
+	local t = {}
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -69,11 +69,14 @@ function Background:init()
 		t[index] = val
 	end
 	self.style, self.api = roactSpring.Controller.new(t)
-
-	self.LastVisible = true
 end
 
-function Background:render()
+function ResourceDisplayList:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
 	local props = self.props
 
 	local t = {
@@ -90,85 +93,51 @@ function Background:render()
 	end
 	self.api:start(t)
 
-	local children = roact.createFragment({
-		unpack(props[roact.Children]),
-		roact.createElement("UICorner", {
-			CornerRadius = roact
-				.joinBindings({ themeRadius = self.style.CornerRadius, cornerRadius = self.style.CornerRadiusStar })
-				:map(function(vals)
-					local v = Vector2.new(vals.themeRadius.Scale, vals.themeRadius.Offset)
-						:Lerp(Vector2.new(1, 0), vals.cornerRadius)
+	local currencies = {}
+	if self.state.CurrentStage then
+		for _, resource in StageData[self.state.CurrentStage].Resources do
+			table.insert(
+				currencies,
+				roact.createElement(ResourceDisplay, {
+					Resource = resource,
+					Size = UDim2.new(props.Size.X.Scale, props.Size.X.Offset, 0, 50),
+					ImageSize = UDim2.new(0, 50, 0, 50),
+				})
+			)
+		end
+	end
 
-					return UDim.new(v.X, v.Y)
-				end),
+	local children = roact.createFragment({
+		roact.createElement("UIListLayout", {
+			Padding = UDim.new(0, 5 * self.state.SizeScale.Y),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Top,
+			FillDirection = Enum.FillDirection.Vertical,
 		}),
-		roact.createElement("UIStroke", {
-			Thickness = self.style.BorderSizePixel:map(function(val)
-				return val * self.state.SizeScale.X
-			end),
-			Color = self.style.BorderColor,
-			Transparency = self.style.BorderTransparency,
-		}),
+		unpack(currencies),
 	})
 
 	return roact.createElement("Frame", {
-		BackgroundColor3 = self.style.BackgroundColor,
-
+		BackgroundTransparency = 1,
 		AnchorPoint = props.AnchorPoint,
+		Size = UDim2.new(
+			props.Size.X.Scale,
+			props.Size.X.Offset * self.state.SizeScale.X,
+			props.Size.Y.Scale,
+			props.Size.Y.Offset * self.state.SizeScale.Y
+		),
 		Position = UDim2.new(
 			props.Position.X.Scale,
 			props.Position.X.Offset * self.state.SizeScale.X,
 			props.Position.Y.Scale,
 			props.Position.Y.Offset * self.state.SizeScale.Y
 		),
-		ZIndex = props.ZIndex,
-		Rotation = props.Rotation,
-		Visible = roact.joinBindings({ visible = props.Visible, size = self.style.Size }):map(function(vals)
-			local visible = vals.size.X.Offset > 0 and vals.size.Y.Offset > 0
-			if vals.visible ~= self.LastVisible then
-				self.LastVisible = vals.visible
-
-				if vals.visible then
-					self.api:start({
-						Size = props.Size,
-						CornerRadiusStar = 0,
-						config = {
-							tension = 750,
-							friction = 25,
-							mass = 1.25,
-						},
-					})
-				else
-					self.api:start({
-						Size = UDim2.new(0, 0, 0, 0),
-						CornerRadiusStar = 1,
-						config = {
-							tension = 750,
-							friction = 25,
-							mass = 0.25,
-						},
-					})
-				end
-			end
-			return visible
-		end),
-
-		Size = self.style.Size:map(function(val)
-			return UDim2.new(
-				val.X.Scale,
-				val.X.Offset * self.state.SizeScale.X,
-				val.Y.Scale,
-				val.Y.Offset * self.state.SizeScale.Y
-			)
-		end),
-		--GroupTransparency = self.style.CornerRadiusStar,
-
-		BorderSizePixel = 0,
-		ClipsDescendants = true,
-	}, children)
+	}, {
+		children,
+	})
 end
 
-function Background:didMount()
+function ResourceDisplayList:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
@@ -190,10 +159,18 @@ function Background:didMount()
 			SizeScale = s,
 		})
 	end))
+
+	local StageController = knit.GetController("StageController")
+
+	self.Janitor:Add(StageController.Signals.StageChanged:Connect(function()
+		self:setState({
+			CurrentStage = StageController.CurrentStage,
+		})
+	end))
 end
 
-function Background:willUnmount()
+function ResourceDisplayList:willUnmount()
 	self.Janitor:Destroy()
 end
 
-return Background
+return ResourceDisplayList

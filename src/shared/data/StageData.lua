@@ -46,6 +46,12 @@ return {
 		Rarities = {
 			[Enums.NodeRarities.Normal] = 100,
 		},
+		Currencies = {
+			Enums.Currencies.Coins,
+		},
+		Resources = {
+			Enums.Resources.Stone,
+		},
 	},
 
 	[Enums.Stages.NextStage] = {
@@ -88,6 +94,12 @@ return {
 		},
 		Rarities = {
 			[Enums.NodeRarities.Normal] = 100,
+		},
+		Currencies = {
+			Enums.Currencies.Coins,
+		},
+		Resources = {
+			Enums.Resources.Stone,
 		},
 	},
 }

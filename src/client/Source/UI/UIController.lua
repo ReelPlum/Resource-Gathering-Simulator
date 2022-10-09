@@ -30,14 +30,21 @@ function UIController:ToggleBuyStageUI(bool, clientStage)
 end
 
 local BuyStageUI = require(ReplicatedStorage.Components.BuyStage)
+local CurrentDisplayList = require(ReplicatedStorage.Components.CurrencyDisplayList)
+local ResourceDisplayList = require(ReplicatedStorage.Components.ResourceDisplayList)
 
 function UIController:KnitInit()
 	roact.mount(
-		roact.createElement("ScreenGui", {}, {
+		roact.createElement("ScreenGui", {
+			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		}, {
 			roact.createElement(BuyStageUI, {
 				ToggleVisibility = Signals.ToggleBuyStageUI,
 				UpdateData = Signals.BuyStageUIDataUpdate,
+				DontScale = false,
 			}),
+			roact.createElement(CurrentDisplayList),
+			roact.createElement(ResourceDisplayList),
 		}),
 		LocalPlayer:WaitForChild("PlayerGui")
 	)

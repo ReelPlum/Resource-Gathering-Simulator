@@ -36,6 +36,8 @@ Properties:
   EnterSize: UDim2?
 ]]
 
+local UIStroke = require(ReplicatedStorage.Components.UIStroke)
+
 local Button = roact.Component:extend("Button")
 
 local defaultProps = {
@@ -65,6 +67,9 @@ function Button:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
+		SizeScale = if not self.props.DontScale
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	local t = { Size = self.props.Size, HoverDown = 0, HoverPos = UDim2.new(0, 0) }
@@ -125,10 +130,11 @@ function Button:render()
 		roact.createElement("UICorner", {
 			CornerRadius = self.style.CornerRadius,
 		}),
-		roact.createElement("UIStroke", {
+		roact.createElement(UIStroke, {
 			Thickness = self.style.BorderSizePixel,
 			Color = self.style.BorderColor,
 			Transparency = self.style.BorderTransparency,
+			DontScale = props.DontScale,
 		}),
 		roact.createElement("ImageButton", {
 
@@ -258,8 +264,10 @@ function Button:render()
 	})
 
 	return roact.createElement("Frame", {
-		Size = self.style.Size,
-		Position = props.Position,
+		Size = self.style.Size:map(function(val)
+			return UDim2.new(val.X.Scale, val.X.Offset * self.state.SizeScale.X, val.Y.Scale, val.Y.Offset * self.state.SizeScale.Y)
+		end),
+		Position = UDim2.new(props.Position.X.Scale, props.Position.X.Offset * self.state.SizeScale.X, props.Position.Y.Scale, props.Position.Y.Offset * self.state.SizeScale.Y),
 		AnchorPoint = props.AnchorPoint,
 		BackgroundTransparency = props.BackgroundTransparency,
 		Rotation = props.Rotation,
@@ -282,6 +290,21 @@ function Button:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
+		})
+	end))
+
+	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		if self.props.DontScale then
+			self:setState({
+				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+			})
+			return
+		end
+
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+
+		self:setState({
+			SizeScale = s,
 		})
 	end))
 end

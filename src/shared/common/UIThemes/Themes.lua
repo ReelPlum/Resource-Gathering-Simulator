@@ -27,7 +27,7 @@ return {
 				TextColor = Color3.fromRGB(46, 110, 139),
 				CornerRadius = UDim.new(0, 5),
 				MouseDown = Color3.fromRGB(137, 181, 189),
-				BorderSizePixel = 1,
+				BorderSizePixel = 2,
 				BorderTransparency = 0,
 				BorderColor = Color3.fromRGB(255, 255, 255),
 				Font = Enum.Font.SourceSansBold,

@@ -30,6 +30,7 @@ local defaultProps = {
 	Size = UDim2.new(0, 300 * 3 + 10 + 20, 0, 90 * 2.5 + 10 + 20),
 	Position = UDim2.new(0.5, 0, 1, -50),
 	CellSize = UDim2.new(0, 300, 0, 90),
+	CellPadding = UDim2.new(0, 5, 0, 5),
 	BackgroundTransparency = 1,
 
 	RequirementsData = require(ReplicatedStorage.Data.StageData)[Enums.Stages.TestStage].RequiredForUpgrade,
@@ -56,6 +57,12 @@ function RequirementList:init()
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
 		CanvasSize = Vector2.new(0, 0),
+		SizeScale = if not self.props.DontScale
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
+				1920,
+				1920
+			)
+			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	for index, val in defaultProps do
@@ -103,8 +110,18 @@ function RequirementList:render()
 
 	local fragTable = {
 		roact.createElement("UIGridLayout", {
-			CellPadding = UDim2.new(0, 5, 0, 5),
-			CellSize = props.CellSize,
+			CellPadding = UDim2.new(
+				props.CellPadding.X.Scale,
+				props.CellPadding.X.Offset * self.state.SizeScale.X,
+				props.CellPadding.Y.Scale,
+				props.CellPadding.Y.Offset * self.state.SizeScale.Y
+			),
+			CellSize = UDim2.new(
+				props.CellSize.X.Scale,
+				props.CellSize.X.Offset * self.state.SizeScale.X,
+				props.CellSize.Y.Scale,
+				props.CellSize.Y.Offset * self.state.SizeScale.Y
+			),
 			SortOrder = Enum.SortOrder.Name,
 			[roact.Ref] = self.GridLayout,
 		}),
@@ -118,13 +135,24 @@ function RequirementList:render()
 				--Data = props.RequirementsData[data.Type][data.Index],
 				SortValue = i,
 				Text = data.Text,
+				DontScale = props.DontScale,
 			})
 		)
 	end
 	return roact.createElement("Frame", {
 		BackgroundTransparency = props.BackgroundTransparency,
-		Size = props.Size + UDim2.new(0, barSize, 0, 0),
-		Position = props.Position,
+		Size = UDim2.new(
+			props.Size.X.Scale,
+			props.Size.X.Offset * self.state.SizeScale.X,
+			props.Size.Y.Scale,
+			props.Size.Y.Offset * self.state.SizeScale.Y
+		) + UDim2.new(0, barSize, 0, 0),
+		Position = UDim2.new(
+			props.Position.X.Scale,
+			props.Position.X.Offset * self.state.SizeScale.X,
+			props.Position.Y.Scale,
+			props.Position.Y.Offset * self.state.SizeScale.Y
+		),
 		AnchorPoint = Vector2.new(0.5, 1),
 		BorderSizePixel = 0,
 
@@ -140,10 +168,15 @@ function RequirementList:render()
 				ScrollBarThickness = barSize,
 				ScrollingDirection = Enum.ScrollingDirection.Y,
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				CanvasSize = UDim2.new(0, self.state.CanvasSize.X, 0, self.state.CanvasSize.Y + 20),
+				CanvasSize = UDim2.new(
+					0,
+					self.state.CanvasSize.X,
+					0,
+					self.state.CanvasSize.Y + 20 * self.state.SizeScale.Y
+				),
 			}, {
 				roact.createElement("Frame", {
-					Size = UDim2.new(1, -20, 1, -20),
+					Size = UDim2.new(1, -20 * self.state.SizeScale.X, 1, -20 * self.state.SizeScale.Y),
 					AnchorPoint = Vector2.new(0.5, 0.5),
 					Position = UDim2.new(0.5, 0, 0.5, 0),
 					BackgroundTransparency = 1,
@@ -172,6 +205,22 @@ function RequirementList:didMount()
 	self:setState({
 		CanvasSize = self.GridLayout.current.AbsoluteContentSize,
 	})
+
+	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		if self.props.DontScale then
+			self:setState({
+				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+			})
+			return
+		end
+
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
+			/ Vector2.new(1920, 1920)
+
+		self:setState({
+			SizeScale = s,
+		})
+	end))
 end
 
 function RequirementList:willUnmount()

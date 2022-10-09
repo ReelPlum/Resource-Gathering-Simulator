@@ -1,6 +1,6 @@
 --[[
-Background
-2022, 09, 29
+CurrencyDisplay
+2022, 10, 07
 Created by ReelPlum (https://www.roblox.com/users/60083248/profile)
 ]]
 
@@ -16,32 +16,36 @@ local roactHooks = require(ReplicatedStorage.Packages.RoactHooks)
 local roactSpring = require(ReplicatedStorage.Packages.RoactSpring)
 
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
+local CurrencyData = require(ReplicatedStorage.Data.CurrencyData)
 
 local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
 --[[
 Roact documentation: https://roblox.github.io/roact/
-Information about Background
+Information about CurrencyDisplay
 Properties:
 
 ]]
 
 local defaultProps = {
-	Size = UDim2.new(0.5, 0, 0.5, 0),
-	Position = UDim2.new(0.5, 0, 0.5, 0),
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	BackgroundTransparency = 0,
-	Rotation = 0,
-	Visible = roact.createBinding(false),
-	ZIndex = 1,
+	Size = UDim2.new(0, 150, 0, 35),
+	Position = UDim2.new(0, 0, 0, 0),
+	ImageSize = UDim2.new(0, 35, 0, 35),
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
-local Background = roact.Component:extend("Background")
+local NumberLabel = require(ReplicatedStorage.Components.NumberLabel)
+local UIStroke = require(ReplicatedStorage.Components.UIStroke)
 
-function Background:init()
+local CurrencyDisplay = roact.Component:extend("CurrencyDisplay")
+
+function CurrencyDisplay:init()
 	self.Janitor = janitor.new()
+
+	local ClientController = knit.GetController("ClientController")
+
+	self.Value, self.SetValue = roact.createBinding(ClientController.Cache.Currencies[self.props.Currency] or 0)
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
@@ -59,9 +63,7 @@ function Background:init()
 		end
 	end
 
-	self.visible, self.setVisible = roact.createBinding(self.props.Visible)
-
-	local t = { Size = self.props.Size, CornerRadiusStar = 0 }
+	local t = { Size = self.props.Size }
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -69,11 +71,14 @@ function Background:init()
 		t[index] = val
 	end
 	self.style, self.api = roactSpring.Controller.new(t)
-
-	self.LastVisible = true
 end
 
-function Background:render()
+function CurrencyDisplay:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
 	local props = self.props
 
 	local t = {
@@ -91,84 +96,64 @@ function Background:render()
 	self.api:start(t)
 
 	local children = roact.createFragment({
-		unpack(props[roact.Children]),
 		roact.createElement("UICorner", {
-			CornerRadius = roact
-				.joinBindings({ themeRadius = self.style.CornerRadius, cornerRadius = self.style.CornerRadiusStar })
-				:map(function(vals)
-					local v = Vector2.new(vals.themeRadius.Scale, vals.themeRadius.Offset)
-						:Lerp(Vector2.new(1, 0), vals.cornerRadius)
-
-					return UDim.new(v.X, v.Y)
-				end),
-		}),
-		roact.createElement("UIStroke", {
-			Thickness = self.style.BorderSizePixel:map(function(val)
-				return val * self.state.SizeScale.X
-			end),
+			CornerRadius = self.style.CornerRadius,
+		}, {}),
+		roact.createElement(UIStroke, {
+			Thickness = self.style.BorderSizePixel,
 			Color = self.style.BorderColor,
 			Transparency = self.style.BorderTransparency,
+			DontScale = props.DontScale,
+		}),
+		roact.createElement(NumberLabel, {
+			Value = self.Value,
+			Size = props.Size - UDim2.new(0, props.ImageSize.X.Offset * 1.15, 0, 0),
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, 0, 0.5, 0),
+			DontScale = props.DontScale,
+			TextXAlignment = Enum.TextXAlignment.Left,
+		}),
+		roact.createElement("ImageLabel", {
+			Size = UDim2.new(
+				props.ImageSize.X.Scale,
+				props.ImageSize.X.Offset * self.state.SizeScale.X,
+				props.ImageSize.Y.Scale,
+				props.ImageSize.Y.Offset * self.state.SizeScale.Y
+			),
+			Position = UDim2.new(0, 0, 0.5, 0),
+			AnchorPoint = Vector2.new(0, 0.5),
+			Image = "rbxassetid://" .. CurrencyData[props.Currency].Image,
+			BackgroundTransparency = 1,
+		}, {
+			roact.createElement("UICorner", {
+				CornerRadius = self.style.CornerRadius,
+			}),
 		}),
 	})
 
 	return roact.createElement("Frame", {
-		BackgroundColor3 = self.style.BackgroundColor,
-
 		AnchorPoint = props.AnchorPoint,
+		Size = UDim2.new(
+			props.Size.X.Scale,
+			props.Size.X.Offset * self.state.SizeScale.X,
+			props.Size.Y.Scale,
+			props.Size.Y.Offset * self.state.SizeScale.Y
+		),
 		Position = UDim2.new(
 			props.Position.X.Scale,
 			props.Position.X.Offset * self.state.SizeScale.X,
 			props.Position.Y.Scale,
 			props.Position.Y.Offset * self.state.SizeScale.Y
 		),
-		ZIndex = props.ZIndex,
-		Rotation = props.Rotation,
-		Visible = roact.joinBindings({ visible = props.Visible, size = self.style.Size }):map(function(vals)
-			local visible = vals.size.X.Offset > 0 and vals.size.Y.Offset > 0
-			if vals.visible ~= self.LastVisible then
-				self.LastVisible = vals.visible
-
-				if vals.visible then
-					self.api:start({
-						Size = props.Size,
-						CornerRadiusStar = 0,
-						config = {
-							tension = 750,
-							friction = 25,
-							mass = 1.25,
-						},
-					})
-				else
-					self.api:start({
-						Size = UDim2.new(0, 0, 0, 0),
-						CornerRadiusStar = 1,
-						config = {
-							tension = 750,
-							friction = 25,
-							mass = 0.25,
-						},
-					})
-				end
-			end
-			return visible
-		end),
-
-		Size = self.style.Size:map(function(val)
-			return UDim2.new(
-				val.X.Scale,
-				val.X.Offset * self.state.SizeScale.X,
-				val.Y.Scale,
-				val.Y.Offset * self.state.SizeScale.Y
-			)
-		end),
-		--GroupTransparency = self.style.CornerRadiusStar,
-
+		BackgroundColor3 = self.style.BackgroundColor,
 		BorderSizePixel = 0,
-		ClipsDescendants = true,
-	}, children)
+	}, {
+		children,
+	})
 end
 
-function Background:didMount()
+function CurrencyDisplay:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
@@ -190,10 +175,15 @@ function Background:didMount()
 			SizeScale = s,
 		})
 	end))
+
+	local ClientController = knit.GetController("ClientController")
+	self.Janitor:Add(ClientController.Signals.CurrenciesChanged:Connect(function()
+		self.SetValue(ClientController.Cache.Currencies[self.props.Currency])
+	end))
 end
 
-function Background:willUnmount()
+function CurrencyDisplay:willUnmount()
 	self.Janitor:Destroy()
 end
 
-return Background
+return CurrencyDisplay

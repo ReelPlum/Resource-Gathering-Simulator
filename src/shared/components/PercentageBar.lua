@@ -62,6 +62,8 @@ local defaultProps = {
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
+local UIStroke = require(ReplicatedStorage.Components.UIStroke)
+
 local PercentageBar = roact.Component:extend("PercentageBar")
 
 function PercentageBar:init()
@@ -69,6 +71,12 @@ function PercentageBar:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
+		SizeScale = if not self.props.DontScale
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
+				1920,
+				1920
+			)
+			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	for index, val in defaultProps do
@@ -110,8 +118,18 @@ function PercentageBar:render()
 	self.api:start(t)
 
 	return roact.createElement("Frame", {
-		Size = props.Size,
-		Position = props.Position,
+		Size = UDim2.new(
+			props.Size.X.Scale,
+			props.Size.X.Offset * self.state.SizeScale.X,
+			props.Size.Y.Scale,
+			props.Size.Y.Offset * self.state.SizeScale.Y
+		),
+		Position = UDim2.new(
+			props.Position.X.Scale,
+			props.Position.X.Offset * self.state.SizeScale.X,
+			props.Position.Y.Scale,
+			props.Position.Y.Offset * self.state.SizeScale.Y
+		),
 		AnchorPoint = props.AnchorPoint,
 		BackgroundTransparency = props.BackgroundTransparency,
 		Rotation = props.Rotation,
@@ -123,19 +141,20 @@ function PercentageBar:render()
 		roact.createElement("UICorner", {
 			CornerRadius = self.style.CornerRadius,
 		}),
-		roact.createElement("UIStroke", {
+		roact.createElement(UIStroke, {
 			Thickness = self.style.BorderSizePixel,
 			Color = self.style.BorderColor,
 			Transparency = self.style.BorderTransparency,
+			DontScale = props.DontScale,
 		}),
 		roact.createElement("Frame", {
 			ZIndex = props.ZIndex + 1,
 
-			Size = UDim2.new(1, -10, 1, -10),
+			Size = UDim2.new(1, -10 * self.state.SizeScale.X, 1, -10 * self.state.SizeScale.Y),
 			BackgroundColor3 = self.style.BarColor,
 			BackgroundTransparency = 0,
 
-			Position = UDim2.new(0, 5, 0.5, 0),
+			Position = UDim2.new(0, 5 * self.state.SizeScale.X, 0.5, 0),
 			AnchorPoint = Vector2.new(0, 0.5),
 		}, {
 			roact.createElement("UICorner", {
@@ -173,6 +192,22 @@ function PercentageBar:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
+		})
+	end))
+
+	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		if self.props.DontScale then
+			self:setState({
+				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+			})
+			return
+		end
+
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
+			/ Vector2.new(1920, 1920)
+
+		self:setState({
+			SizeScale = s,
 		})
 	end))
 end

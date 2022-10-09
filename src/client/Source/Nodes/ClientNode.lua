@@ -196,7 +196,9 @@ function ClientNode:SpawnAnimation()
 end
 
 function ClientNode:ModelChangeEffect()
-	self.NodeData.ModelChangeAnimation(self)
+	task.spawn(function()
+		self.NodeData.ModelChangeAnimation(self)
+	end)
 end
 
 function ClientNode:DamageEffect(crit, player)

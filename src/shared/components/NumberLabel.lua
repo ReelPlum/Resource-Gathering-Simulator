@@ -40,7 +40,6 @@ local defaultProps = {
 
 	Value = roact.createBinding(0),
 	MaxLetters = math.huge,
-	Text = "Hello world!",
 	formatter = formatnumber.NumberFormatter.with(),
 
 	State = Enums.UIStates.Enabled,
@@ -48,6 +47,8 @@ local defaultProps = {
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
+
+local TextLabel = require(ReplicatedStorage.Components.TextLabel)
 
 local NumberLabel = roact.Component:extend("NumberLabel")
 
@@ -76,6 +77,11 @@ function NumberLabel:init()
 end
 
 function NumberLabel:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
 	local props = self.props
 
 	local t = {
@@ -96,27 +102,16 @@ function NumberLabel:render()
 		return props.formatter:Format(math.floor(val))
 	end
 
-	local function getSize(val)
-		local TextService = game:GetService("TextService")
-
-		local size = TextService:GetTextSize(
-			getText(val),
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
-			Vector2.new(0, props.Size.Y.Offset)
-		)
-		return UDim2.new(0, math.clamp(size.X, props.Size.X.Offset, math.huge), 0, props.Size.Y.Offset)
-			+ UDim2.new(0, 10, 0, 0)
-	end
-
 	return roact.createElement(
-		"TextLabel",
+		TextLabel,
 		{
 			Position = props.Position,
 			BackgroundTransparency = 0,
 			AnchorPoint = props.AnchorPoint,
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
+			TextScaled = true,
+			DontScale = props.DontScale,
 
 			Text = roact.joinBindings({ Value = props.Value, animatedValue = self.style.Value }):map(function(vals)
 				if self.lastValue ~= vals.Value then
@@ -133,9 +128,7 @@ function NumberLabel:render()
 
 				return getText(vals.animatedValue)
 			end),
-			Size = self.style.Value:map(function(val)
-				return getSize(val)
-			end),
+			Size = props.Size,
 			BackgroundColor3 = self.style.BackgroundColor,
 
 			Font = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,

@@ -148,6 +148,7 @@ function StageBlocker:render()
 			roact.createElement(RequirementList, {
 				RequirementsData = props.Stage.RequiredForUpgrade,
 				Data = self.state.Data,
+				DontScale = true,
 			}),
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(1, 0, 0, 150),
@@ -158,6 +159,7 @@ function StageBlocker:render()
 				Type = Enums.UITypes.Header,
 				State = Enums.UITypes.Enabled,
 				Text = props.Stage.DisplayName,
+				DontScale = true,
 			}),
 		}
 	else

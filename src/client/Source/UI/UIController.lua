@@ -43,8 +43,12 @@ function UIController:KnitInit()
 				UpdateData = Signals.BuyStageUIDataUpdate,
 				DontScale = false,
 			}),
-			roact.createElement(CurrentDisplayList),
-			roact.createElement(ResourceDisplayList),
+			roact.createElement(CurrentDisplayList, {
+				DontScale = false,
+			}),
+			roact.createElement(ResourceDisplayList, {
+				DontScale = false,
+			}),
 		}),
 		LocalPlayer:WaitForChild("PlayerGui")
 	)

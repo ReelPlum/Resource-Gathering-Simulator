@@ -21,7 +21,7 @@ local StageController = knit.CreateController({
 		StageChanged = signal.new(),
 	},
 
-	CurrentStage = Enums.Stages.TestStage,
+	CurrentStage = nil,
 })
 
 local Stages = {}
@@ -71,6 +71,8 @@ function StageController:KnitStart()
 				return
 			end
 		end)
+
+		Stages[stage]:CheckIfInStage()
 	end
 
 	--Unlock owned stages

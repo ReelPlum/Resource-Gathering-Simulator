@@ -102,6 +102,7 @@ function ResourceDisplayList:render()
 					Resource = resource,
 					Size = UDim2.new(props.Size.X.Scale, props.Size.X.Offset, 0, 50),
 					ImageSize = UDim2.new(0, 50, 0, 50),
+					DontScale = props.DontScale,
 				})
 			)
 		end

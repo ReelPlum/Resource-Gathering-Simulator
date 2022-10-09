@@ -26,11 +26,13 @@ function ClientStage.new(Stage, StatProgress)
 	local self = setmetatable({}, ClientStage)
 
 	self.Janitor = janitor.new()
+	self.LoopJanitor = self.Janitor:Add(janitor.new())
 
 	self.Stage = Stage
 	self.StatProgress = StatProgress
 	self.NextStage = false
 	self.LocalPlayerIsInStage = false
+	self.Unlocked = false
 
 	self.StageData = stageData[self.Stage]
 
@@ -47,7 +49,7 @@ function ClientStage.new(Stage, StatProgress)
 
 	self.UIData = {}
 	self:Load()
-	self:CheckIfInStage()
+	self:ListenForStageChange()
 
 	return self
 end
@@ -82,17 +84,70 @@ function ClientStage:Load()
 		self.UIData = data
 	end))
 
-	self.Janitor:Add(self.StageData.StageBlocker.Touched:Connect(function(hit)
-		if hit.Parent == LocalPlayer.Character then
-			--Open buy stage UI
-			UIController:ToggleBuyStageUI(true, self)
-		end
-	end))
+	-- self.Janitor:Add(self.StageData.StageBlocker.Touched:Connect(function(hit)
+	-- 	if hit.Parent == LocalPlayer.Character then
+	-- 		--Open buy stage UI
+	-- 		UIController:ToggleBuyStageUI(true, self)
+	-- 	end
+	-- end))
+
 	--Proximity prompt etc.
+	self.Prompt = self.Janitor:Add(Instance.new("ProximityPrompt"))
+	self.Prompt.ActionText = "Open buy menu"
+	self.Prompt.ObjectText = self.StageData.DisplayName
+	self.Prompt.KeyboardKeyCode = Enum.KeyCode.E
+	self.Prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+	self.Prompt.MaxActivationDistance = 15
+	self.Prompt.HoldDuration = 0.5
+	self.Prompt.RequiresLineOfSight = false
+
+	self.PromptPart = self.Janitor:Add(Instance.new("Part"))
+	self.PromptPart.Size = Vector3.new(1, 1, 1)
+	self.PromptPart.CanCollide = false
+	self.PromptPart.Anchored = true
+	self.PromptPart.Name = self.StageData.DisplayName
+	self.PromptPart.Transparency = 1
+
+	self.Prompt.Parent = self.PromptPart
+	self.PromptPart.Parent = workspace
+
+	self.Janitor:Add(self.Prompt.Triggered:Connect(function()
+		UIController:ToggleBuyStageUI(true, self)
+	end))
+end
+
+function ClientStage:PositionPrompt()
+	self.LoopJanitor:Add(RunService.RenderStepped:Connect(function()
+		local Character = LocalPlayer.Character
+		if not Character then
+			return
+		end
+		if not Character:FindFirstChild("Humanoid") then
+			return
+		end
+		if Character:FindFirstChild("Humanoid").Health <= 0 then
+			return
+		end
+		if not self.PromptPart then
+			return
+		end
+
+		local size = self.StageData.StageBlocker.Size
+		local relPos = self.StageData.StageBlocker.CFrame:ToObjectSpace(Character.HumanoidRootPart.CFrame).Position
+
+		self.PromptPart.CFrame = self.StageData.StageBlocker.CFrame
+			* CFrame.new(
+				Vector3.new(
+					math.clamp(relPos.X, -size.X / 2, size.X / 2),
+					relPos.Y,
+					math.clamp(relPos.Z, -size.Z / 2, size.Z / 2)
+				)
+			)
+	end))
 end
 
 function ClientStage:CheckIfInStage()
-	self.Janitor:Add(RunService.Heartbeat:Connect(function()
+	self.LoopJanitor:Add(RunService.Heartbeat:Connect(function()
 		--Check if localplayer is in stagehitbox
 		local Character = LocalPlayer.Character
 		if not Character then
@@ -125,6 +180,43 @@ function ClientStage:CheckIfInStage()
 			print("Left!")
 			self.Signals.LocalPlayerLeft:Fire()
 		end
+	end))
+end
+
+function ClientStage:ListenForStageChange()
+	local StageController = knit.GetController("StageController")
+
+	print(StageController.CurrentStage)
+	if StageController.CurrentStage then
+		if
+			StageController.CurrentStage == self.Stage
+			or StageController.CurrentStage == self.StageData.Dependency
+			or StageController.CurrentStage == self.StageData.NextStage
+		then
+			self:CheckIfInStage()
+			self:PositionPrompt()
+		end
+
+		self.LoopJanitor:Cleanup()
+	end
+
+	self.Janitor:Add(StageController.Signals.StageChanged:Connect(function()
+		local currentStage = StageController.CurrentStage
+		warn("stage")
+
+		if currentStage == self.Stage then
+			self:CheckIfInStage()
+			self:PositionPrompt()
+			return
+		end
+
+		if currentStage == self.StageData.Dependency or currentStage == self.StageData.NextStage then
+			self:CheckIfInStage()
+			self:PositionPrompt()
+			return
+		end
+
+		self.LoopJanitor:Cleanup()
 	end))
 end
 
@@ -166,6 +258,7 @@ function ClientStage:Unlock()
 		self.StageData.StageBlocker.Parent = ReplicatedStorage
 	end
 
+	self.Unlocked = true
 	self.Signals.Unlocked:Fire()
 end
 

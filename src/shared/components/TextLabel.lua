@@ -38,9 +38,11 @@ local defaultProps = {
 
 	MaxLetters = math.huge,
 	Text = "Hello world!",
+	TextSize = "ParagraphSize",
+	TextColor = "ParagraphColor",
+	Font = "ParagraphFont",
 
-	State = Enums.UIStates.Enabled,
-	Type = Enums.UITypes.Button,
+	State = Enums.UIStates.Primary,
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
@@ -67,7 +69,7 @@ function TextLabel:init()
 	end
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.Type][self.props.State] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -90,7 +92,7 @@ function TextLabel:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -101,17 +103,26 @@ function TextLabel:render()
 	return roact.createElement(
 		"TextLabel",
 		{
-			Position = UDim2.new(
-				props.Position.X.Scale,
-				props.Position.X.Offset * self.state.SizeScale.X,
-				props.Position.Y.Scale,
-				props.Position.Y.Offset * self.state.SizeScale.Y
-			),
+			Position = if typeof(props.Position) == "UDim2"
+				then UDim2.new(
+					props.Position.X.Scale,
+					props.Position.X.Offset * self.state.SizeScale.X,
+					props.Position.Y.Scale,
+					props.Position.Y.Offset * self.state.SizeScale.Y
+				)
+				else props.Position:map(function(val)
+					return UDim2.new(
+						val.X.Scale,
+						val.X.Offset * self.state.SizeScale.X,
+						val.Y.Scale,
+						val.Y.Offset * self.state.SizeScale.Y
+					)
+				end),
 			BackgroundTransparency = props.BackgroundTransparency,
 			AnchorPoint = props.AnchorPoint,
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
-			TextScaled = true,
+			--TextScaled = true,
 			ZIndex = props.ZIndex,
 
 			Text = props.Text,
@@ -133,24 +144,19 @@ function TextLabel:render()
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			BackgroundColor3 = self.style.BackgroundColor,
 
-			Font = UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State].Font,
-			TextSize = UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State].TextSize,
+			Font = UIThemes.Themes[self.state.Theme][self.props.State][props.Font],
+			TextSize = math.clamp(
+				UIThemes.Themes[self.state.Theme][self.props.State][props.TextSize] * self.state.SizeScale.X,
+				1,
+				100
+			),
 			LineHeight = self.style.LineHeight,
-			TextColor3 = self.style.TextColor,
-			TextStrokeColor3 = self.style.TextStrokeColor,
-			TextStrokeTransparency = self.style.TextStrokeTransparency,
-			TextTransparency = self.style.TextTransparency,
+			TextColor3 = if not self.props.TextColor3 then self.style[props.TextColor] else self.props.TextColor3,
 		},
 		roact.createFragment({
+			unpack(props[roact.Children] or {}),
 			roact.createElement("UICorner", {
 				CornerRadius = self.style.CornerRadius,
-			}),
-			roact.createElement("UIStroke", {
-				Thickness = self.style.BorderSizePixel:map(function(val)
-					return val * self.state.SizeScale.X
-				end),
-				Color = self.style.BorderColor,
-				Transparency = self.style.BorderTransparency,
 			}),
 		})
 	)

@@ -31,6 +31,7 @@ local defaultProps = {
 	Value = roact.createBinding(0),
 	SortValue = 1,
 	Text = "Hello world!",
+	State = Enums.UIStates.Tertiary,
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
@@ -56,7 +57,7 @@ function RequirementProgress:init()
 	end
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -79,7 +80,7 @@ function RequirementProgress:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -98,7 +99,7 @@ function RequirementProgress:render()
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			BackgroundColor3 = roact
 				.joinBindings({
-					BackgroundColor = self.style.BackgroundColor2,
+					BackgroundColor = self.style.BackgroundColor,
 					CompletedColor = self.style.CompletedColor,
 					Value = props.Value,
 				})
@@ -117,7 +118,7 @@ function RequirementProgress:render()
 				Thickness = self.style.BorderSizePixel,
 				Color = self.style.BorderColor,
 				Transparency = self.style.BorderTransparency,
-				DontScale = props.DontScale
+				DontScale = props.DontScale,
 			}),
 			roact.createElement(ProgressLabel, {
 				Value = props.Value,
@@ -127,9 +128,9 @@ function RequirementProgress:render()
 				AnchorPoint = Vector2.new(0.5, 1),
 				Position = UDim2.new(0.5, 0, 1, -10),
 				Size = UDim2.new(1, -20, 0, 45),
-				State = Enums.UIStates.Secondary,
+				State = self.props.State,
 				ZIndex = 5,
-				DontScale = props.DontScale
+				DontScale = props.DontScale,
 			}),
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(1, -20, 0, 20),
@@ -138,6 +139,7 @@ function RequirementProgress:render()
 				Text = string.format(props.Text, props.MaxValue),
 				BackgroundTransparency = 1,
 				DontScale = props.DontScale,
+				State = self.props.State,
 			}),
 			roact.createElement(PercentageBar, {
 				Value = props.Value,
@@ -147,6 +149,7 @@ function RequirementProgress:render()
 				Size = UDim2.new(1, -20, 0, 45),
 				Position = UDim2.new(0.5, 0, 1, -10),
 				DontScale = props.DontScale,
+				State = self.props.State,
 			}),
 		})
 	)

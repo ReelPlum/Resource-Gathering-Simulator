@@ -14,6 +14,10 @@ local CustomEnums = {
 		["Enabled"] = "1",
 		["Disabled"] = "2",
 		["Secondary"] = "3",
+		["Contrast"] = "4",
+		["Cancel"] = "5",
+		["Primary"] = "6",
+		["Tertiary"] = "7",
 	},
 	["UIThemes"] = {
 		["Default"] = "1",
@@ -30,6 +34,7 @@ local CustomEnums = {
 	},
 	["Resources"] = {
 		["Stone"] = "1",
+		["Coal"] = "2",
 	},
 	["NodeRarities"] = {
 		["Normal"] = "1",

@@ -57,7 +57,7 @@ local defaultProps = {
 	Visible = true,
 	ZIndex = 1,
 
-	State = Enums.UIStates.Enabled,
+	State = Enums.UIStates.Primary,
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
@@ -86,7 +86,7 @@ function PercentageBar:init()
 	end
 
 	local t = { Value = math.clamp(self.props.Value:getValue(), 0, self.props.MaxValue) }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.PercentageBar] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -109,7 +109,7 @@ function PercentageBar:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.PercentageBar] do
+	for index, val in UIThemes.Themes[self.state.Theme][props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -151,7 +151,7 @@ function PercentageBar:render()
 			ZIndex = props.ZIndex + 1,
 
 			Size = UDim2.new(1, -10 * self.state.SizeScale.X, 1, -10 * self.state.SizeScale.Y),
-			BackgroundColor3 = self.style.BarColor,
+			BackgroundColor3 = self.style.ButtonColor,
 			BackgroundTransparency = 0,
 
 			Position = UDim2.new(0, 5 * self.state.SizeScale.X, 0.5, 0),
@@ -161,7 +161,7 @@ function PercentageBar:render()
 				CornerRadius = self.style.CornerRadius,
 			}),
 			roact.createElement("UIGradient", {
-				Color = self.style.BarColor:map(function(val)
+				Color = self.style.ButtonColor:map(function(val)
 					return ColorSequence.new(val)
 				end),
 				Offset = roact

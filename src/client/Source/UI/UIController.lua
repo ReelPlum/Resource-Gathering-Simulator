@@ -48,7 +48,7 @@ function UIController:KnitInit()
 			}),
 			roact.createElement(ResourceDisplayList, {
 				DontScale = false,
-			}),
+			})
 		}),
 		LocalPlayer:WaitForChild("PlayerGui")
 	)

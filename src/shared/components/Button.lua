@@ -50,7 +50,7 @@ local defaultProps = {
 	ZIndex = 1,
 	AutoButtonColor = true,
 
-	State = Enums.UIStates.Enabled,
+	State = Enums.UIStates.Primary,
 
 	ReactionSize = UDim2.new(0, 0, 0, 0),
 	EnterSize = UDim2.new(0, 0, 0, 0),
@@ -68,12 +68,15 @@ function Button:init()
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
 		SizeScale = if not self.props.DontScale
-			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
+				1920,
+				1920
+			)
 			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	local t = { Size = self.props.Size, HoverDown = 0, HoverPos = UDim2.new(0, 0) }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Button][self.props.State] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -101,6 +104,8 @@ function Button:render()
 			size = props.Size + props.EnterSize + props.ReactionSize
 		end
 
+		print(self.props.State)
+
 		self.api:start({
 			Size = size,
 			config = {
@@ -117,7 +122,7 @@ function Button:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -144,6 +149,7 @@ function Button:render()
 
 			[roact.Event.MouseButton1Down] = function(...)
 				self.MouseDown = true
+				print(self.props.State)
 				self.api:start({
 					Size = props.Size + props.EnterSize + props.ReactionSize,
 					config = {
@@ -265,9 +271,19 @@ function Button:render()
 
 	return roact.createElement("Frame", {
 		Size = self.style.Size:map(function(val)
-			return UDim2.new(val.X.Scale, val.X.Offset * self.state.SizeScale.X, val.Y.Scale, val.Y.Offset * self.state.SizeScale.Y)
+			return UDim2.new(
+				val.X.Scale,
+				val.X.Offset * self.state.SizeScale.X,
+				val.Y.Scale,
+				val.Y.Offset * self.state.SizeScale.Y
+			)
 		end),
-		Position = UDim2.new(props.Position.X.Scale, props.Position.X.Offset * self.state.SizeScale.X, props.Position.Y.Scale, props.Position.Y.Offset * self.state.SizeScale.Y),
+		Position = UDim2.new(
+			props.Position.X.Scale,
+			props.Position.X.Offset * self.state.SizeScale.X,
+			props.Position.Y.Scale,
+			props.Position.Y.Offset * self.state.SizeScale.Y
+		),
 		AnchorPoint = props.AnchorPoint,
 		BackgroundTransparency = props.BackgroundTransparency,
 		Rotation = props.Rotation,
@@ -276,7 +292,7 @@ function Button:render()
 
 		BackgroundColor3 = roact
 			.joinBindings({
-				MouseDown = self.style.MouseDown,
+				MouseDown = self.style.ButtonMouseDownColor,
 				HoverDown = self.style.HoverDown,
 				BackgroundColor = self.style.BackgroundColor,
 			})
@@ -301,7 +317,8 @@ function Button:didMount()
 			return
 		end
 
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
+			/ Vector2.new(1920, 1920)
 
 		self:setState({
 			SizeScale = s,

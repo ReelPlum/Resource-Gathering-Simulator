@@ -29,7 +29,7 @@ Properties:
 
 local defaultProps = {
 	Size = UDim2.new(0, 300, 0, 500),
-	Position = UDim2.new(1, -15, 0.5, -5),
+	Position = UDim2.new(1, -15, 0.5, -10),
 	AnchorPoint = Vector2.new(1, 1),
 }
 
@@ -62,7 +62,7 @@ function CurrencyDisplayList:init()
 	end
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -85,7 +85,7 @@ function CurrencyDisplayList:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -102,7 +102,7 @@ function CurrencyDisplayList:render()
 					Currency = currency,
 					Size = UDim2.new(props.Size.X.Scale, props.Size.X.Offset, 0, 50),
 					ImageSize = UDim2.new(0, 50, 0, 50),
-					DontScale = props.DontScale
+					DontScale = props.DontScale,
 				})
 			)
 		end
@@ -110,7 +110,7 @@ function CurrencyDisplayList:render()
 
 	local children = roact.createFragment({
 		roact.createElement("UIListLayout", {
-			Padding = UDim.new(0, 5 * self.state.SizeScale.Y),
+			Padding = UDim.new(0, 5),
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Bottom,
 			FillDirection = Enum.FillDirection.Vertical,
@@ -129,9 +129,9 @@ function CurrencyDisplayList:render()
 		),
 		Position = UDim2.new(
 			props.Position.X.Scale,
-			props.Position.X.Offset * self.state.SizeScale.X,
+			props.Position.X.Offset,
 			props.Position.Y.Scale,
-			props.Position.Y.Offset * self.state.SizeScale.Y
+			props.Position.Y.Offset
 		),
 	}, {
 		children,

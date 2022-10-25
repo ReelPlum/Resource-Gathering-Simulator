@@ -29,7 +29,7 @@ Properties:
 
 local defaultProps = {
 	Size = UDim2.new(0, 300, 0, 500),
-	Position = UDim2.new(1, -15, 0.5, 5),
+	Position = UDim2.new(1, -15, 0.5, 10),
 	AnchorPoint = Vector2.new(1, 0),
 }
 
@@ -62,7 +62,7 @@ function ResourceDisplayList:init()
 	end
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -85,7 +85,7 @@ function ResourceDisplayList:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -110,7 +110,7 @@ function ResourceDisplayList:render()
 
 	local children = roact.createFragment({
 		roact.createElement("UIListLayout", {
-			Padding = UDim.new(0, 5 * self.state.SizeScale.Y),
+			Padding = UDim.new(0, 5),
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Top,
 			FillDirection = Enum.FillDirection.Vertical,
@@ -129,9 +129,9 @@ function ResourceDisplayList:render()
 		),
 		Position = UDim2.new(
 			props.Position.X.Scale,
-			props.Position.X.Offset * self.state.SizeScale.X,
+			props.Position.X.Offset,
 			props.Position.Y.Scale,
-			props.Position.Y.Offset * self.state.SizeScale.Y
+			props.Position.Y.Offset
 		),
 	}, {
 		children,

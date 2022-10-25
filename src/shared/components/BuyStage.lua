@@ -48,6 +48,7 @@ local RequirementList = require(ReplicatedStorage.Components.RequirementList)
 local TextLabel = require(ReplicatedStorage.Components.TextLabel)
 local TextButton = require(ReplicatedStorage.Components.TextButton)
 local Background = require(ReplicatedStorage.Components.Background)
+local CloseButton = require(ReplicatedStorage.Components.CloseButton)
 
 local BuyStage = roact.Component:extend("BuyStage")
 
@@ -62,11 +63,16 @@ function BuyStage:init()
 		end
 	end
 
+	self.CloseEvent = self.Janitor:Add(signal.new())
+
 	self:setState({
 		Data = self.props.Data,
 		Stage = nil,
 		SizeScale = if not self.props.DontScale
-			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
+				1920,
+				1920
+			)
 			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
@@ -93,6 +99,12 @@ function BuyStage:render()
 		DontScale = props.DontScale,
 	}, {
 		roact.createFragment({
+			roact.createElement(CloseButton, {
+				Position = UDim2.new(1, -10, 0, 10),
+				AnchorPoint = Vector2.new(1, 0),
+				Size = UDim2.new(0, 35, 0, 35),
+				Event = self.CloseEvent,
+			}),
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(500, 0, 0, 150),
 				Position = UDim2.new(0.5, 0, 0, -10),
@@ -101,8 +113,8 @@ function BuyStage:render()
 				DontScale = props.DontScale,
 
 				BackgroundTransparency = 1,
-				Type = Enums.UITypes.Header,
-				State = Enums.UITypes.Enabled,
+				TextSize = "HeaderSize",
+				State = Enums.UIStates.Primary,
 				Text = if sd then sd.DisplayName else "",
 			}),
 			roact.createElement(RequirementList, {
@@ -112,10 +124,12 @@ function BuyStage:render()
 				Position = UDim2.new(0.5, 0, 1, -10),
 				CellSize = UDim2.new(0, 300, 0, 90),
 				CellPadding = UDim2.new(0, 5 * self.state.SizeScale.X, 0, 5 * self.state.SizeScale.Y),
-				BackgroundTransparency = 0.5,
+				BackgroundTransparency = 1,
+				State = Enums.UIStates.Primary,
 			}),
 			roact.createElement(TextButton, {
 				Size = UDim2.new(0, 275, 0, 50),
+				TextSize = "ParagraphSize",
 				Position = UDim2.new(0.5, 0, 0, 10) + UDim2.new(0, 0, 0, 150 - 10),
 				Text = string.upper("Buy stage!"),
 				TextScaled = true,
@@ -151,6 +165,11 @@ function BuyStage:didMount()
 			end
 		end
 
+		self.Janitor:Add(self.CloseEvent:Connect(function()
+			self.SetVisible(false)
+			self.CurrentStage = nil
+		end))
+
 		J:Cleanup()
 
 		J:Add(clientStage.Signals.UIDataUpdated:Connect(function(d)
@@ -175,7 +194,8 @@ function BuyStage:didMount()
 			return
 		end
 
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
+			/ Vector2.new(1920, 1920)
 
 		self:setState({
 			SizeScale = s,

@@ -108,7 +108,6 @@ function Tool:Equip()
 		self.User.EquippedTool:Unequip()
 	end
 
-	
 	self.EquipJanitor:Cleanup()
 	self.MineJanitor:Cleanup()
 
@@ -146,10 +145,12 @@ function Tool:StartMining(node)
 	--Set the mining target
 	self.CurrentTarget = node
 
-	--Load animation
+	--Load animations
+
 	local animator = self.User.Player.Character:WaitForChild("Humanoid"):WaitForChild("Animator")
-	local anim = self.MineJanitor:Add(animator:LoadAnimation(self.ToolData.Animations.Mine), "Stop")
-	local critAnim = self.MineJanitor:Add(animator:LoadAnimation(self.ToolData.Animations.MineCrit), "Stop")
+
+	local mineAnims = {}
+	local critAnims = {}
 
 	local function AttackStuff(a)
 		--Random crit chance
@@ -160,26 +161,35 @@ function Tool:StartMining(node)
 			a.Stopped:Wait()
 			task.wait()
 
-			critAnim:Play()
+			critAnims[math.random(1, #critAnims)]:Play()
 		else
 			self.Signals.Attack:Fire()
 
 			a.Stopped:Wait()
 			task.wait()
 
-			anim:Play()
+			mineAnims[math.random(1, #mineAnims)]:Play()
 		end
 	end
 
-	self.MineJanitor:Add(anim:GetMarkerReachedSignal("Attack"):Connect(function()
-		AttackStuff(anim)
-	end))
+	for _, anim in self.ToolData.Animations.MineAnims:GetChildren() do
+		local a = self.MineJanitor:Add(animator:LoadAnimation(anim))
+		table.insert(mineAnims, a)
 
-	self.MineJanitor:Add(critAnim:GetMarkerReachedSignal("Attack"):Connect(function()
-		AttackStuff(critAnim)
-	end))
+		self.MineJanitor:Add(a:GetMarkerReachedSignal("Attack"):Connect(function()
+			AttackStuff(a)
+		end))
+	end
 
-	anim:Play()
+	for _, crit in self.ToolData.Animations.CritAnims:GetChildren() do
+		local a = self.MineJanitor:Add(animator:LoadAnimation(crit))
+		table.insert(critAnims, a)
+		self.MineJanitor:Add(a:GetMarkerReachedSignal("Attack"):Connect(function()
+			AttackStuff(a)
+		end))
+	end
+
+	mineAnims[math.random(1, #mineAnims)]:Play()
 end
 
 function Tool:StopMining()

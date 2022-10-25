@@ -57,7 +57,10 @@ local defaultProps = {
 	ZIndex = 1,
 	AutoButtonColor = true,
 
-	State = Enums.UIStates.Enabled,
+	Font = "ParagraphFont",
+	TextSize = "ParagraphSize",
+	TextColor = "ParagraphColor",
+	State = Enums.UIStates.Primary,
 
 	ReactionSize = UDim2.new(0, 0, 0, 0),
 	EnterSize = UDim2.new(0, 0, 0, 0),
@@ -66,6 +69,7 @@ local defaultProps = {
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
 
 local Button = require(script.Parent.Button)
+local TextLabel = require(ReplicatedStorage.Components.TextLabel)
 
 local TextButton = roact.Component:extend("TextButton")
 
@@ -81,7 +85,7 @@ function TextButton:init()
 	})
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Button][self.props.State] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -103,7 +107,7 @@ function TextButton:render()
 		duration = 0.25,
 		easing = roactSpring.easings.easeOutQuad,
 	} }
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -118,8 +122,8 @@ function TextButton:render()
 
 		local size = TextService:GetTextSize(
 			props.Text,
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
+			UIThemes.Themes[self.state.Theme][self.props.State][props.TextSize],
+			UIThemes.Themes[self.state.Theme][self.props.State][props.Font],
 			Vector2.new(0, 0)
 		)
 		return size + Vector2.new(10, 0) --Find out how to do autosize properly :)
@@ -148,7 +152,7 @@ function TextButton:render()
 
 		[roact.Event.Activated] = self.props[roact.Event.Activated],
 	}, {
-		roact.createElement("TextLabel", {
+		roact.createElement(TextLabel, {
 			Size = UDim2.new(1, 0, 1, 0),
 			Text = props.Text,
 			MaxVisibleGraphemes = props.MaxVisibleGraphemes,
@@ -159,13 +163,8 @@ function TextButton:render()
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
 
-			Font = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
-			TextSize = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-			LineHeight = self.style.LineHeight,
-			TextColor3 = self.style.TextColor,
-			TextStrokeColor3 = self.style.TextStrokeColor,
-			TextStrokeTransparency = self.style.TextStrokeTransparency,
-			TextTransparency = self.style.TextTransparency,
+			Font = props.Font,
+			TextSize = props.TextSize,
 
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0.5, 0, 0.5, 0),

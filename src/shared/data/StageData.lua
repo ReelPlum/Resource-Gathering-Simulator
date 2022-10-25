@@ -54,6 +54,7 @@ return {
 		},
 		Resources = {
 			Enums.Resources.Stone,
+			--Enums.Resources.Coal,
 		},
 	},
 

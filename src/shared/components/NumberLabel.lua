@@ -42,7 +42,9 @@ local defaultProps = {
 	MaxLetters = math.huge,
 	formatter = formatnumber.NumberFormatter.with(),
 
-	State = Enums.UIStates.Enabled,
+	TextSize = "ParagraphSize",
+	Font = "ParagraphFont",
+	State = Enums.UIStates.Primary,
 	Type = Enums.UITypes.Button,
 }
 
@@ -67,12 +69,6 @@ function NumberLabel:init()
 
 	self.lastValue = self.props.Value:getValue()
 	local t = { Value = self.props.Value:getValue() }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.Type][self.props.State] do
-		if not table.find(supportedTypes, typeof(val)) then
-			continue
-		end
-		t[index] = val
-	end
 	self.style, self.api = roactSpring.Controller.new(t)
 end
 
@@ -84,20 +80,6 @@ function NumberLabel:render()
 	end
 	local props = self.props
 
-	local t = {
-		config = {
-			duration = 0.25,
-			easing = roactSpring.easings.easeOutQuad,
-		},
-	}
-	for index, val in UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State] do
-		if not table.find(supportedTypes, typeof(val)) then
-			continue
-		end
-		t[index] = val
-	end
-	self.api:start(t)
-
 	local function getText(val)
 		return props.formatter:Format(math.floor(val))
 	end
@@ -106,11 +88,11 @@ function NumberLabel:render()
 		TextLabel,
 		{
 			Position = props.Position,
-			BackgroundTransparency = 0,
+			BackgroundTransparency = props.BackgroundTransparency,
 			AnchorPoint = props.AnchorPoint,
 			TextXAlignment = props.TextXAlignment,
 			TextYAlignment = props.TextYAlignment,
-			TextScaled = true,
+			--TextScaled = props.DontScale,
 			DontScale = props.DontScale,
 
 			Text = roact.joinBindings({ Value = props.Value, animatedValue = self.style.Value }):map(function(vals)
@@ -129,15 +111,11 @@ function NumberLabel:render()
 				return getText(vals.animatedValue)
 			end),
 			Size = props.Size,
-			BackgroundColor3 = self.style.BackgroundColor,
 
-			Font = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
-			TextSize = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-			LineHeight = self.style.LineHeight,
-			TextColor3 = self.style.TextColor,
-			TextStrokeColor3 = self.style.TextStrokeColor,
-			TextStrokeTransparency = self.style.TextStrokeTransparency,
-			TextTransparency = self.style.TextTransparency,
+			TextSize = props.TextSize,
+			Font = props.Font,
+			Type = props.Type,
+			State = props.State,
 		},
 		roact.createFragment({
 			roact.createElement("UICorner", {

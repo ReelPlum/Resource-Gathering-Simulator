@@ -53,7 +53,7 @@ local defaultProps = {
 	ImageScaled = false,
 	ImageSize = Vector2.new(100, 100),
 
-	State = Enums.UIStates.Enabled,
+	State = Enums.UIStates.Primary,
 
 	ReactionSize = UDim2.new(0, 0, 0, 0),
 	EnterSize = UDim2.new(0, 0, 0, 0),
@@ -83,7 +83,7 @@ function ImageButton:init()
 	})
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Button][self.props.State] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -99,7 +99,7 @@ function ImageButton:render()
 		duration = 0.25,
 		easing = roactSpring.easings.easeOutQuad,
 	} }
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State] do
+	for index, val in UIThemes.Themes[self.state.Theme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -137,8 +137,7 @@ function ImageButton:render()
 			Image = self.props.Image,
 			ScaleType = self.props.ScaleType,
 
-			ImageColor3 = self.style.TextColor,
-			ImageTransparency = self.style.TextTransparency,
+			ImageColor3 = self.style.ParagraphColor,
 
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -162,7 +161,8 @@ function ImageButton:didMount()
 			return
 		end
 
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(1920, 1920)
+		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
+			/ Vector2.new(1920, 1920)
 
 		self:setState({
 			SizeScale = s,

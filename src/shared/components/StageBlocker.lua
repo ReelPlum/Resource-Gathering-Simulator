@@ -79,6 +79,10 @@ function StageBlocker:init()
 
 	for resource, _ in ResourceData do
 		local val = ClientController.Cache.Resources[resource]
+		print(resource)
+		if not self.props.Stage.RequiredForUpgrade.Resources[resource] then
+			continue
+		end
 
 		local v, setv = roact.createBinding(val or 0)
 		table.insert(self.state.Data, {
@@ -93,6 +97,10 @@ function StageBlocker:init()
 
 	for currency, _ in CurrencyData do
 		local val = ClientController.Cache.Currencies[currency]
+		print(currency)
+		if not self.props.Stage.RequiredForUpgrade.Currencies[currency] then
+			continue
+		end
 
 		local v, setv = roact.createBinding(val or 0)
 		table.insert(self.state.Data, {
@@ -111,7 +119,7 @@ function StageBlocker:init()
 	self.props.StageObj.Signals.UIDataUpdated:Fire(self.state.Data)
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -134,7 +142,7 @@ function StageBlocker:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -149,6 +157,7 @@ function StageBlocker:render()
 				RequirementsData = props.Stage.RequiredForUpgrade,
 				Data = self.state.Data,
 				DontScale = true,
+				State = Enums.UIStates.Primary
 			}),
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(1, 0, 0, 150),
@@ -157,9 +166,10 @@ function StageBlocker:render()
 
 				BackgroundTransparency = 1,
 				Type = Enums.UITypes.Header,
-				State = Enums.UITypes.Enabled,
 				Text = props.Stage.DisplayName,
 				DontScale = true,
+				State = Enums.UIStates.Primary,
+				TextSize = "HeaderSize",
 			}),
 		}
 	else

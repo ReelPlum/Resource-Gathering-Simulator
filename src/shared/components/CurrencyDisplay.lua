@@ -64,7 +64,7 @@ function CurrencyDisplay:init()
 	end
 
 	local t = { Size = self.props.Size }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -87,7 +87,7 @@ function CurrencyDisplay:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -113,6 +113,9 @@ function CurrencyDisplay:render()
 			Position = UDim2.new(1, 0, 0.5, 0),
 			DontScale = props.DontScale,
 			TextXAlignment = Enum.TextXAlignment.Left,
+			State = Enums.UIStates.Primary,
+			Font = "HeaderFont",
+			TextSize = "H4Size",
 		}),
 		roact.createElement("ImageLabel", {
 			Size = UDim2.new(

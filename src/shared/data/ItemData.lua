@@ -13,6 +13,7 @@ return {
 	[Enums.ItemTypes.Tool] = {
 		[Enums.Tools.TestTool] = {
 			DisplayName = "Test Tool",
+			Image = nil,
 			Strength = 250,
 			Damage = RandomRange.new(5, 10),
 			ToolType = Enums.ToolTypes.Pickaxe,
@@ -25,6 +26,7 @@ return {
 	[Enums.ItemTypes.Pet] = {
 		[Enums.Pets.TestPet] = {
 			DisplayName = "Test Pet",
+			Image = nil,
 			Boosts = {
 				[Enums.BoostTypes.Damage] = 1,
 				[Enums.BoostTypes.Drops] = 1,

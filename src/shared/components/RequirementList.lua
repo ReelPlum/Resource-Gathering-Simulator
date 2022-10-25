@@ -33,6 +33,8 @@ local defaultProps = {
 	CellPadding = UDim2.new(0, 5, 0, 5),
 	BackgroundTransparency = 1,
 
+	State = Enums.UIStates.Tertiary,
+
 	RequirementsData = require(ReplicatedStorage.Data.StageData)[Enums.Stages.TestStage].RequiredForUpgrade,
 	Data = {
 		--[[{
@@ -63,6 +65,7 @@ function RequirementList:init()
 				1920
 			)
 			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
+		BarSize = 5,
 	})
 
 	for index, val in defaultProps do
@@ -72,7 +75,7 @@ function RequirementList:init()
 	end
 
 	local t = {}
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -81,6 +84,7 @@ function RequirementList:init()
 	self.style, self.api = roactSpring.Controller.new(t)
 
 	self.GridLayout = roact.createRef()
+	self.FrameRef = roact.createRef()
 end
 
 function RequirementList:render()
@@ -98,7 +102,7 @@ function RequirementList:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -106,7 +110,7 @@ function RequirementList:render()
 	end
 	self.api:start(t)
 
-	local barSize = 5
+	local barSize = self.state.BarSize
 
 	local fragTable = {
 		roact.createElement("UIGridLayout", {
@@ -136,6 +140,7 @@ function RequirementList:render()
 				SortValue = i,
 				Text = data.Text,
 				DontScale = props.DontScale,
+				State = self.props.State,
 			})
 		)
 	end
@@ -156,7 +161,9 @@ function RequirementList:render()
 		AnchorPoint = Vector2.new(0.5, 1),
 		BorderSizePixel = 0,
 
-		BackgroundColor3 = self.style.BackgroundColor2,
+		BackgroundColor3 = self.style.BackgroundColor,
+
+		[roact.Ref] = self.FrameRef,
 	}, {
 		roact.createFragment({
 			roact.createElement("ScrollingFrame", {
@@ -197,8 +204,15 @@ function RequirementList:didMount()
 	end))
 
 	self.Janitor:Add(self.GridLayout.current:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		local BarSize = 5
+
+		if self.GridLayout.current.AbsoluteContentSize.Y <= self.FrameRef.current.AbsoluteSize.Y then
+			BarSize = 0
+		end
+
 		self:setState({
 			CanvasSize = self.GridLayout.current.AbsoluteContentSize,
+			BarSize = BarSize,
 		})
 	end))
 

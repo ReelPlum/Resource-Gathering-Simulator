@@ -15,4 +15,10 @@ return {
 		Image = "8821058019", --Imageid for the resource
 		Color = Color3.fromRGB(53, 53, 53),
 	},
+	[CustomEnums.Resources.Coal] = {
+		DisplayName = "COAL",
+		Plural = "COALS",
+		Image = "882105804", --Imageid for the resource
+		Color = Color3.fromRGB(53, 53, 53),
+	},
 }

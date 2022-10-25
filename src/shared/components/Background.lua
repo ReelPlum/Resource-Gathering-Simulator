@@ -34,6 +34,8 @@ local defaultProps = {
 	Rotation = 0,
 	Visible = roact.createBinding(false),
 	ZIndex = 1,
+
+	State = Enums.UIStates.Primary,
 }
 
 local supportedTypes = require(ReplicatedStorage.Common.RoactSpringSupportedTypes)
@@ -62,7 +64,7 @@ function Background:init()
 	self.visible, self.setVisible = roact.createBinding(self.props.Visible)
 
 	local t = { Size = self.props.Size, CornerRadiusStar = 0 }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -74,6 +76,11 @@ function Background:init()
 end
 
 function Background:render()
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
 	local props = self.props
 
 	local t = {
@@ -82,7 +89,7 @@ function Background:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end

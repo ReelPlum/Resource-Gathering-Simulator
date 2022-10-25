@@ -19,6 +19,9 @@ local signal = require(ReplicatedStorage.Packages.Signal)
 local janitor = require(ReplicatedStorage.Packages.Janitor)
 local promise = require(ReplicatedStorage.Packages.Promise)
 local cameraShaker = require(ReplicatedStorage.Packages.CameraShaker)
+local roact = require(ReplicatedStorage.Packages.Roact)
+
+local NodeHUD = require(ReplicatedStorage.Components.NodeHUD)
 
 local shakePresets = require(ReplicatedStorage.Common.ShakePresets)
 
@@ -58,6 +61,20 @@ function ClientNode.new(id, data)
 	self.ParticleAttachment.Parent = self.ParticlePoint
 	self.ParticlePoint.Parent = workspace.Misc
 
+	self.HUDVisible, self.SetHUDVisible = roact.createBinding(false)
+	self.HUDHealth, self.SetHUDHealth = roact.createBinding(math.floor(self.CurrentHealth + 0.5))
+	self.ShowHealthUI = self.Janitor:Add(signal.new())
+	self.UI = roact.mount(
+		roact.createElement(NodeHUD, {
+			Show = self.ShowHealthUI,
+			Health = self.HUDHealth,
+			MaxHealth = math.floor(self.MaxHealth + 0.5),
+			Adornee = self.ParticleAttachment,
+			DisplayName = self.NodeData.DisplayName,
+		}),
+		self.ParticleAttachment
+	)
+
 	self.Model = nil
 
 	self.LastHealthChange = 0
@@ -88,7 +105,9 @@ function ClientNode:Update(data)
 	self:Render()
 end
 
-function ClientNode:ShowHealth() end
+function ClientNode:ShowHealth()
+	--self.ShowHealthUI:Fire(tick() + 1.5)
+end
 
 function ClientNode:ShakeModel(crit)
 	if crit then
@@ -237,10 +256,12 @@ end
 
 function ClientNode:HealthChanged(player, newHealth, crit)
 	self.CurrentHealth = newHealth
+	self.SetHUDHealth(math.floor(newHealth + 0.5))
 
 	if player == LocalPlayer then
 		--Only show healthbar when it's the player that damages the node.
 		self.LastHealthChange = tick()
+		self:ShowHealth()
 	end
 
 	self:Render():andThen(function()
@@ -249,6 +270,8 @@ function ClientNode:HealthChanged(player, newHealth, crit)
 end
 
 function ClientNode:Destroy(withAnimation: boolean)
+	roact.unmount(self.UI)
+
 	self.Signals.Destroying:Fire()
 	self.Janitor:Destroy()
 	self = nil

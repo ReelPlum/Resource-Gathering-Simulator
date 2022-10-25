@@ -64,7 +64,7 @@ function ResourceDisplay:init()
 	end
 
 	local t = { Size = self.props.Size }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -87,7 +87,7 @@ function ResourceDisplay:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][Enums.UITypes.Background] do
+	for index, val in UIThemes.Themes[self.state.Theme][Enums.UIStates.Primary] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -107,11 +107,15 @@ function ResourceDisplay:render()
 		}),
 		roact.createElement(NumberLabel, {
 			Value = self.Value,
-			Size = props.Size - UDim2.new(0, props.ImageSize.X.Offset, 0, 0),
+			Size = props.Size - UDim2.new(0, props.ImageSize.X.Offset * 1.15, 0, 0),
+			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(1, 0.5),
 			Position = UDim2.new(1, 0, 0.5, 0),
 			DontScale = props.DontScale,
 			TextXAlignment = Enum.TextXAlignment.Left,
+			State = Enums.UIStates.Primary,
+			Font = "HeaderFont",
+			TextSize = "H4Size",
 		}),
 		roact.createElement("ImageLabel", {
 			Size = UDim2.new(

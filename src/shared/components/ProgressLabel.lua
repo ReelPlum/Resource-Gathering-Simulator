@@ -38,13 +38,15 @@ local defaultProps = {
 	ZIndex = 1,
 	AutoSize = true,
 
+	Font = "ParagraphFont",
 	MaxValue = 0,
 	Value = roact.createBinding(0),
 	MaxLetters = math.huge,
 	Text = "Hello world!",
 	formatter = formatnumber.NumberFormatter.with(),
+	TextSize = "ParagraphSize",
 
-	State = Enums.UIStates.Enabled,
+	State = Enums.UIStates.Primary,
 	Type = Enums.UITypes.Button,
 }
 
@@ -70,7 +72,7 @@ function ProgressLabel:init()
 
 	self.lastValue = self.props.Value:getValue()
 	local t = { Value = math.clamp(self.props.Value:getValue(), 0, self.props.MaxValue) }
-	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.Type][self.props.State] do
+	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -93,7 +95,7 @@ function ProgressLabel:render()
 			easing = roactSpring.easings.easeOutQuad,
 		},
 	}
-	for index, val in UIThemes.Themes[self.state.Theme][self.props.Type][self.props.State] do
+	for index, val in UIThemes.Themes[self.state.Theme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
 		end
@@ -110,8 +112,8 @@ function ProgressLabel:render()
 
 		local size = TextService:GetTextSize(
 			getText(val),
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
-			UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
+			UIThemes.Themes[self.state.Theme][self.props.State][props.TextSize],
+			UIThemes.Themes[self.state.Theme][self.props.State][props.Font],
 			Vector2.new(0, props.Size.Y.Offset)
 		)
 		return UDim2.new(0, math.clamp(size.X, props.Size.X.Offset, math.huge), 0, props.Size.Y.Offset)
@@ -147,8 +149,8 @@ function ProgressLabel:render()
 			end),
 			BackgroundColor3 = self.style.BackgroundColor,
 
-			Font = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].Font,
-			TextSize = UIThemes.Themes[self.state.Theme][Enums.UITypes.Button][self.props.State].TextSize,
+			Font = props.Font,
+			TextSize = props.TextSize,
 			LineHeight = self.style.LineHeight,
 			TextColor3 = self.style.TextColor,
 			TextStrokeColor3 = self.style.TextStrokeColor,

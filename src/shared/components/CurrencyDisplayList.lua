@@ -17,6 +17,7 @@ local roactSpring = require(ReplicatedStorage.Packages.RoactSpring)
 
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 local StageData = require(ReplicatedStorage.Data.StageData)
+local NodeData = require(ReplicatedStorage.Data.NodeData)
 
 local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
@@ -44,6 +45,17 @@ function CurrencyDisplayList:init()
 
 	local StageController = knit.GetController("StageController")
 
+	local currencies = {}
+	if StageController.CurrentStage then
+		for _, stageSpawnerData in StageData[StageController.CurrentStage].StageSpawners do
+			for node, _ in stageSpawnerData.Nodes do
+				for currency, _ in NodeData[node].Currencies do
+					currencies[currency] = currency
+				end
+			end
+		end
+	end
+
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
 		SizeScale = if not self.props.DontScale
@@ -53,6 +65,7 @@ function CurrencyDisplayList:init()
 			)
 			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 		CurrentStage = StageController.CurrentStage,
+		Currencies = currencies,
 	})
 
 	for index, val in defaultProps do
@@ -95,7 +108,7 @@ function CurrencyDisplayList:render()
 
 	local currencies = {}
 	if self.state.CurrentStage then
-		for _, currency in StageData[self.state.CurrentStage].Currencies do
+		for _, currency in self.state.Currencies do
 			table.insert(
 				currencies,
 				roact.createElement(CurrencyDisplay, {
@@ -164,8 +177,20 @@ function CurrencyDisplayList:didMount()
 	local StageController = knit.GetController("StageController")
 
 	self.Janitor:Add(StageController.Signals.StageChanged:Connect(function()
+		local currencies = {}
+		if StageController.CurrentStage then
+			for _, stageSpawnerData in StageData[StageController.CurrentStage].StageSpawners do
+				for node, _ in stageSpawnerData.Nodes do
+					for currency, _ in NodeData[node].Currencies do
+						currencies[currency] = currency
+					end
+				end
+			end
+		end
+
 		self:setState({
 			CurrentStage = StageController.CurrentStage,
+			Currencies = currencies,
 		})
 	end))
 end

@@ -80,7 +80,7 @@ function ClientStage:Load()
 	)
 
 	self.Janitor:Add(self.Signals.UIDataUpdated:Connect(function(data)
-		print(data)
+		--print(data)
 		self.UIData = data
 	end))
 
@@ -118,6 +118,12 @@ end
 
 function ClientStage:PositionPrompt()
 	self.LoopJanitor:Add(RunService.RenderStepped:Connect(function()
+		if self.Prompt then
+			self.Prompt.Enabled = not self.Unlocked
+		end
+		if self.Unlocked then
+			return
+		end
 		local Character = LocalPlayer.Character
 		if not Character then
 			return
@@ -168,7 +174,7 @@ function ClientStage:CheckIfInStage()
 					if not self.LocalPlayerIsInStage then
 						self.LocalPlayerIsInStage = true
 						self.Signals.LocalPlayerEntered:Fire()
-						print("Entered!")
+						---print("Entered!")
 					end
 					return
 				end
@@ -177,7 +183,7 @@ function ClientStage:CheckIfInStage()
 
 		if self.LocalPlayerIsInStage then
 			self.LocalPlayerIsInStage = false
-			print("Left!")
+			--print("Left!")
 			self.Signals.LocalPlayerLeft:Fire()
 		end
 	end))
@@ -186,7 +192,7 @@ end
 function ClientStage:ListenForStageChange()
 	local StageController = knit.GetController("StageController")
 
-	print(StageController.CurrentStage)
+	--print(StageController.CurrentStage)
 	if StageController.CurrentStage then
 		if
 			StageController.CurrentStage == self.Stage

@@ -17,8 +17,6 @@ local DestroyAnimations = require(ReplicatedStorage.Common.Visual.DestroyAnimati
 local NodeData = {
 	[Enums.Nodes.Stone] = {
 		DisplayName = "Stone",
-		Health = RandomRange.new(100, 200),
-		Resistance = 200, --The resistance against tools. A tool that has a lower strenght will do a small amount of damage
 		Drops = {
 			--[Drop] = weight
 			[Enums.Resources.Stone] = 100,
@@ -26,11 +24,6 @@ local NodeData = {
 		Currencies = {
 			[Enums.Currencies.Coins] = 100,
 		},
-		DropStages = {
-			[50] = RandomRange.new(2, 4),
-			[25] = RandomRange.new(2, 4),
-		},
-		DropAmountOnDestruction = RandomRange.new(3, 6),
 		RequiredToolType = Enums.ToolTypes.Pickaxe,
 		Models = {
 			[100] = ReplicatedStorage.Assets.Nodes.StoneNode[100],

@@ -98,31 +98,31 @@ function Stage:Buy(user)
 	return true
 end
 
-function Stage:SpawnNode(stageSpawner)
+function Stage:SpawnNode(stageSpawner, weightedTable)
 	local NodeService = knit.GetService("NodeService")
 	--Choose random nodetype
-	local nt = self.weightedTable[math.random(1, #self.weightedTable)]
+	local nt = weightedTable[math.random(1, #weightedTable)]
 
 	local node = NodeService:SpawnNodeAtStage(nt, self, stageSpawner)
 
 	node.Signals.Destroying:Connect(function()
 		--Wait a random amount of time, and then respawn the node
-		task.wait(math.random(1500, 3500) / 100)
-		self:SpawnNode(stageSpawner)
+		task.wait(math.random(750, 2000) / 100)
+		self:SpawnNode(stageSpawner, weightedTable)
 	end)
 end
 
 function Stage:SpawnNodes()
-	self.weightedTable = {}
-	for nodeType, weight in self.StageData.Nodes do
-		for _ = 1, weight do
-			table.insert(self.weightedTable, nodeType)
+	for stageSpawner, data in self.StageData.StageSpawners do
+		local weightedTable = {}
+		for nodeType, nodeStageData in data.Nodes do
+			for _ = 1, nodeStageData.Weight do
+				table.insert(weightedTable, nodeType)
+			end
 		end
-	end
 
-	for _, spawner in self.StageData.StageSpawners do
-		for _ = 1, 10 / #self.StageData.StageSpawners do
-			self:SpawnNode(spawner)
+		for _ = 1, 10 do
+			self:SpawnNode(stageSpawner, weightedTable)
 		end
 	end
 end

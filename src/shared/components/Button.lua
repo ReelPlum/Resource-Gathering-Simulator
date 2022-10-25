@@ -170,12 +170,8 @@ function Button:render()
 				if not self.props.AutoButtonColor then
 					return
 				end
-
-				if props[roact.Event.Activated] then
-					props[roact.Event.Activated](...)
-				end
 			end,
-			[roact.Event.MouseButton1Up] = function()
+			[roact.Event.MouseButton1Up] = function(...)
 				self.MouseDown = false
 				self.api:start({
 					Size = if self.Entered then props.Size + props.EnterSize else props.Size,
@@ -197,6 +193,9 @@ function Button:render()
 						easing = roactSpring.easings.easeOutQuad,
 					},
 				})
+				if props[roact.Event.Activated] then
+					props[roact.Event.Activated](...)
+				end
 			end,
 			[roact.Event.MouseEnter] = function(...)
 				self.MouseDown = false
@@ -294,7 +293,7 @@ function Button:render()
 			.joinBindings({
 				MouseDown = self.style.ButtonMouseDownColor,
 				HoverDown = self.style.HoverDown,
-				BackgroundColor = self.style.BackgroundColor,
+				BackgroundColor = self.style.ButtonColor,
 			})
 			:map(function(vals)
 				return vals.BackgroundColor:lerp(vals.MouseDown, vals.HoverDown)

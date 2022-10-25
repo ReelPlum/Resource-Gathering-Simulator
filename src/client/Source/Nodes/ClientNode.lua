@@ -106,7 +106,7 @@ function ClientNode:Update(data)
 end
 
 function ClientNode:ShowHealth()
-	--self.ShowHealthUI:Fire(tick() + 1.5)
+	self.ShowHealthUI:Fire(tick() + 1.5)
 end
 
 function ClientNode:ShakeModel(crit)
@@ -185,14 +185,6 @@ function ClientNode:Render()
 				self:ModelChangeEffect()
 			end
 		end
-
-		--Healthbar
-
-		--Check if healthbar needs to be shown.
-		if tick() - self.LastHealthChange <= 5 then
-			--Show healthbar
-		end
-
 		resolve()
 	end)
 end

@@ -32,6 +32,7 @@ function Node.new(NodeType: number, StageObj, stageSpawner: BasePart)
 
 	self.NodeData = nodeData[NodeType]
 	self.StageData = stageData[self.Stage]
+	self.StageNodeData = self.StageData.StageSpawners[self.StageSpawner].Nodes[self.NodeType]
 
 	self.CurrentHealth = 0 --The node's current health
 	self.MaxHealth = 0 --The maximum health the node can have
@@ -53,7 +54,7 @@ function Node:Spawn()
 
 	--Spawn the node
 	--Choose how much health the node should have
-	self.MaxHealth = self.NodeData.Health:GetRandomNumber() --Get health from node data
+	self.MaxHealth = self.StageNodeData.Health --Get health from node data
 	self.CurrentHealth = self.MaxHealth
 	self.Rarity = self.StageObj:GetRarity() --Choose rarity from chances in stage data
 
@@ -187,7 +188,7 @@ function Node:CheckHealth()
 
 	local percentage = self.CurrentHealth / self.MaxHealth * 100
 
-	for p, range in self.NodeData.DropStages do
+	for p, range in self.StageNodeData.DropStages do
 		if self.ReachedDropStages[p] then
 			continue
 		end
@@ -205,8 +206,8 @@ function Node:CheckHealth()
 		--Destroyed
 
 		--Drop resources
-		self:DropResources(self.NodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
-		self:DropCurrencies(self.NodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
+		self:DropResources(self.StageNodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
+		self:DropCurrencies(self.StageNodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
 
 		self:Destroy()
 	end
@@ -256,7 +257,7 @@ function Node:Damage(user, tool, crit)
 		dmg = dmg * 1.5
 	end
 
-	dmg = tool.ToolData.Strength / self.NodeData.Resistance * dmg * enchantsMultipliers[Enums.BoostTypes.Damage]
+	dmg = tool.ToolData.Strength / self.StageNodeData.Resistance * dmg * enchantsMultipliers[Enums.BoostTypes.Damage]
 
 	self:TakeDamage(dmg, user, crit)
 end

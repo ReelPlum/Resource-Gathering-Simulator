@@ -29,6 +29,7 @@ return {
 			ParagraphFont = Enum.Font.SourceSansSemibold,
 			HeaderColor = Color3.fromHex("#681142"),
 			ParagraphColor = Color3.fromHex("#681142"),
+			InverseColor = Color3.fromHex("#89aeb3"),
 		},
 		[Enums.UIStates.Secondary] = {
 			BackgroundColor = Color3.fromHex("#678a8f"),

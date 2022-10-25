@@ -64,6 +64,7 @@ local CustomEnums = {
 	["Stages"] = {
 		["TestStage"] = "1",
 		["NextStage"] = "2",
+		["NextStage2"] = "3",
 	},
 	["Worlds"] = {
 		["TestWorld"] = "1",

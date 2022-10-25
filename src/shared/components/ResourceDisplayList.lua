@@ -17,6 +17,7 @@ local roactSpring = require(ReplicatedStorage.Packages.RoactSpring)
 
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 local StageData = require(ReplicatedStorage.Data.StageData)
+local NodeData = require(ReplicatedStorage.Data.NodeData)
 
 local UIThemes = require(ReplicatedStorage.Common.UIThemes)
 
@@ -44,6 +45,17 @@ function ResourceDisplayList:init()
 
 	local StageController = knit.GetController("StageController")
 
+	local resources = {}
+	if StageController.CurrentStage then
+		for _, stageSpawnerData in StageData[StageController.CurrentStage].StageSpawners do
+			for node, _ in stageSpawnerData.Nodes do
+				for resource, _ in NodeData[node].Drops do
+					resources[resource] = resource
+				end
+			end
+		end
+	end
+
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
 		SizeScale = if not self.props.DontScale
@@ -53,6 +65,7 @@ function ResourceDisplayList:init()
 			)
 			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 		CurrentStage = StageController.CurrentStage,
+		Resources = resources,
 	})
 
 	for index, val in defaultProps do
@@ -93,11 +106,11 @@ function ResourceDisplayList:render()
 	end
 	self.api:start(t)
 
-	local currencies = {}
+	local resourceChildren = {}
 	if self.state.CurrentStage then
-		for _, resource in StageData[self.state.CurrentStage].Resources do
+		for _, resource in self.state.Resources do
 			table.insert(
-				currencies,
+				resourceChildren,
 				roact.createElement(ResourceDisplay, {
 					Resource = resource,
 					Size = UDim2.new(props.Size.X.Scale, props.Size.X.Offset, 0, 50),
@@ -115,7 +128,7 @@ function ResourceDisplayList:render()
 			VerticalAlignment = Enum.VerticalAlignment.Top,
 			FillDirection = Enum.FillDirection.Vertical,
 		}),
-		unpack(currencies),
+		unpack(resourceChildren),
 	})
 
 	return roact.createElement("Frame", {
@@ -164,8 +177,20 @@ function ResourceDisplayList:didMount()
 	local StageController = knit.GetController("StageController")
 
 	self.Janitor:Add(StageController.Signals.StageChanged:Connect(function()
+		local resources = {}
+		if StageController.CurrentStage then
+			for _, stageSpawnerData in StageData[StageController.CurrentStage].StageSpawners do
+				for node, _ in stageSpawnerData.Nodes do
+					for resource, _ in NodeData[node].Drops do
+						resources[resource] = resource
+					end
+				end
+			end
+		end
+
 		self:setState({
 			CurrentStage = StageController.CurrentStage,
+			Resources = resources,
 		})
 	end))
 end

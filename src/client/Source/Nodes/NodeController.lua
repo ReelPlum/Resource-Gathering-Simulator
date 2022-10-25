@@ -25,6 +25,7 @@ local NodeController = knit.CreateController({
 })
 
 local Nodes = {}
+local NodesInStage = {}
 
 function NodeController:GetNodeFromId(id)
 	return Nodes[id]
@@ -33,6 +34,11 @@ end
 function NodeController:SpawnNode(id, data)
 	local node = clientNode.new(id, data)
 	Nodes[id] = node
+
+	if not NodesInStage[data.Stage] then
+		NodesInStage[data.Stage] = {}
+	end
+	NodesInStage[data.Stage] = node
 end
 
 function NodeController:GetNearestNode()
@@ -70,7 +76,6 @@ function NodeController:KnitStart()
 			if not node then
 				return
 			end
-
 			NodeService:AttackNode(node.Id)
 		end
 	end)

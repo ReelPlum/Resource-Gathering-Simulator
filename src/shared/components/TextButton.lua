@@ -165,6 +165,7 @@ function TextButton:render()
 
 			Font = props.Font,
 			TextSize = props.TextSize,
+			TextColor = "InverseColor",
 
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0.5, 0, 0.5, 0),

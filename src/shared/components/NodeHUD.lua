@@ -89,7 +89,7 @@ function NodeHUD:render()
 
 	return roact.createElement("BillboardGui", {
 		Adornee = props.Adornee,
-		Size = UDim2.new(0, 250 * self.state.SizeScale.X, 0, 150 * self.state.SizeScale.Y),
+		Size = UDim2.new(0, 300 * self.state.SizeScale.X, 0, 150 * self.state.SizeScale.Y),
 		ClipsDescendants = true,
 		MaxDistance = 50,
 		Enabled = self.Visible,

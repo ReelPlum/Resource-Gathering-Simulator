@@ -158,14 +158,18 @@ function Tool:StartMining(node)
 			self.Signals.Attack:Fire(true)
 			print("Crit!")
 
-			a.Stopped:Wait()
+			if a.IsPlaying then
+				a.Stopped:Wait()
+			end
 			task.wait()
 
 			critAnims[math.random(1, #critAnims)]:Play()
 		else
 			self.Signals.Attack:Fire()
 
-			a.Stopped:Wait()
+			if a.IsPlaying then
+				a.Stopped:Wait()
+			end
 			task.wait()
 
 			mineAnims[math.random(1, #mineAnims)]:Play()

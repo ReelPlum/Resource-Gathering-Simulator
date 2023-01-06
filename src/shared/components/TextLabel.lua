@@ -54,12 +54,6 @@ function TextLabel:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
-		SizeScale = if not self.props.DontScale
-			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
-				1920,
-				1920
-			)
-			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	for index, val in defaultProps do
@@ -103,21 +97,7 @@ function TextLabel:render()
 	return roact.createElement(
 		"TextLabel",
 		{
-			Position = if typeof(props.Position) == "UDim2"
-				then UDim2.new(
-					props.Position.X.Scale,
-					props.Position.X.Offset * self.state.SizeScale.X,
-					props.Position.Y.Scale,
-					props.Position.Y.Offset * self.state.SizeScale.Y
-				)
-				else props.Position:map(function(val)
-					return UDim2.new(
-						val.X.Scale,
-						val.X.Offset * self.state.SizeScale.X,
-						val.Y.Scale,
-						val.Y.Offset * self.state.SizeScale.Y
-					)
-				end),
+			Position = props.Position,
 			BackgroundTransparency = props.BackgroundTransparency,
 			AnchorPoint = props.AnchorPoint,
 			TextXAlignment = props.TextXAlignment,
@@ -126,30 +106,12 @@ function TextLabel:render()
 			ZIndex = props.ZIndex,
 
 			Text = props.Text,
-			Size = if typeof(props.Size) == "UDim2"
-				then UDim2.new(
-					props.Size.X.Scale,
-					props.Size.X.Offset * self.state.SizeScale.X,
-					props.Size.Y.Scale,
-					props.Size.Y.Offset * self.state.SizeScale.Y
-				)
-				else props.Size:map(function(val)
-					return UDim2.new(
-						val.X.Scale,
-						val.X.Offset * self.state.SizeScale.X,
-						val.Y.Scale,
-						val.Y.Offset * self.state.SizeScale.Y
-					)
-				end),
+			Size = props.Size,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			BackgroundColor3 = self.style.BackgroundColor,
 
 			Font = UIThemes.Themes[self.state.Theme][self.props.State][props.Font],
-			TextSize = math.clamp(
-				UIThemes.Themes[self.state.Theme][self.props.State][props.TextSize] * self.state.SizeScale.X,
-				1,
-				100
-			),
+			TextScaled = true,
 			LineHeight = self.style.LineHeight,
 			TextColor3 = if not self.props.TextColor3 then self.style[props.TextColor] else self.props.TextColor3,
 		},
@@ -166,22 +128,6 @@ function TextLabel:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
-		})
-	end))
-
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
-			/ Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
 		})
 	end))
 end

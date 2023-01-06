@@ -9,6 +9,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local ClientController = knit.CreateController({
 	Name = "ClientController",
 	Signals = {
@@ -71,6 +73,16 @@ function ClientController:KnitStart()
 	end)
 end
 
-function ClientController:KnitInit() end
+function ClientController:KnitInit()
+	for _, enum in Enums.Currencies do
+		ClientController.Cache.Currencies[enum] = 0
+	end
+
+	for _, enum in Enums.Resources do
+		ClientController.Cache.Resources[enum] = 0
+	end
+
+	print(ClientController.Cache)
+end
 
 return ClientController

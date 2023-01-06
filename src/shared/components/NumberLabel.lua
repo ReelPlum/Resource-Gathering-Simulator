@@ -84,6 +84,9 @@ function NumberLabel:render()
 		return props.formatter:Format(math.floor(val))
 	end
 
+	warn(props.Size)
+	warn(props.ParentProps)
+
 	return roact.createElement(
 		TextLabel,
 		{
@@ -100,10 +103,8 @@ function NumberLabel:render()
 					self.api:start({
 						Value = vals.Value,
 						config = {
-							tension = 250,
-							friction = 25,
-							mass = 0.25,
-							clamp = true,
+							duration = 0.05,
+							easing = roactSpring.easings.easeOutQuad,
 						},
 					})
 				end
@@ -116,6 +117,8 @@ function NumberLabel:render()
 			Font = props.Font,
 			Type = props.Type,
 			State = props.State,
+
+			ParentProps = props.ParentProps,
 		},
 		roact.createFragment({
 			roact.createElement("UICorner", {

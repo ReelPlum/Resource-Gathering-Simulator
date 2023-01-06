@@ -12,13 +12,22 @@ local signal = require(ReplicatedStorage.Packages.Signal)
 
 local userObj = require(script.Parent.User)
 
+local playerUpgradeData = require(ReplicatedStorage.Data.PlayerUpgradeData)
+
 local UserService = knit.CreateService({
 	Name = "UserService",
 	Client = {
 		PlayerStatChanged = knit.CreateSignal(),
-		InventoryChanged = knit.CreateSignal(),
+		InventoryChanged = knit.CreateSignal(), --Added = {ItemType = Enum, InventoryId = id, NewData = {}}, Removed = {ItemType = Enum, InventoryId = id}
 		CurrencyChanged = knit.CreateSignal(),
 		ResourceChanged = knit.CreateSignal(),
+		ExperienceChanged = knit.CreateSignal(),
+		PetEquipped = knit.CreateSignal(),
+		PiggyBankChanged = knit.CreateSignal(),
+		BoostTimeChanged = knit.CreateSignal(),
+		BoostEnded = knit.CreateSignal(),
+		BoostStarted = knit.CreateSignal(),
+		UnboxableInventoryChanged = knit.CreateSignal(),
 	},
 	Signals = {
 		UserAdded = signal.new(),
@@ -95,6 +104,118 @@ function UserService.Client:GetResources(player)
 	end
 
 	return user.Data.Resources
+end
+
+function UserService.Client:GetPlayerUpgrades(player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.PlayerUpgrades
+end
+
+function UserService.Client:GetActiveBoosts(player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.ActiveBoosts
+end
+
+function UserService.Client:GetExperience(player)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	return user.Data.Experience
+end
+
+function UserService.Client:UpgradePlayerUpgrade(player, playerUpgrade)
+	local user = UserService:GetUserFromPlayer(player)
+	if not user then
+		local finished = false
+		local d
+		d = UserService.Signals.UserAdded:Connect(function(u)
+			if u.Player == player then
+				user = u
+				finished = true
+				d:Disconnect()
+			end
+		end)
+		repeat
+			task.wait()
+		until finished == true
+	end
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	--Check if upgrade exists.
+	if not playerUpgradeData[playerUpgrade] then
+		return
+	end
+
+	--Check if player can upgrade this.
+	local lvl = user.Data.PlayerUpgrades[playerUpgrade] or 0
+	if not playerUpgradeData[playerUpgrade].Levels[lvl + 1] then
+		return
+	end
+
+	--Get price for upgrade and check if user has enough
+	local price = playerUpgradeData[playerUpgrade].Levels[lvl + 1].Price
+	if not user:TakeCurrency(price.Currency, price.Amount) then
+		return
+	end
+
+	--Upgrade stat.
+	user.Data.PlayerUpgrades[playerUpgrade] = lvl + 1
+
+	return user.Data.PlayerUpgrades
 end
 
 function UserService.Client:GetPlayerStatsValues(player: Player)

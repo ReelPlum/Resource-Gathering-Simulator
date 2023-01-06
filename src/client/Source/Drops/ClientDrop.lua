@@ -60,6 +60,15 @@ function ClientDrop.new(location, dropType, drop, value)
 end
 
 function ClientDrop:Spawn()
+	local DropsController = knit.GetController("DropsController")
+
+	if not DropsController[self.DropType][self.Drop] then
+		DropsController[self.DropType][self.Drop] = 0
+	end
+
+	DropsController[self.DropType][self.Drop] += self.Value
+	DropsController.Signals[self.DropType]:Fire(self.Drop, DropsController[self.DropType][self.Drop])
+
 	self.Obj = self.Janitor:Add(Instance.new("Part"))
 
 	self.Obj.Size = Vector3.new(1, 1, 1)
@@ -103,8 +112,11 @@ function ClientDrop:Spawn()
 
 		for _, target in Targets do
 			if hit.Parent == target then
-				self:Destroy()
+				--Picked up drop.
+				DropsController[self.DropType][self.Drop] -= self.Value
+				DropsController.Signals[self.DropType]:Fire(self.Drop, DropsController[self.DropType][self.Drop])
 
+				self:Destroy()
 				break
 			end
 		end
@@ -156,6 +168,11 @@ end
 function ClientDrop:Destroy()
 	self.Signals.Destroying:Fire()
 	self.Janitor:Destroy()
+	self.Destroyed = true
+
+	local DropsController = knit.GetController("DropsController")
+	DropsController:DeleteDrop(self.Id)
+
 	self = nil
 end
 

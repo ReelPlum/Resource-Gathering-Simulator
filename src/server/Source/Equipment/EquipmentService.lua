@@ -13,6 +13,7 @@ local janitor = require(ReplicatedStorage.Packages.Janitor)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local itemData = require(ReplicatedStorage.Data.ItemData)
+local petUpgradesData = require(ReplicatedStorage.Data.PetUpgradesData)
 
 local EquipmentService = knit.CreateService({
 	Name = "EquipmentService",
@@ -20,11 +21,22 @@ local EquipmentService = knit.CreateService({
 		ToolEquipped = knit.CreateSignal(),
 		ToolUnequipped = knit.CreateSignal(),
 		EquippedBestTools = knit.CreateSignal(),
+		PetEquipped = knit.CreateSignal(),
+		PetUnequipped = knit.CreateSignal(),
+		EquippedBestPets = knit.CreateSignal(),
 	},
 	Signals = {},
 })
 
 local ToolToInventoryId = {}
+
+function EquipmentService.Client:GetEquippedTools(player)
+	--Returns the players equipped tools inventory ids
+end
+
+function EquipmentService.Client:GetEquippedPets(player)
+	--Returns players equipped pets inventory ids.
+end
 
 function EquipmentService.Client:EquipBestTools(player)
 	local UserService = knit.GetService("UserService")
@@ -65,6 +77,11 @@ function EquipmentService:EquipBestTools(user)
 		user.Signals.DataLoaded:Wait()
 	end
 
+	for _, id in user.Data.EquippedTools do
+		user:DespawnTool(id)
+	end
+	user.Data.EquippedTools = {}
+
 	local best = {}
 
 	for id, data in user.Data.Inventory[Enums.ItemTypes.Tool] do
@@ -95,95 +112,152 @@ function EquipmentService:EquipBestTools(user)
 
 	--We have now found the best tooltypes the player owns
 	for ToolType, BestTool in best do
-		EquipmentService:EquipTool(user, BestTool.Id)
+		--EquipmentService:EquipTool(user, BestTool.Id)
+		user:SpawnTool(BestTool.Id)
+		table.insert(user.Data.EquippedTools, BestTool.Id)
 	end
 
-	EquipmentService.Client.EquippedBestTools:Fire(user.Player)
+	EquipmentService.Client.EquippedBestTools:Fire(user.Player, user.Data.EquippedTools)
+end
+
+function EquipmentService:EquipBestPets(user)
+	--Go through users pets and find the best. Equip the 4 best pets.
+	local function GetPetScore(pet)
+		--Returns a score used in this ranking algorithm for the given pet
+		local score = 0
+
+		local petData = itemData[Enums.ItemTypes.Pet][pet.Item]
+
+		local boosts = {}
+		for _, enum in Enums.BoostTypes do
+			boosts[enum] = 0
+		end
+
+		--Take pet boosts into consideration
+		for boost, value in petData.Boosts do
+			boosts[boost] += value
+		end
+
+		--Take upgrades into consideration
+		for upgrade, lvl in pet.Enchants do
+			local upgradeData = petUpgradesData[upgrade]
+			if not upgradeData.Levels[lvl] then
+				lvl = #upgradeData.Levels
+			end
+
+			for boost, boostPercentage in upgradeData.Levels[lvl].Boosts do
+				boosts[boost] += boostPercentage
+			end
+		end
+
+		print(petData.Stats[Enums.PetStats.Damage])
+		print(boosts[Enums.BoostTypes.Damage])
+		print(boosts[Enums.BoostTypes.Drops])
+		score += petData.Stats[Enums.PetStats.Damage].Max + boosts[Enums.BoostTypes.Damage] * 100 + boosts[Enums.BoostTypes.Drops] * 100
+
+		return score
+	end
+
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+
+	--Despawn all the users pets
+	for _, pet in user.Pets do
+		user:DespawnPet(pet.InventoryId)
+	end
+	--Set Equippedpets to empty.
+	user.Data.EquippedPets = {}
+
+	local best = {}
+
+	for id, data in user.Data.Inventory[Enums.ItemTypes.Pet] do
+		local score = GetPetScore(data)
+
+		if #best <= 0 then
+			table.insert(best, { Score = score, Id = id })
+			continue
+		end
+		for index, pet in best do
+			if score > pet.Score then
+				table.insert(best, index, { Score = score, Id = id })
+			end
+		end
+	end
+	print(best)
+
+	--Equip best pets.
+	for i = 1, user:GetPetEquipLimit() do
+		if not best[i] then
+			break
+		end
+		table.insert(user.Data.EquippedPets, best[i].Id)
+		user:SpawnPet(best[i].Id)
+	end
+
+	EquipmentService.Client.EquippedBestPets:Fire(user.Player, user.Data.EquippedPets)
 end
 
 function EquipmentService:UnequipTool(user, toolInventoryId)
-	local ToolService = knit.GetService("ToolService")
-
 	if not user.DataLoaded then
 		user.DataLoaded:Wait()
 	end
 
-	if user.Data.Inventory[Enums.ItemTypes.Tool][toolInventoryId] then
-		user.Data.Inventory[Enums.ItemTypes.Tool][toolInventoryId].Equipped = nil
+	user:DespawnTool(toolInventoryId)
+
+	if table.find(user.Data.EquippedTools, toolInventoryId) then
+		table.remove(user.Data.EquippedTools, table.find(user.Data.EquippedTools, toolInventoryId))
 	end
 
 	EquipmentService.Client.ToolUnequipped:Fire(user.Player, toolInventoryId)
-
-	if not ToolToInventoryId[toolInventoryId] then
-		return
-	end
-
-	ToolService:RemoveTool(ToolToInventoryId[toolInventoryId].Id)
 end
 
 function EquipmentService:EquipTool(user, toolInventoryId)
-	local ToolService = knit.GetService("ToolService")
-
 	if not user.DataLoaded then
 		user.DataLoaded:Wait()
 	end
 
-	local tool = user.Data.Inventory[Enums.ItemTypes.Tool][toolInventoryId]
-	if not tool then
-		return
-	end
-
-	local toolObj = ToolService:CreateTool(user, tool.Item, toolInventoryId)
-	ToolToInventoryId[toolInventoryId] = toolObj
-
-	if user.Tools[toolObj.ToolData.ToolType] then
-		EquipmentService:UnequipTool(user, user.Tools[toolObj.ToolData.ToolType].InventoryId)
-	end
-
-	tool.Equipped = true
-	user.Tools[toolObj.ToolData.ToolType] = toolObj
+	user:SpawnTool(toolInventoryId)
+	table.insert(user.Data.EquippedTools, toolInventoryId)
 
 	EquipmentService.Client.ToolEquipped:Fire(user.Player, toolInventoryId)
 end
 
-function EquipmentService:GiveUserEquippedTools(user)
-	--Loop through user and give the equipped tools
+function EquipmentService:EquipPet(user, inventoryId)
 	if not user.DataLoaded then
-		user.DataLoaded:Wait()
+		user.Signals.DataLoaded:Wait()
 	end
 
-	for inventoryId, tool in user.Data.Inventory[Enums.ItemTypes.Tool] do
-		if tool.Equipped then
-			EquipmentService:EquipTool(user, inventoryId)
-		end
+	if table.find(user.Data.EquippedPets, inventoryId) then
+		return --Already equipped
 	end
+
+	if #user.Data.EquippedPets >= user:GetPetEquipLimit() then
+		return
+	end
+
+	table.insert(user.EquippedPets, inventoryId)
+	user:SpawnPet(inventoryId)
+
+	EquipmentService.Client.PetEquipped:Fire(user.Player, inventoryId)
 end
 
-function EquipmentService:KnitStart()
-	local UserService = knit.GetService("UserService")
-
-	local function ListenToUser(user)
-		local j = janitor.new()
-
-		j:Add(user.Signals.ItemRemovedFromInventory:Connect(function(itemType, inventoryId)
-			if itemType == Enums.ItemTypes.Tool then
-				EquipmentService:UnequipTool(user, inventoryId)
-			elseif itemType == Enums.ItemTypes.Pet then
-				--Unequip pets.
-			end
-		end))
-
-		j:Add(user.Signals.Destroying:Connect(function()
-			j:Destroy()
-		end))
+function EquipmentService:UnequipPet(user, inventoryId)
+	if not user.DataLoaded then
+		user.Signals.DataLoaded:Wait()
+	end
+	if not table.find(self.Data.EquippedPets, inventoryId) then
+		return
 	end
 
-	for _, user in UserService:GetUsers() do
-		ListenToUser(user)
-	end
+	table.remove(self.Data.EquippedPets, table.find(self.Data.EquippedPets, inventoryId))
 
-	UserService.Signals.UserAdded:Connect(ListenToUser)
+	user:DespawnPet(inventoryId)
+
+	EquipmentService.Client.UnequippedPet:Fire(user.Player, inventoryId)
 end
+
+function EquipmentService:KnitStart() end
 
 function EquipmentService:KnitInit() end
 

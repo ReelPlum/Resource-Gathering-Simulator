@@ -129,7 +129,7 @@ function TextButton:render()
 		return size + Vector2.new(10, 0) --Find out how to do autosize properly :)
 	end
 
-	return roact.createElement(Button, {
+	local parentProps = {
 		Size = UDim2.new(
 			0,
 			math.clamp(getSize().X, props.Size.X.Offset, math.huge),
@@ -151,7 +151,11 @@ function TextButton:render()
 		EnterSize = props.EnterSize,
 
 		[roact.Event.Activated] = self.props[roact.Event.Activated],
-	}, {
+
+		ParentProps = self.props.ParentProps,
+	}
+
+	return roact.createElement(Button, parentProps, {
 		roact.createElement(TextLabel, {
 			Size = UDim2.new(1, 0, 1, 0),
 			Text = props.Text,
@@ -170,6 +174,8 @@ function TextButton:render()
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
+
+			ParentProps = parentProps,
 		}),
 	})
 end

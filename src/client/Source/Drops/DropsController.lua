@@ -9,13 +9,21 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local knit = require(ReplicatedStorage.Packages.Knit)
 local signal = require(ReplicatedStorage.Packages.Signal)
 
+local Enums = require(ReplicatedStorage.Common.CustomEnums)
+
 local ClientDropClass = require(script.Parent.ClientDrop)
 
 local StackSize = 10
 
 local DropsController = knit.CreateController({
 	Name = "DropsController",
-	Signals = {},
+	Signals = {
+		[Enums.DropTypes.Currency] = signal.new(),
+		[Enums.DropTypes.Resource] = signal.new(),
+	},
+
+	[Enums.DropTypes.Currency] = {}, --The value of the dropped resources
+	[Enums.DropTypes.Resource] = {}, --The value of the dropped currencies
 })
 
 local Drops = {}
@@ -32,6 +40,10 @@ function DropsController:KnitStart()
 	local DropsService = knit.GetService("DropsService")
 
 	DropsService.SpawnDropsAtLocation:Connect(function(location, dropType, drops)
+		if dropType == Enums.DropTypes.Experience then
+			return
+		end
+
 		for drop, amount in drops do
 			task.spawn(function()
 				if StackSize > amount then
@@ -58,6 +70,16 @@ function DropsController:KnitStart()
 	end)
 end
 
-function DropsController:KnitInit() end
+function DropsController:KnitInit()
+	for _, enum in Enums.Currencies do
+		DropsController[Enums.DropTypes.Currency][enum] = 0
+	end
+
+	for _, enum in Enums.Resources do
+		DropsController[Enums.DropTypes.Resource][enum] = 0
+	end
+
+	print(DropsController[Enums.DropTypes.Currency])
+end
 
 return DropsController

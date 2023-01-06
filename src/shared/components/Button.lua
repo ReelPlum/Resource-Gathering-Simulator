@@ -67,12 +67,6 @@ function Button:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
-		SizeScale = if not self.props.DontScale
-			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
-				1920,
-				1920
-			)
-			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	local t = { Size = self.props.Size, HoverDown = 0, HoverPos = UDim2.new(0, 0) }
@@ -94,17 +88,22 @@ end
 function Button:render()
 	local props = self.props
 
-	if self.LastSize ~= props.Size then
-		self.LastSize = props.Size
+	if
+		self.LastSize
+		~= props.Size
+	then
+		self.LastSize =
+			props.Size
 
 		local size = props.Size
 		if self.Entered and not self.MouseDown then
-			size = props.Size + props.EnterSize
+			size = props.Size
+				+ props.EnterSize
 		elseif self.MouseDown then
-			size = props.Size + props.EnterSize + props.ReactionSize
+			size = props.Size
+				+ props.EnterSize
+				+ props.ReactionSize
 		end
-
-		print(self.props.State)
 
 		self.api:start({
 			Size = size,
@@ -151,7 +150,12 @@ function Button:render()
 				self.MouseDown = true
 				print(self.props.State)
 				self.api:start({
-					Size = props.Size + props.EnterSize + props.ReactionSize,
+					Size = UDim2.new(
+						props.Size.X.Scale + self.sizingScale.X,
+						0,
+						props.Size.Y.Scale + self.sizingScale.Y,
+						0
+					) + props.EnterSize + props.ReactionSize,
 					config = {
 						mass = 1,
 						friction = 26.0,
@@ -174,7 +178,9 @@ function Button:render()
 			[roact.Event.MouseButton1Up] = function(...)
 				self.MouseDown = false
 				self.api:start({
-					Size = if self.Entered then props.Size + props.EnterSize else props.Size,
+					Size = if self.Entered
+						then props.Size + props.EnterSize
+						else props.Size,
 					config = {
 						mass = 1,
 						Random = math.random(1, 100),
@@ -269,20 +275,8 @@ function Button:render()
 	})
 
 	return roact.createElement("Frame", {
-		Size = self.style.Size:map(function(val)
-			return UDim2.new(
-				val.X.Scale,
-				val.X.Offset * self.state.SizeScale.X,
-				val.Y.Scale,
-				val.Y.Offset * self.state.SizeScale.Y
-			)
-		end),
-		Position = UDim2.new(
-			props.Position.X.Scale,
-			props.Position.X.Offset * self.state.SizeScale.X,
-			props.Position.Y.Scale,
-			props.Position.Y.Offset * self.state.SizeScale.Y
-		),
+		Size = self.style.Size,
+		Position = props.Position,
 		AnchorPoint = props.AnchorPoint,
 		BackgroundTransparency = props.BackgroundTransparency,
 		Rotation = props.Rotation,
@@ -305,22 +299,6 @@ function Button:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
-		})
-	end))
-
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
-			/ Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
 		})
 	end))
 end

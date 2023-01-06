@@ -72,6 +72,19 @@ local CustomEnums = {
 	["PlayerStats"] = {
 		["DestroyedNodes"] = "1",
 		["Playtime"] = "2",
+		["Unboxing"] = "3",
+		["Boosts"] = "4",
+		["BoughtStages"] = "5",
+		["ClaimedPlaytimeRewards"] = "6",
+		["UniquePets"] = "7",
+		["PetEnchants"] = "8",
+		["PlayerUpgrades"] = "9",
+		["CompletedTrades"] = "10",
+		["Craftings"] = "11",
+		["BoughtDeals"] = "12",
+		["CompletedBadges"] = "13",
+		["BoughtPiggyBanks"] = "14",
+		["CompletedQuests"] = "15",
 	},
 	["Boosts"] = {
 		["MoreResources"] = "1",
@@ -80,20 +93,47 @@ local CustomEnums = {
 		["Drops"] = "1",
 		["Damage"] = "2",
 		["MineDistance"] = "3",
+		["PetLimit"] = "4",
+		["Luck"] = "5",
 	},
 	["Pets"] = {
 		["TestPet"] = "1",
 	},
 	["PetStats"] = {
 		["WalkSpeed"] = "1",
-		["Damage"] = "1",
+		["Damage"] = "2",
 	},
 	["DropTypes"] = {
 		["Resource"] = "1",
 		["Currency"] = "2",
+		["Experience"] = "3",
 	},
 	["Recipes"] = {
 		["TestRecipe"] = "1",
+	},
+	["Quests"] = {
+		["TestQuest"] = "1",
+	},
+	["PlayerUpgrades"] = {
+		["Damage"] = "1",
+		["PetLimit"] = "2",
+	},
+	["PetUpgrades"] = {
+		["Damage"] = "1",
+	},
+	["Unboxables"] = {
+		["Test"] = "1",
+	},
+	["PetVisual"] = {
+		["Normal"] = "1",
+		["Golden"] = "2",
+		["Rainbow"] = "3",
+	},
+	["SocialMedia"] = {
+		["Twitter"] = "1",
+		["Discord"] = "2",
+		["RobloxGroup"] = "3",
+		["Friends"] = "4",
 	},
 }
 

@@ -12,6 +12,8 @@ local knit = require(ReplicatedStorage.Packages.Knit)
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 local NodeService = if RunService:IsServer() then knit.GetService("NodeService") else nil
+local UserService = if RunService:IsServer() then knit.GetService("UserService") else nil
+local UnboxingService = if RunService:IsServer() then knit.GetService("UnboxingService") else nil
 
 return {
 	[Enums.PlayerStats.DestroyedNodes] = {
@@ -56,5 +58,37 @@ return {
 		end,
 		Trigger = nil,
 		CheckFunction = nil,
+	},
+
+	[Enums.PlayerStats.Unboxing] = {
+		DisplayName = "Unboxings",
+		RequirementText = function(Requirements)
+			local unboxableData = require(ReplicatedStorage.Data.UnboxableData)
+
+			local txt = ""
+			for _, unboxable in Requirements do
+				if txt ~= "" then
+					txt = txt .. " or " .. unboxableData[unboxable].DisplayName
+				else
+					txt = unboxableData[unboxable].DisplayName
+				end
+			end
+			return "Unbox %s " .. txt
+		end,
+		Trigger = if RunService:IsServer() then UnboxingService.Signals.UserUnboxed else nil,
+		CheckFunction = function(user, user1, unboxable, chosenItem, enchants)
+			if not user == user1 then
+				return
+			end
+
+			return true
+		end,
+		GetData = function(user, user1, unboxable, chosenItem, enchants)
+			return {
+				Type = chosenItem,
+				Unboxable = unboxable,
+				Enchants = enchants,
+			}
+		end,
 	},
 }

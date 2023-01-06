@@ -13,12 +13,19 @@ local Enums = require(ReplicatedStorage.Common.CustomEnums)
 return {
 	[Enums.Worlds.TestWorld] = {
 		DisplayName = "Test World",
-    Currency = Enums.Currencies.Coins,
+		Currency = Enums.Currencies.Coins,
 		OnEntry = function(localPlayer)
-      --For post processing. Executed on the client.
-      local j = janitor.new()
+			--For post processing. Executed on the client.
+			local j = janitor.new()
 
-      return j
-    end,
+			return j
+		end,
+		PlaytimeRewards = {
+			Boost = 1, --How much more will the player be given? (Experience and currency)
+			Currency = Enums.Currencies.Coins,
+      Eggs = {
+        --The eggs the player will be able to recieve.
+      },
+		},
 	},
 }

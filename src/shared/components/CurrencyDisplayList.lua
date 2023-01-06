@@ -43,6 +43,12 @@ local CurrencyDisplayList = roact.Component:extend("CurrencyDisplayList")
 function CurrencyDisplayList:init()
 	self.Janitor = janitor.new()
 
+	for index, val in defaultProps do
+		if not self.props[index] then
+			self.props[index] = val
+		end
+	end
+
 	local StageController = knit.GetController("StageController")
 
 	local currencies = {}
@@ -56,23 +62,31 @@ function CurrencyDisplayList:init()
 		end
 	end
 
+	self.parentSize = UDim2.new(0, 0, 0, 0)
+
+	if not self.props.ParentProps then
+		--Parent must be viewport size
+		self.parentSize = UDim2.new(0, 1920, 0, 1080)
+	elseif self.props.ParentProps.Size then
+		self.parentSize = self.props.ParentProps.Size
+	end
+
+	--Set sizingScale and positionsing scale
+	self.sizingScale = Vector2.new(
+		self.props.Size.X.Offset / self.parentSize.X.Offset,
+		self.props.Size.Y.Offset / self.parentSize.Y.Offset
+	)
+
+	self.positioningScale = Vector2.new(
+		self.props.Position.X.Offset / self.parentSize.X.Offset,
+		self.props.Position.Y.Offset / self.parentSize.Y.Offset
+	)
+
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
-		SizeScale = if not self.props.DontScale
-			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
-				1920,
-				1920
-			)
-			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 		CurrentStage = StageController.CurrentStage,
 		Currencies = currencies,
 	})
-
-	for index, val in defaultProps do
-		if not self.props[index] then
-			self.props[index] = val
-		end
-	end
 
 	local t = {}
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][Enums.UIStates.Primary] do
@@ -106,6 +120,14 @@ function CurrencyDisplayList:render()
 	end
 	self.api:start(t)
 
+	local parentProps = {
+		BackgroundTransparency = 1,
+		AnchorPoint = props.AnchorPoint,
+		Size = props.Size,
+		Position = props.Position,
+	}
+
+	local p = table.clone(parentProps)
 	local currencies = {}
 	if self.state.CurrentStage then
 		for _, currency in self.state.Currencies do
@@ -116,6 +138,8 @@ function CurrencyDisplayList:render()
 					Size = UDim2.new(props.Size.X.Scale, props.Size.X.Offset, 0, 50),
 					ImageSize = UDim2.new(0, 50, 0, 50),
 					DontScale = props.DontScale,
+
+					ParentProps = p,
 				})
 			)
 		end
@@ -128,25 +152,26 @@ function CurrencyDisplayList:render()
 			VerticalAlignment = Enum.VerticalAlignment.Bottom,
 			FillDirection = Enum.FillDirection.Vertical,
 		}),
+		roact.createElement("UIAspectRatioConstraint", {
+			AspectRatio = (self.props.Size.X.Offset + self.props.Size.X.Scale * self.parentSize.X.Offset)
+				/ (self.props.Size.Y.Offset + self.props.Size.Y.Scale * self.parentSize.Y.Offset),
+			DominantAxis = Enum.DominantAxis.Width,
+			AspectType = Enum.AspectType.FitWithinMaxSize,
+		}),
 		unpack(currencies),
 	})
 
-	return roact.createElement("Frame", {
-		BackgroundTransparency = 1,
-		AnchorPoint = props.AnchorPoint,
-		Size = UDim2.new(
-			props.Size.X.Scale,
-			props.Size.X.Offset * self.state.SizeScale.X,
-			props.Size.Y.Scale,
-			props.Size.Y.Offset * self.state.SizeScale.Y
-		),
-		Position = UDim2.new(
-			props.Position.X.Scale,
-			props.Position.X.Offset,
-			props.Position.Y.Scale,
-			props.Position.Y.Offset
-		),
-	}, {
+	parentProps.Size =
+		UDim2.new(self.props.Size.X.Scale + self.sizingScale.X, 0, self.props.Size.Y.Scale + self.sizingScale.Y, 0)
+
+	parentProps.Position = UDim2.new(
+		props.Position.X.Scale + self.positioningScale.X,
+		0,
+		props.Position.Y.Scale + self.positioningScale.Y,
+		0
+	)
+
+	return roact.createElement("Frame", parentProps, {
 		children,
 	})
 end
@@ -155,22 +180,6 @@ function CurrencyDisplayList:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
-		})
-	end))
-
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
-			/ Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
 		})
 	end))
 

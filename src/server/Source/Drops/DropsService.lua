@@ -125,6 +125,11 @@ function DropsService:DropCurrenciesAtLocation(user, currencies: table, amount: 
 	return chosen
 end
 
+function DropsService:DropExperienceAtNode(user, node, amount)
+	--Drops the given amount of experience for the given user at the given node.
+	DropsService.Client.SpawnDropsAtLocation:Fire(user.Player, node.Position, Enums.DropTypes.Experience, amount)
+end
+
 function DropsService:KnitStart() end
 
 function DropsService:KnitInit() end

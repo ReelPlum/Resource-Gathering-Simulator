@@ -124,6 +124,7 @@ function Node:DropResources(amount, health)
 			* math.clamp(data.Damage / health, 0, 1)
 			* enchants[Enums.BoostTypes.Drops]
 			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
+			* user:GetAllBoosts()[Enums.BoostTypes.Drops]
 
 		if #self.NodeData.Drops <= 0 then
 			local resources = DropsService:DropResourcesAtNode(user, self.NodeData.Drops, dropAmount, self)
@@ -154,9 +155,7 @@ function Node:DropCurrencies(amount, health)
 			* math.clamp(data.Damage / health, 0, 1)
 			* enchants[Enums.BoostTypes.Drops]
 			* nodeRarityData[self.Rarity].Boosts[Enums.BoostTypes.Drops]
-			* user:GetActiveBoosts()[Enums.BoostTypes.Drops]
-			* user:GetPetBoosts()[Enums.BoostTypes.Drops]
-			* user:GetUpgradeBoosts()[Enums.BoostTypes.Drops]
+			* user:GetAllBoosts()[Enums.BoostTypes.Drops]
 
 		if #self.NodeData.Currencies <= 0 then
 			local currencies = DropsService:DropCurrenciesAtNode(user, self.NodeData.Currencies, dropAmount, self)
@@ -165,6 +164,19 @@ function Node:DropCurrencies(amount, health)
 				user:GiveCurrency(currency, a)
 			end
 		end
+	end
+end
+
+function Node:DropExperience(amount, health)
+	local DropsService = knit.GetService("DropsService")
+
+	for user, data in self.DamageDone do
+		local dropAmount = amount * math.clamp(data.Damage / health, 0, 1)
+
+		dropAmount = math.clamp(dropAmount, 1, math.huge)
+
+		DropsService:DropExperienceAtNode(user, self, dropAmount)
+		user:GiveExperience(dropAmount)
 	end
 end
 
@@ -208,6 +220,9 @@ function Node:CheckHealth()
 		--Drop resources
 		self:DropResources(self.StageNodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
 		self:DropCurrencies(self.StageNodeData.DropAmountOnDestruction:GetRandomNumber(), self.MaxHealth)
+
+		--Give experience
+		self:DropExperience(self.StageNodeData.ExperienceAmount:GetRandomNumber(), self.MaxHealth)
 
 		self:Destroy()
 	end
@@ -258,6 +273,9 @@ function Node:Damage(user, tool, crit)
 	end
 
 	dmg = tool.ToolData.Strength / self.StageNodeData.Resistance * dmg * enchantsMultipliers[Enums.BoostTypes.Damage]
+
+	--Add on boosts.
+	dmg = dmg * user:GetAllBoosts()[Enums.BoostTypes.Damage]
 
 	self:TakeDamage(dmg, user, crit)
 end

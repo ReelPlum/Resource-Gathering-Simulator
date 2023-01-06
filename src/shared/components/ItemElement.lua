@@ -124,22 +124,6 @@ function InventoryItemElement:didMount()
 			Theme = newTheme,
 		})
 	end))
-
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
-			/ Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
-		})
-	end))
 end
 
 function InventoryItemElement:willUnmount()

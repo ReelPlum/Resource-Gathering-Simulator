@@ -61,24 +61,7 @@ function UIStroke:render()
 	})
 end
 
-function UIStroke:didMount()
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local vs = workspace.CurrentCamera.ViewportSize.X
-
-		local s = Vector2.new(vs, vs) / Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
-		})
-	end))
-end
+function UIStroke:didMount() end
 
 function UIStroke:willUnmount()
 	self.Janitor:Destroy()

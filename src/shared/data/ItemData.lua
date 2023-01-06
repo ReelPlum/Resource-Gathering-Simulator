@@ -9,6 +9,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 local RandomRange = require(ReplicatedStorage.Common.RandomRange)
 
+local Names = require(ReplicatedStorage.Data.Names)
+
 return {
 	[Enums.ItemTypes.Tool] = {
 		[Enums.Tools.TestTool] = {
@@ -20,6 +22,12 @@ return {
 			Tool = ReplicatedStorage.Assets.Tools.Pickaxe,
 			Animations = ReplicatedStorage.Assets.Animations["Tool Animations"].Default,
 			CritChance = 15, --In percent
+			DefaultMetaData = function()
+				return {}
+			end,
+			DefaultEnchants = function()
+				return {}
+			end,
 		},
 	},
 
@@ -35,9 +43,21 @@ return {
 				[Enums.PetStats.WalkSpeed] = 16,
 				[Enums.PetStats.Damage] = RandomRange.new(5, 10),
 			},
-			Model = nil,
+			Models = {
+				[Enums.PetVisual.Normal] = nil,
+				[Enums.PetVisual.Golden] = nil,
+				[Enums.PetVisual.Rainbow] = nil,
+			},
 			Animations = nil,
 			Effects = nil, --Modulescript with effects for the pet.
+			DefaultMetaData = function()
+				return {
+					Name = Names:GetRandomName(),
+				}
+			end,
+			DefaultEnchants = function()
+				return {}
+			end,
 		},
 	},
 
@@ -46,9 +66,16 @@ return {
 			DisplayName = "2X Resources",
 			Image = "11111",
 			Color = Color3.fromRGB(255, 208, 0),
+			Duration = 60 * 60, --Duration in seconds
 			Boosts = {
 				[Enums.BoostTypes.Drops] = 2,
 			},
+			DefaultMetaData = function()
+				return {}
+			end,
+			DefaultEnchants = function()
+				return {}
+			end,
 		},
 	},
 }

@@ -47,12 +47,6 @@ function Background:init()
 
 	self:setState({
 		Theme = UIThemes.CurrentTheme,
-		SizeScale = if not self.props.DontScale
-			then Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X) / Vector2.new(
-				1920,
-				1920
-			)
-			else Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
 	})
 
 	for index, val in defaultProps do
@@ -63,7 +57,11 @@ function Background:init()
 
 	self.visible, self.setVisible = roact.createBinding(self.props.Visible)
 
-	local t = { Size = self.props.Size, CornerRadiusStar = 0 }
+	local t = {
+		Size = self.props.Size,
+		Position = self.props.Position,
+		CornerRadiusStar = 0,
+	}
 	for index, val in UIThemes.Themes[UIThemes.CurrentTheme][self.props.State] do
 		if not table.find(supportedTypes, typeof(val)) then
 			continue
@@ -110,9 +108,7 @@ function Background:render()
 				end),
 		}),
 		roact.createElement("UIStroke", {
-			Thickness = self.style.BorderSizePixel:map(function(val)
-				return val * self.state.SizeScale.X
-			end),
+			Thickness = self.style.BorderSizePixel,
 			Color = self.style.BorderColor,
 			Transparency = self.style.BorderTransparency,
 		}),
@@ -122,22 +118,21 @@ function Background:render()
 		BackgroundColor3 = self.style.BackgroundColor,
 
 		AnchorPoint = props.AnchorPoint,
-		Position = UDim2.new(
-			props.Position.X.Scale,
-			props.Position.X.Offset * self.state.SizeScale.X,
-			props.Position.Y.Scale,
-			props.Position.Y.Offset * self.state.SizeScale.Y
-		),
+		Position = self.style.Position,
 		ZIndex = props.ZIndex,
 		Rotation = props.Rotation,
 		Visible = roact.joinBindings({ visible = props.Visible, size = self.style.Size }):map(function(vals)
-			local visible = vals.size.X.Offset > 0 and vals.size.Y.Offset > 0
+			local visible = vals.size.X.Scale > 0 and vals.size.Y.Scale > 0
 			if vals.visible ~= self.LastVisible then
 				self.LastVisible = vals.visible
 
+				print(UDim2.new(props.Size.X.Scale + self.sizingScale.X, 0, props.Size.Y.Scale + self.sizingScale.Y, 0))
+
 				if vals.visible then
+					print(vals.visible)
 					self.api:start({
 						Size = props.Size,
+						Position = props.Position,
 						CornerRadiusStar = 0,
 						config = {
 							tension = 750,
@@ -148,6 +143,7 @@ function Background:render()
 				else
 					self.api:start({
 						Size = UDim2.new(0, 0, 0, 0),
+						Position = props.Position + UDim2.new(0, 0, 0, 15),
 						CornerRadiusStar = 1,
 						config = {
 							tension = 750,
@@ -160,14 +156,7 @@ function Background:render()
 			return visible
 		end),
 
-		Size = self.style.Size:map(function(val)
-			return UDim2.new(
-				val.X.Scale,
-				val.X.Offset * self.state.SizeScale.X,
-				val.Y.Scale,
-				val.Y.Offset * self.state.SizeScale.Y
-			)
-		end),
+		Size = self.style.Size,
 		--GroupTransparency = self.style.CornerRadiusStar,
 
 		BorderSizePixel = 0,
@@ -179,22 +168,6 @@ function Background:didMount()
 	self.Janitor:Add(UIThemes.ThemeChanged:Connect(function(newTheme)
 		self:setState({
 			Theme = newTheme,
-		})
-	end))
-
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
-			/ Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
 		})
 	end))
 end

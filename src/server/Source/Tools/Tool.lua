@@ -56,6 +56,8 @@ function Tool.new(user, tool, inventoryId)
 end
 
 function Tool:Load()
+	--Check if tool has a skin equipped for the player. If so, then change the current model to that model.
+
 	--Mine loop
 	self.Janitor:Add(RunService.Heartbeat:Connect(function()
 		if not self.Equipped then
@@ -207,6 +209,20 @@ function Tool:StopMining()
 	self.MineJanitor:Cleanup()
 
 	self.CurrentTarget = nil
+end
+
+function Tool:SetSkin()
+	--Changes the skin for the tool
+
+	--Check if user has the skin
+
+	--If user is using the tool, then wait.
+
+	--Change the model of the tool to the new model.
+
+	--Save, so this will be equipped next time too.
+
+	--Tell client a new skin has been equipped for this tool.
 end
 
 function Tool:Destroy()

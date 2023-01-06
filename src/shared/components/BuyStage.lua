@@ -90,20 +90,24 @@ function BuyStage:render()
 	local props = self.props
 	local sd = StageData[self.state.Stage] --stagedata
 
-	return roact.createElement(Background, {
+	local parentProps = {
 		Size = UDim2.new(0, 300 * 2 + 5 + 20, 0, 90 * 2.5 + 10 + 20) + UDim2.new(0, 20, 0, 150),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Visible = self.Visible,
 		ZIndex = -1,
 		DontScale = props.DontScale,
-	}, {
+	}
+
+	return roact.createElement(Background, parentProps, {
 		roact.createFragment({
 			roact.createElement(CloseButton, {
 				Position = UDim2.new(1, -10, 0, 10),
 				AnchorPoint = Vector2.new(1, 0),
 				Size = UDim2.new(0, 35, 0, 35),
 				Event = self.CloseEvent,
+
+				ParentProps = parentProps,
 			}),
 			roact.createElement(TextLabel, {
 				Size = UDim2.new(500, 0, 0, 150),
@@ -116,6 +120,8 @@ function BuyStage:render()
 				TextSize = "HeaderSize",
 				State = Enums.UIStates.Primary,
 				Text = if sd then sd.DisplayName else "",
+
+				ParentProps = parentProps,
 			}),
 			roact.createElement(RequirementList, {
 				Data = self.state.Data,
@@ -126,6 +132,7 @@ function BuyStage:render()
 				CellPadding = UDim2.new(0, 5 * self.state.SizeScale.X, 0, 5 * self.state.SizeScale.Y),
 				BackgroundTransparency = 1,
 				State = Enums.UIStates.Primary,
+				ParentProps = parentProps,
 			}),
 			roact.createElement(TextButton, {
 				Size = UDim2.new(0, 275, 0, 50),
@@ -138,6 +145,7 @@ function BuyStage:render()
 					local StageController = knit.GetController("StageController")
 					StageController:BuyStage(self.state.Stage)
 				end,
+				ParentProps = parentProps,
 			}),
 		}),
 	})
@@ -184,22 +192,6 @@ function BuyStage:didMount()
 			Stage = self.CurrentStage.Stage,
 		})
 		self.SetVisible(visible)
-	end))
-
-	self.Janitor:Add(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		if self.props.DontScale then
-			self:setState({
-				SizeScale = Vector2.new(1920, 1080) / Vector2.new(1920, 1080),
-			})
-			return
-		end
-
-		local s = Vector2.new(workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.X)
-			/ Vector2.new(1920, 1920)
-
-		self:setState({
-			SizeScale = s,
-		})
 	end))
 end
 

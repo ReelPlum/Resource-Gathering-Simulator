@@ -31,13 +31,13 @@ return {
     Type = Enums.EnchantmentType.Tool,
 		Levels = {
 			[1] = {
-				[Enums.BoostTypes.Damage] = 1.1, --Gives a drops multiplier of 1.1
+				[Enums.BoostTypes.Damage] = 0.1, --Gives a drops multiplier of 0.1
 			},
 			[2] = {
-				[Enums.BoostTypes.Damage] = 1.3,
+				[Enums.BoostTypes.Damage] = 0.3,
 			},
 			[3] = {
-				[Enums.BoostTypes.Damage] = 1.65,
+				[Enums.BoostTypes.Damage] = 0.65,
 			},
 		},
 	},

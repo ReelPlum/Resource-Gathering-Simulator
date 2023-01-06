@@ -33,7 +33,7 @@ local BuyStageUI = require(ReplicatedStorage.Components.BuyStage)
 local CurrentDisplayList = require(ReplicatedStorage.Components.CurrencyDisplayList)
 local ResourceDisplayList = require(ReplicatedStorage.Components.ResourceDisplayList)
 
-function UIController:KnitInit()
+function UIController:KnitStart()
 	roact.mount(
 		roact.createElement("ScreenGui", {
 			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -48,7 +48,7 @@ function UIController:KnitInit()
 			}),
 			roact.createElement(ResourceDisplayList, {
 				DontScale = false,
-			})
+			}),
 		}),
 		LocalPlayer:WaitForChild("PlayerGui")
 	)

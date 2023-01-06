@@ -64,6 +64,7 @@ function CloseButton:render()
 		[roact.Event.Activated] = function()
 			props.Event:Fire()
 		end,
+		ParentProps = self.props.ParentProps,
 	})
 end
 

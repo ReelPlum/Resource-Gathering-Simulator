@@ -9,13 +9,22 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Enums = require(ReplicatedStorage.Common.CustomEnums)
 
 return {
-	JoinedAt = os.time(),
+	JoinedAt = DateTime.now().UnixTimestamp,
 	Resources = {},
 	Currencies = {},
+	Experience = 0,
 	EquippedTools = {},
+	EquippedPets = {},
+	UnboxableInventory = {},
+	UnboxIndex = {}, --Index for every item player has unboxed with a date for first unbox
+	ItemIndex = {}, --Index for every item player has owned ever along with date for first own date.
+	PetLimit = 4,
 	InventorySizes = { --Can be upgraded
 		[Enums.ItemTypes.Pet] = 25,
 		[Enums.ItemTypes.Tool] = 10,
+	},
+	PlayerUpgrades = {
+		--Contains the upgrades the player has bought and upgraded.
 	},
 	Inventory = {
 		--[[
@@ -34,6 +43,27 @@ return {
 		}
 		]]
 	},
+	PiggyBank = {
+		Items = {
+			--[[
+			[itemtype] = {
+				[item] = number
+			}
+		]]
+		},
+		Currencies = {
+			--[[
+				[currency] = number
+			]]
+		},
+		Resources = {
+			--[[
+				[resource] = number
+			]]
+		},
+	},
+	Quests = {},
+	CompletedQuests = {},
 	ActiveBoosts = {},
 	PlaytimeGiftsAvailable = {},
 	PlaytimeGiftsStreak = 0,
@@ -84,7 +114,10 @@ return {
 			}
 		]]
 	},
-
+	SocialMedia = {
+		TwitterVerified = false,
+	},
+	ClaimedSocailMediaCodes = {},
 	Monitization = {
 		DeveloperProducts = {
 			--[[
